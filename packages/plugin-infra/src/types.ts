@@ -719,6 +719,7 @@ export enum PluginId {
     PoolTogether = 'com.pooltogether',
     UnlockProtocol = 'com.maskbook.unlockprotocol',
     FileService = 'com.maskbook.fileservice',
+    Referral = 'com.maskbook.referral',
 }
 
 export interface Pagination {

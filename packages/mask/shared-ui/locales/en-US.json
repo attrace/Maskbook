@@ -1003,5 +1003,10 @@
     "nft_button_add_collectible": "Add Collectible",
     "nft_avatar": "NFT Avatar",
     "plugin_profile_no_wallets": "Connect your wallet here.<br/>This section will be shown to your encrypted friends.<br/>The display content includes digital art, donations, badges<br/>and other public information on chain.",
-    "plugin_vcent_last_offer_at": "LATEST OFFER at"
+    "plugin_vcent_last_offer_at": "LATEST OFFER at",
+    "plugin_referral": "Referral Farming",
+    "referral_farms_short_desc": " distributes yield farming alike returns for successful referrals",
+    "how_it_works": "How it Works",
+    "select_a_token_desc": "Select a token to be promoted and define daily rewards to participants, as well as total referral farm rewards.",
+    "create_referral_farm_desc": "Create a farm to incentivise promotion of a token"
 }

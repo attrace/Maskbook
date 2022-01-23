@@ -13,6 +13,7 @@ import { ClaimAllDialog } from '../../plugins/ITO/SNSAdaptor/ClaimAllDialog'
 import { EntrySecondLevelDialog } from './EntrySecondLevelDialog'
 import { NetworkTab } from './NetworkTab'
 import { TraderDialog } from '../../plugins/Trader/SNSAdaptor/trader/TraderDialog'
+import { ReferralDialog } from '../../plugins/Referral/SNSAdaptor/ReferralDialog'
 import { NetworkPluginID, PluginId, usePluginIDContext } from '@masknet/plugin-infra'
 
 const useStyles = makeStyles()((theme) => ({
@@ -136,6 +137,14 @@ export function ApplicationBoard({ secondEntries, secondEntryChainTabs }: MaskAp
         open: isClaimAllDialogOpen,
         onOpen: onClaimAllDialogOpen,
         onClose: onClaimAllDialogClose,
+    } = useControlledDialog()
+    // #endregion
+
+    // #region Referral
+    const {
+        open: isReferralDialogOpen,
+        onOpen: onReferralDialogOpen,
+        onClose: onReferralDialogClose,
     } = useControlledDialog()
     // #endregion
 
@@ -281,6 +290,13 @@ export function ApplicationBoard({ secondEntries, secondEntryChainTabs }: MaskAp
             isFlow,
         ),
         createEntry(
+            'Referral Farming',
+            new URL('./assets/referral.png', import.meta.url).toString(),
+            onReferralDialogOpen,
+            undefined,
+            false,
+        ),
+        createEntry(
             'Investment',
             new URL('./assets/investment.png', import.meta.url).toString(),
             () =>
@@ -351,6 +367,13 @@ export function ApplicationBoard({ secondEntries, secondEntryChainTabs }: MaskAp
             </section>
             {isClaimAllDialogOpen ? (
                 <ClaimAllDialog open={isClaimAllDialogOpen} onClose={onClaimAllDialogClose} />
+            ) : null}
+            {isReferralDialogOpen ? (
+                <ReferralDialog
+                    open={isReferralDialogOpen}
+                    onClose={onReferralDialogClose}
+                    onSwapDialogOpen={onSwapDialogOpen}
+                />
             ) : null}
             {isSwapDialogOpen ? <TraderDialog open={isSwapDialogOpen} onClose={onSwapDialogClose} /> : null}
             {isSecondLevelEntryDialogOpen ? (
