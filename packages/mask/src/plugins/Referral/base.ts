@@ -1,8 +1,8 @@
 import type { Plugin } from '@masknet/plugin-infra'
-import { SAVINGS_PLUGIN_ID } from './constants'
+import { REFERRAL_META_KEY, REFERRAL_PLUGIN_ID } from './constants'
 
 export const base: Plugin.Shared.Definition = {
-    ID: SAVINGS_PLUGIN_ID,
+    ID: REFERRAL_PLUGIN_ID,
     icon: '\u{1F4B0}',
     name: { fallback: 'Referral' },
     description: {
@@ -14,4 +14,5 @@ export const base: Plugin.Shared.Definition = {
         networks: { type: 'opt-out', networks: {} },
         target: 'stable',
     },
+    contribution: { metadataKeys: new Set([REFERRAL_META_KEY]) },
 }

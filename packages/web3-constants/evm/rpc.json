@@ -1,8 +1,8 @@
 {
     "RPC": {
-        "Mainnet": ["https://mainnet.infura.io/v3/d74bd8586b9e44449cef131d39ceeefb"],
+        "Mainnet": ["https://mainnet.infura.io/v3/dc6607314ecd4fab97514370c623259a"],
         "Ropsten": ["https://ropsten.infura.io/v3/d74bd8586b9e44449cef131d39ceeefb"],
-        "Rinkeby": ["https://rinkeby.infura.io/v3/d74bd8586b9e44449cef131d39ceeefb"],
+        "Rinkeby": ["https://rinkeby.infura.io/v3/dc6607314ecd4fab97514370c623259a"],
         "Kovan": ["https://kovan.infura.io/v3/d74bd8586b9e44449cef131d39ceeefb"],
         "Gorli": ["https://goerli.infura.io/v3/d74bd8586b9e44449cef131d39ceeefb"],
         "BSC": ["https://bsc-dataseed.binance.org/"],

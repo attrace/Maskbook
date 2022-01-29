@@ -1,10 +1,10 @@
 import { createPluginMessage, createPluginRPC } from '@masknet/plugin-infra'
-import { SAVINGS_PLUGIN_ID } from './constants'
+import { REFERRAL_META_KEY } from './constants'
 
 if (import.meta.webpackHot) import.meta.webpackHot.accept()
-const PluginSavingsMessages = createPluginMessage(SAVINGS_PLUGIN_ID)
+const PluginSavingsMessages = createPluginMessage(REFERRAL_META_KEY)
 export const PluginSavingsRPC = createPluginRPC(
-    SAVINGS_PLUGIN_ID,
+    REFERRAL_META_KEY,
     () => import('./Worker/services'),
     PluginSavingsMessages.rpc,
 )

@@ -9,6 +9,7 @@ import { makeStyles } from '@masknet/theme'
 import { Landing } from './Landing'
 import { ReferralFarms } from './ReferralFarms'
 import { CreateFarm } from './CreateFarm'
+import { ReferToFarm } from './ReferToFarm'
 interface ReferralDialogProps {
     open: boolean
     onClose?: () => void
@@ -31,10 +32,12 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
     const { classes } = useStyles({ isDashboard })
     const [currentPage, setCurrentPage] = useState(PagesType.LANDING)
     const [previousPages, setPreviousPages] = useState<PagesType[]>([])
+    const [currentTitle, setCurrentTitle] = useState(t('plugin_referral'))
     // let previousPages: PagesType[] = []
-    const nextPage = (currentPage: PagesType, nextPage: PagesType) => {
+    const nextPage = (currentPage: PagesType, nextPage: PagesType, title: string = t('plugin_referral')) => {
         setPreviousPages([...previousPages, currentPage])
         setCurrentPage(nextPage)
+        setCurrentTitle(title)
     }
     // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
     const renderViews = () => {
@@ -44,7 +47,9 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             case PagesType.REFERRAL_FARMS:
                 return <ReferralFarms continue={nextPage} />
             case PagesType.CREATE_FARM:
-                return <CreateFarm continue={nextPage} />
+                return <CreateFarm continue={nextPage} onClose={onClose} />
+            case PagesType.REFER_TO_FARM:
+                return <ReferToFarm continue={nextPage} onClose={onClose} />
             default:
                 return <Landing continue={nextPage} />
         }
@@ -62,7 +67,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                     setPreviousPages(temp)
                 }
             }}
-            title={t('plugin_referral')}
+            title={currentTitle}
             disableBackdropClick>
             <DialogContent>{renderViews()}</DialogContent>
         </InjectedDialog>

@@ -292,7 +292,8 @@ export function ApplicationBoard({ secondEntries, secondEntryChainTabs }: MaskAp
         createEntry(
             'Referral Farming',
             new URL('./assets/referral.png', import.meta.url).toString(),
-            onReferralDialogOpen,
+            // onReferralDialogOpen,
+            () => openEncryptedMessage(PluginId.Referral),
             undefined,
             false,
         ),

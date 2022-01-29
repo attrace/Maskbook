@@ -1,8 +1,7 @@
-import { Fragment, useCallback, useEffect, useState } from 'react'
-import { InputAdornment } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { Grid, InputAdornment } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
 import { v4 as uuid } from 'uuid'
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import type { FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { useI18N } from '../../../utils'
 import { ITO_EXCHANGE_RATION_MAX } from '../constants'
@@ -83,7 +82,7 @@ export function ExchangeTokenPanelGroup(props: ExchangeTokenPanelGroupProps) {
         <>
             {exchangeTokenArray.map((item, idx) => {
                 return (
-                    <Fragment key={idx}>
+                    <Grid container direction="row" justifyContent="center" key={idx}>
                         <ExchangeTokenPanel
                             label={idx ? t('plugin_ito_swap_ration_label') : t('plugin_ito_sell_total_amount')}
                             dataIndex={item.key}
@@ -94,8 +93,8 @@ export function ExchangeTokenPanelGroup(props: ExchangeTokenPanelGroupProps) {
                             onAmountChange={onAmountChange}
                             exchangeToken={item.token}
                             onExchangeTokenChange={onTokenChange}
-                            showRemove={idx > 0 && idx < exchangeTokenArray.length && exchangeTokenArray.length !== 2}
-                            showAdd={idx === exchangeTokenArray.length - 1 && idx < ITO_EXCHANGE_RATION_MAX}
+                            showRemove={false}
+                            showAdd={false}
                             onRemove={() =>
                                 dispatchExchangeTokenArray({
                                     type: ExchangeTokenAndAmountActionType.REMOVE,
@@ -117,12 +116,7 @@ export function ExchangeTokenPanelGroup(props: ExchangeTokenPanelGroupProps) {
                                     : {},
                             }}
                         />
-                        {idx === 0 ? (
-                            <div className={classes.arrow}>
-                                <ArrowDownwardIcon color="disabled" />
-                            </div>
-                        ) : null}
-                    </Fragment>
+                    </Grid>
                 )
             })}
         </>
