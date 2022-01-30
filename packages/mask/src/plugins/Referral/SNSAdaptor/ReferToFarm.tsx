@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TokenType } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -66,7 +66,12 @@ export function ReferToFarm(props) {
     const { amount, token, balance, setAmount, setToken } = useFungibleTokenWatched()
 
     const [id] = useState(uuid())
-
+    const [rewardData, setRewardData] = useState<RewardData>({
+        apr: '42%',
+        daily_reward: '1 wETH',
+        total_reward: '5 wETH',
+    })
+    const [attraceRewardData, setAttraceRewardData] = useState<RewardData>(null)
     const requiredChainId = ChainId.Rinkeby
     const web3 = useWeb3(false, requiredChainId)
     const account = useAccount()
@@ -163,28 +168,63 @@ export function ReferToFarm(props) {
                                             }}
                                         />
                                     </Grid>
+
                                     <Grid item xs={6} justifyContent="center" display="flex" />
+                                    <Grid item xs={12}>
+                                        <b>{t('sponsered_referral_farm')}</b>
+                                    </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            Estimated APR
+                                            {t('apr')}
                                             <br />
-                                            <b>42%</b>
+                                            <b>{rewardData.apr}</b>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            Estimated APR
+                                            {t('daily_rewards')}
+
                                             <br />
-                                            <b>1 wETH</b>
+                                            <b>{rewardData.daily_reward}</b>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            Estimated APR
+                                            {t('total_rewards')}
                                             <br />
-                                            <b>5 wETH</b>
+                                            <b>{rewardData.total_reward}</b>
                                         </Box>
                                     </Grid>
+                                    {attraceRewardData !== null ? (
+                                        <div>
+                                            <Grid item xs={12}>
+                                                <b>{t('attrace_referral_farm')}</b>
+                                            </Grid>
+
+                                            <Grid item xs={4} justifyContent="center" display="flex">
+                                                <Box>
+                                                    {t('apr')}
+                                                    <br />
+                                                    <b>{rewardData.apr}</b>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={4} justifyContent="center" display="flex">
+                                                <Box>
+                                                    {t('daily_rewards')}
+
+                                                    <br />
+                                                    <b>{rewardData.daily_reward}</b>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={4} justifyContent="center" display="flex">
+                                                <Box>
+                                                    {t('total_rewards')}
+                                                    <br />
+                                                    <b>{rewardData.total_reward}</b>
+                                                </Box>
+                                            </Grid>
+                                        </div>
+                                    ) : null}
                                 </Grid>
                             </Typography>
 

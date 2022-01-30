@@ -3,7 +3,7 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import type { ReferralMetaData } from '../types'
+import type { ReferralMetaData, RewardData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
 import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
@@ -11,6 +11,7 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 
 import { useI18N } from '../../../utils'
 import { TokenIcon } from '@masknet/shared'
+import { useState } from 'react'
 
 interface FarmPostProps {
     payload: ReferralMetaData
@@ -29,6 +30,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         display: 'flex',
     },
 }))
+
 export function FarmPost(props: FarmPostProps) {
     const { payload } = props
 
@@ -38,7 +40,11 @@ export function FarmPost(props: FarmPostProps) {
     const account = useAccount()
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const { t } = useI18N()
-
+    const [rewardData, setRewardData] = useState<RewardData>({
+        apr: '42%',
+        daily_reward: '1wETH',
+        total_reward: '5wETH',
+    })
     const insertData = (selectedReferralData: ReferralMetaData) => {
         if (selectedReferralData) {
             attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
@@ -56,7 +62,7 @@ export function FarmPost(props: FarmPostProps) {
         <>
             <div>
                 <Typography>
-                    Buy or refer ${payload.referral_token_symbol} and receive farming yield without farming!
+                    {t('buy_refer_earn_yield', { token: payload.referral_token_symbol })}
                     <Card variant="outlined">
                         <CardContent>
                             <Grid container spacing={2}>
@@ -67,20 +73,20 @@ export function FarmPost(props: FarmPostProps) {
                                     <Grid item xs container direction="column" spacing={2}>
                                         <Grid item xs>
                                             <Typography gutterBottom variant="subtitle1" component="div">
-                                                Mask Plugin
+                                                {t('mask_plugin')}
                                             </Typography>
                                             <Typography variant="h6" gutterBottom>
-                                                <b> Referral Farming</b>
+                                                <b> {t('plugin_referral')}</b>
                                             </Typography>
                                         </Grid>
                                     </Grid>
                                     <Grid item direction="column" spacing={2}>
                                         <Grid item xs>
                                             <Typography gutterBottom component="div">
-                                                Provided By
+                                                {t('provided_by')}
                                             </Typography>
                                             <Typography gutterBottom>
-                                                <b> Attrace Protocol</b>
+                                                <b> {t('attrace_protocol')}</b>
                                             </Typography>
                                         </Grid>
                                     </Grid>
@@ -108,13 +114,12 @@ export function FarmPost(props: FarmPostProps) {
                                             </Typography>
                                         </Grid>
                                     </Grid>
-                                    Join the farms and receive rewards based on the value of tokens purchased via
-                                    referrals&#x1F525;
+                                    {t('join_receive_rewards')}
                                     <br />
-                                    <br /> <b>Sponsored Referral Farm</b>
-                                    <br /> APR: 42%
-                                    <br /> Daily Reward: 1wETH
-                                    <br /> Total Rewards: 5wETH
+                                    <br /> <b>{t('sponsored_farm')}</b>
+                                    <br /> {t('apr_with_data', { reward: rewardData.apr })}
+                                    <br /> {t('daily_rewards_with_data', { reward: rewardData.daily_reward })}
+                                    <br /> {t('total_rewards_with_data', { reward: rewardData.total_reward })}
                                 </Card>
                             </Box>
                         </CardContent>
@@ -132,7 +137,7 @@ export function FarmPost(props: FarmPostProps) {
                                         onClick={async () => {
                                             await referButton()
                                         }}>
-                                        Refer to Farm
+                                        {t('refer_to_farm')}
                                     </Button>
                                 </Grid>
                             </Grid>

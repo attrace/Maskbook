@@ -28,6 +28,7 @@ export enum TokenType {
     REFER = 0,
     REWARD = 1,
 }
+
 export enum PagesType {
     LANDING = 'landing',
     REFERRAL_FARMS = 'Referral Farms',
@@ -58,7 +59,11 @@ export interface ReferralMetaData {
     referral_token_icon: string | string[]
     sender: string
 }
-
+export interface RewardData {
+    apr: string
+    daily_reward: string
+    total_reward: string
+}
 export interface MetastateKeyValue {
     key: string
 

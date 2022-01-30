@@ -3,7 +3,15 @@ import { Typography, Box, Tab, Tabs, Grid, TextField, Link, CircularProgress } f
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
-import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
+import {
+    ChainId,
+    resolveTransactionLinkOnExplorer,
+    TransactionState,
+    useAccount,
+    useChainId,
+    useFungibleTokenWatched,
+    useWeb3,
+} from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { ReferralMetaData, TabsCreateFarm, TokenType } from '../types'
@@ -80,7 +88,7 @@ export function CreateFarm(props) {
         setAmount: setRewardAmount,
         setToken: setRewardToken,
     } = useFungibleTokenWatched()
-
+    const [transactionState, setTransactionState] = useState<TransactionState | null>(null)
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
     const [id] = useState(uuid())
@@ -288,7 +296,7 @@ export function CreateFarm(props) {
                                                 onClick={() => {
                                                     clickCreateFarm()
                                                 }}>
-                                                Create Referral Farm
+                                                {t('create_referral_farm')}
                                             </ActionButton>
                                         </EthereumChainBoundary>
                                     </Typography>
@@ -305,22 +313,22 @@ export function CreateFarm(props) {
                             <br />
                             <Grid container justifyContent="space-between" rowSpacing="20px">
                                 <Grid xs={12}>
-                                    <b>Deposit Total Farm Rewards</b>
+                                    <b>{t('deposit_total_rewards')}</b>
                                 </Grid>
                                 <Grid item xs={6}>
-                                    Total Farm Rewards
+                                    {t('total_farm_rewards')}
                                 </Grid>
                                 <Grid item xs={6} display="flex" justifyContent="right">
                                     {totalFarmReward} {rewardToken?.value?.symbol}
                                 </Grid>
                                 <Grid item xs={6}>
-                                    Attrace Protocol Fee 5%
+                                    {t('attrace_fees')}
                                 </Grid>
                                 <Grid item xs={6} display="flex" justifyContent="right">
                                     {(Number.parseFloat(totalFarmReward) * 5) / 100} {rewardToken?.value?.symbol}
                                 </Grid>
                                 <Grid item xs={6}>
-                                    Deposit Total
+                                    {t('deposit_total')}
                                 </Grid>
                                 <Grid item xs={6} display="flex" justifyContent="right">
                                     {Number.parseFloat(totalFarmReward) +
@@ -362,10 +370,12 @@ export function CreateFarm(props) {
                                 <DoneIcon sx={{ fontSize: 60 }} />
                             </Grid>
                             <Grid item xs={12} className={classes.heading}>
-                                Your transaction was confirmed
+                                {t('plugin_wallet_transaction_confirmed')}
                             </Grid>
                             <Grid item xs={12}>
-                                <Link href="#">View On Explorer</Link>
+                                <Link href={resolveTransactionLinkOnExplorer(chainId, '')}>
+                                    {t('plugin_wallet_view_on_explorer')}
+                                </Link>
                             </Grid>
 
                             <Grid item xs={12}>
@@ -384,7 +394,7 @@ export function CreateFarm(props) {
                                             sender: senderName ?? '',
                                         })
                                     }}>
-                                    Publish Referral Farm
+                                    {t('publish_farm')}
                                 </ActionButton>
                             </Grid>
                         </Grid>
