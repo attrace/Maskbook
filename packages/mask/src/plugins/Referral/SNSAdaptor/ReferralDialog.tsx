@@ -22,6 +22,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
     bold: {},
     normal: {},
+    content: {
+        padding: theme.spacing(0, 3, 0),
+    },
 }))
 
 export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDialogProps) {
@@ -69,7 +72,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             }}
             title={currentTitle}
             disableBackdropClick>
-            <DialogContent>{renderViews()}</DialogContent>
+            <DialogContent className={classes.content}>{renderViews()}</DialogContent>
         </InjectedDialog>
     )
 }

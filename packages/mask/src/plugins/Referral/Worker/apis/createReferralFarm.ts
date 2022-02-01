@@ -8,157 +8,9 @@ import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helper
 import { Metastate, ReferralFarmsV1, ZERO_ADDR, ZERO_HASH } from '../../types'
 import { getDaoAddress } from './discovery'
 import { postToWomOracle, getWomOracle, createLegacyProofOfRecommandationOriginMessage } from './wom'
-export const getChainId = ChainId.Rinkeby
+import { FARM_ABI } from './abis'
 
-export const farmABI = [
-    {
-        type: 'function',
-        name: 'increaseReferralFarm',
-        constant: false,
-        payable: false,
-        inputs: [
-            {
-                type: 'bytes24',
-                name: 'rewardToken',
-            },
-            {
-                type: 'bytes24',
-                name: 'referredTokenDefn',
-            },
-            {
-                type: 'uint256',
-                name: 'rewardDeposit',
-            },
-            {
-                type: 'tuple[]',
-                name: 'metastate',
-                components: [
-                    {
-                        type: 'bytes32',
-                        name: 'key',
-                    },
-                    {
-                        type: 'bytes',
-                        name: 'value',
-                    },
-                ],
-            },
-        ],
-        outputs: [],
-    },
-    {
-        type: 'function',
-        name: 'increaseReferralFarmNative',
-        constant: false,
-        stateMutability: 'payable',
-        payable: true,
-        inputs: [
-            {
-                type: 'bytes24',
-                name: 'referredTokenDefn',
-            },
-            {
-                type: 'tuple[]',
-                name: 'metastate',
-                components: [
-                    {
-                        type: 'bytes32',
-                        name: 'key',
-                    },
-                    {
-                        type: 'bytes',
-                        name: 'value',
-                    },
-                ],
-            },
-        ],
-        outputs: [],
-    },
-    {
-        type: 'event',
-        anonymous: false,
-        name: 'FarmExists',
-        inputs: [
-            {
-                type: 'address',
-                name: 'sponsor',
-                indexed: true,
-            },
-            {
-                type: 'bytes24',
-                name: 'rewardTokenDefn',
-                indexed: true,
-            },
-            {
-                type: 'bytes24',
-                name: 'referredTokenDefn',
-                indexed: true,
-            },
-            {
-                type: 'bytes32',
-                name: 'farmHash',
-            },
-        ],
-    },
-    {
-        type: 'event',
-        anonymous: false,
-        name: 'FarmDepositChange',
-        inputs: [
-            {
-                type: 'bytes32',
-                name: 'farmHash',
-                indexed: true,
-            },
-            {
-                type: 'int256',
-                name: 'delta',
-            },
-        ],
-    },
-    {
-        type: 'event',
-        anonymous: false,
-        name: 'FarmTokenChange',
-        inputs: [
-            {
-                type: 'bytes32',
-                name: 'farmHash',
-                indexed: true,
-            },
-            {
-                type: 'bytes24',
-                name: 'token',
-                indexed: true,
-            },
-            {
-                type: 'uint8',
-                name: 'change',
-            },
-        ],
-    },
-    {
-        type: 'event',
-        anonymous: false,
-        name: 'FarmMetastate',
-        inputs: [
-            {
-                type: 'bytes32',
-                name: 'farmHash',
-                indexed: true,
-            },
-            {
-                type: 'bytes32',
-                name: 'key',
-                indexed: true,
-            },
-            {
-                type: 'bytes',
-                name: 'value',
-            },
-        ],
-    },
-]
+export const getChainId = ChainId.Rinkeby
 
 export const erc20ABI = [
     {
@@ -205,7 +57,7 @@ export async function runCreateERC20PairFarm(
         const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
 
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
-        const farms = createContract(web3, farmsAddr, farmABI as AbiItem[])
+        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
 
         const rewardTokenInstance = createContract(web3, rewardTokenAddr, erc20ABI as AbiItem[])
         const config = {
@@ -271,7 +123,7 @@ export async function runCreateNativeFarm(
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
         const rewardTokenDefn = toNativeRewardTokenDefn(chainId)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
-        const farms = createContract(web3, farmsAddr, farmABI as AbiItem[])
+        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
         metastate = [
             {
                 key: padRight(asciiToHex('dailyRewardRate'), 64),

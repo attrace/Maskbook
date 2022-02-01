@@ -1,4 +1,5 @@
 import type { ChainId as ChainIdMain } from '@masknet/web3-shared-evm'
+import type BigNumber from 'bignumber.js'
 import { padStart } from 'lodash-unified'
 
 export interface SavingsNetwork {
@@ -116,7 +117,15 @@ export interface FarmExistsEvent {
     rewardTokenDefn: ChainAddress
     sponsor: EvmAddress
 }
-export type FarmEvent = FarmExistsEvent
+export interface FarmDepositChange {
+    farmHash: FarmHash
+    delta: BigNumber
+}
+export interface FarmMetastate {
+    farmHash: FarmHash
+    dailyFarmReward: BigNumber
+}
+export interface FarmEvent extends FarmExistsEvent, FarmDepositChange {}
 
 export type Node = {
     url: string

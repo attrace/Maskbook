@@ -175,7 +175,7 @@ export function ReferToFarm(props) {
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            {t('apr')}
+                                            {t('apr_estimated')}
                                             <br />
                                             <b>{rewardData.apr}</b>
                                         </Box>
@@ -190,7 +190,7 @@ export function ReferToFarm(props) {
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            {t('total_rewards')}
+                                            {t('total_farm_rewards')}
                                             <br />
                                             <b>{rewardData.total_reward}</b>
                                         </Box>
@@ -218,7 +218,7 @@ export function ReferToFarm(props) {
                                             </Grid>
                                             <Grid item xs={4} justifyContent="center" display="flex">
                                                 <Box>
-                                                    {t('total_rewards')}
+                                                    {t('total_farm_rewards')}
                                                     <br />
                                                     <b>{rewardData.total_reward}</b>
                                                 </Box>

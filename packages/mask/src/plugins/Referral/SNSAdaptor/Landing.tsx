@@ -14,6 +14,9 @@ interface ReferralDialogProps {
     onSwapDialogOpen?: () => void
 }
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+    wrapper: {
+        padding: theme.spacing(3, 0, 3),
+    },
     walletStatusBox: {
         width: 535,
         margin: '24px auto',
@@ -51,7 +54,7 @@ export function Landing(props) {
     // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
 
     return (
-        <div>
+        <div className={classes.wrapper}>
             <Grid container>
                 <Grid xs={12} display="flex" justifyContent="center">
                     <img className={classes.img} src={IconURLS.referral} />

@@ -17,6 +17,7 @@ import { makeStyles } from '@masknet/theme'
 import { ReferralMetaData, TabsCreateFarm, TokenType } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
+import { CreatedFarms } from './CreatedFarms'
 
 import { SelectTokenChip, useRemoteControlledDialog } from '@masknet/shared'
 import { SelectTokenDialogEvent, WalletMessages } from '@masknet/plugin-wallet'
@@ -29,6 +30,7 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
+
 // import { getDaoAddress } from '../Worker/apis/discovery'
 interface ReferralDialogProps {
     open: boolean
@@ -47,6 +49,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         height: '100%',
     },
     tab: {
+        width: '50%',
+    },
+    tabPanel: {
         maxHeight: '100%',
         height: '100%',
         overflow: 'auto',
@@ -94,7 +99,7 @@ export function CreateFarm(props) {
     const [id] = useState(uuid())
     const [focusedTokenPanelType, setFocusedTokenPanelType] = useState(TokenType.REFER)
     const requiredChainId = ChainId.Rinkeby
-    const web3 = useWeb3(false, requiredChainId)
+    const web3 = useWeb3({ chainId: requiredChainId })
     const account = useAccount()
     const [isTransactionConfirmed, setTransactionConfirmed] = useState(false)
     const [isTransactionProcessing, setTransactionProcessing] = useState(false)
@@ -210,13 +215,12 @@ export function CreateFarm(props) {
                             <TabContext value={String(tab)}>
                                 <Tabs
                                     value={tab}
-                                    centered
                                     onChange={(e, v) => setTab(v)}
                                     aria-label="persona-post-contacts-button-group">
-                                    <Tab value={TabsCreateFarm.NEW} label="New" />
-                                    <Tab value={TabsCreateFarm.CREATED} label="Created" />
+                                    <Tab value={TabsCreateFarm.NEW} className={classes.tab} label="New" />
+                                    <Tab value={TabsCreateFarm.CREATED} className={classes.tab} label="Created" />
                                 </Tabs>
-                                <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
+                                <TabPanel value={TabsCreateFarm.NEW} className={classes.tabPanel}>
                                     <Grid container />
                                     <Typography>
                                         <b>{t('create_referral_farm_desc')}</b>
@@ -301,8 +305,8 @@ export function CreateFarm(props) {
                                         </EthereumChainBoundary>
                                     </Typography>
                                 </TabPanel>
-                                <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                                    Need To Be Implemented
+                                <TabPanel value={TabsCreateFarm.CREATED} className={classes.tabPanel}>
+                                    <CreatedFarms />
                                 </TabPanel>
                             </TabContext>
                         </Box>
