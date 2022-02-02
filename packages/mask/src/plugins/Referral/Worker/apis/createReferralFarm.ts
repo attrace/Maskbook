@@ -41,6 +41,7 @@ export const erc20ABI = [
 export async function runCreateERC20PairFarm(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
+    onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
     rewardTokenAddr: string,
@@ -90,6 +91,9 @@ export async function runCreateERC20PairFarm(
             .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                 onStart(true)
             })
+            .on(TransactionEventType.TRANSACTION_HASH, (hash: string) => {
+                onTransactionHash(hash)
+            })
             .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
                 onConfirm(true)
             })
@@ -108,6 +112,7 @@ export async function runCreateERC20PairFarm(
 export async function runCreateNativeFarm(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
+    onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
     rewardTokenAddr: string,
@@ -147,6 +152,9 @@ export async function runCreateNativeFarm(
             })
             .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                 onStart(true)
+            })
+            .on(TransactionEventType.TRANSACTION_HASH, (hash: string) => {
+                onTransactionHash(hash)
             })
             .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
                 onConfirm(true)
