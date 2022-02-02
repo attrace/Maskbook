@@ -31,8 +31,7 @@ export function toNativeRewardTokenDefn(chainId: ChainId): string {
     const nativeTokenAddr = '0x' + padStart(Number(chainId).toString(16), 40, '0')
     return toChainAddress(chainId, nativeTokenAddr)
 }
-export function parseChainAddress(chainId: ChainId, chainAddress: ChainAddress): string {
-    // chainID (4 bytes)                                address (20 bytes)
+export function parseChainAddress(chainAddress: ChainAddress): string {
     const address = '0x' + chainAddress.substring(10).toLowerCase()
     return address
 }
