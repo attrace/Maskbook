@@ -9,9 +9,10 @@ import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { parseChainAddress } from './helpers'
 
+import type { FarmEvent } from '../types'
+
 import { FarmItemDetailed } from './FarmItemDetailed'
 import { TokenSymbol } from './TokenSymbol'
-import { FarmEvent } from '../types'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -25,13 +26,20 @@ const useStyles = makeStyles()((theme) => ({
         fontWeight: 500,
     },
     content: {
-        height: 380,
+        height: 320,
         overflowY: 'scroll',
         marginTop: 20,
         color: theme.palette.text.strong,
     },
     farm: {
         marginBottom: '20px',
+    },
+    noFarm: {
+        borderRadius: '12px',
+        background: theme.palette.background.default,
+        height: '44px',
+        fontWeight: 500,
+        color: theme.palette.text.strong,
     },
 }))
 
@@ -42,10 +50,12 @@ export function CreatedFarms(props: any) {
     const account = useAccount()
     const web3 = useWeb3({ chainId })
 
+    const [loading, setLoading] = useState(true)
     const [farms, setFarms] = useState<FarmEvent[]>([])
 
     useEffect(() => {
         async function fetchFarms() {
+            setLoading(true)
             const farms: FarmEvent[] = []
 
             // fetch farms created by sponsor and all farms deposits
@@ -65,6 +75,7 @@ export function CreatedFarms(props: any) {
 
                 setFarms(farms)
             }
+            setLoading(false)
         }
         fetchFarms()
     }, [])
@@ -83,20 +94,36 @@ export function CreatedFarms(props: any) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {farms.map((farm) => (
-                    <Grid container justifyContent="space-between" key={farm.farmHash} className={classes.farm}>
-                        <Grid item xs={6}>
-                            <FarmItemDetailed address={parseChainAddress(chainId, farm.referredTokenDefn)} />
-                        </Grid>
-                        <Grid item xs={2}>
-                            {/* {t('apr')} */}
-                        </Grid>
-                        <Grid item xs={4}>
-                            {fromWei(farm.delta.toString())}{' '}
-                            <TokenSymbol address={parseChainAddress(chainId, farm.rewardTokenDefn)} />
-                        </Grid>
-                    </Grid>
-                ))}
+                {!loading && (
+                    <>
+                        {farms.length === 0 ? (
+                            <Grid container justifyContent="center" alignItems="center" className={classes.noFarm}>
+                                {t('no_created_farm')}
+                            </Grid>
+                        ) : (
+                            farms.map((farm) => (
+                                <Grid
+                                    container
+                                    justifyContent="space-between"
+                                    key={farm.farmHash}
+                                    className={classes.farm}>
+                                    <Grid item xs={6}>
+                                        <FarmItemDetailed
+                                            address={parseChainAddress(chainId, farm.referredTokenDefn)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                        {/* {t('apr')} */}
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        {fromWei(farm.delta.toString())}{' '}
+                                        <TokenSymbol address={parseChainAddress(chainId, farm.rewardTokenDefn)} />
+                                    </Grid>
+                                </Grid>
+                            ))
+                        )}
+                    </>
+                )}
             </div>
         </div>
     )

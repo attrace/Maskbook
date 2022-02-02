@@ -1027,5 +1027,6 @@
     "buy_refer_earn_yield": "Buy or refer ${{token}} and receive farming yield without farming!",
     "attrace_referral_farm": "Attrace Referral Farm",
     "sponsered_referral_farm": "Sponsered Referral Farm",
-    "referral_farm": "Referral Farm"
+    "referral_farm": "Referral Farm",
+    "no_created_farm": "You haven't created any referral farm yet"
 }
