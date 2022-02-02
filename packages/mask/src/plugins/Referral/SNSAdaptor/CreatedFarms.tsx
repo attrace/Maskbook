@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Grid } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { fromWei } from 'web3-utils'
@@ -16,12 +16,10 @@ import { TokenSymbol } from './TokenSymbol'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
-        fontFamily: 'PingFang SC',
         lineHeight: '22px',
-        fontSize: '16px',
         fontWeight: 300,
     },
-    heading: {
+    col: {
         color: theme.palette.text.secondary,
         fontWeight: 500,
     },
@@ -38,12 +36,17 @@ const useStyles = makeStyles()((theme) => ({
         borderRadius: '12px',
         background: theme.palette.background.default,
         height: '44px',
-        fontWeight: 500,
         color: theme.palette.text.strong,
+    },
+    noFarmText: {
+        fontWeight: 500,
+    },
+    total: {
+        marginRight: '4px',
     },
 }))
 
-export function CreatedFarms(props: any) {
+export function CreatedFarms() {
     const { t } = useI18N()
     const { classes } = useStyles()
     const chainId = useChainId()
@@ -82,15 +85,21 @@ export function CreatedFarms(props: any) {
 
     return (
         <div className={classes.container}>
-            <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>
+            <Grid container justifyContent="space-between" rowSpacing="20px">
                 <Grid item xs={6}>
-                    {t('referral_farm')}
+                    <Typography fontWeight={500} className={classes.col}>
+                        {t('plugin_referral_referral_farm')}
+                    </Typography>
                 </Grid>
                 <Grid item xs={2}>
-                    {t('apr')}
+                    <Typography fontWeight={500} className={classes.col}>
+                        {t('plugin_referral_apr')}
+                    </Typography>
                 </Grid>
                 <Grid item xs={4}>
-                    {t('total_rewards')}
+                    <Typography fontWeight={500} className={classes.col}>
+                        {t('plugin_referral_total_rewards')}
+                    </Typography>
                 </Grid>
             </Grid>
             <div className={classes.content}>
@@ -98,7 +107,9 @@ export function CreatedFarms(props: any) {
                     <>
                         {farms.length === 0 ? (
                             <Grid container justifyContent="center" alignItems="center" className={classes.noFarm}>
-                                {t('no_created_farm')}
+                                <Typography className={classes.noFarmText}>
+                                    {t('plugin_referral_no_created_farm')}
+                                </Typography>
                             </Grid>
                         ) : (
                             farms.map((farm) => (
@@ -112,11 +123,13 @@ export function CreatedFarms(props: any) {
                                             address={parseChainAddress(chainId, farm.referredTokenDefn)}
                                         />
                                     </Grid>
-                                    <Grid item xs={2}>
-                                        {/* {t('apr')} */}
+                                    <Grid item xs={2} display="flex" alignItems="center">
+                                        <Typography className={classes.total}>{t('plugin_referral_apr')}</Typography>
                                     </Grid>
-                                    <Grid item xs={4}>
-                                        {fromWei(farm.delta.toString())}{' '}
+                                    <Grid item xs={4} display="flex" alignItems="center">
+                                        <Typography className={classes.total}>
+                                            {fromWei(farm.delta.toString())}
+                                        </Typography>
                                         <TokenSymbol address={parseChainAddress(chainId, farm.rewardTokenDefn)} />
                                     </Grid>
                                 </Grid>

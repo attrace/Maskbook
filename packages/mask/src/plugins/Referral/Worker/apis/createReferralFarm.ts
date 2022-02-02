@@ -39,8 +39,8 @@ export const erc20ABI = [
     },
 ]
 export async function runCreateERC20PairFarm(
-    onConfirm,
-    onStart,
+    onConfirm: (type: boolean) => void,
+    onStart: (type: boolean) => void,
     web3: Web3,
     account: string,
     rewardTokenAddr: string,
@@ -50,7 +50,7 @@ export async function runCreateERC20PairFarm(
 ) {
     try {
         onStart(true)
-        let tx: any, metastate: Metastate
+        let tx: any
 
         const chainId = getChainId
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
@@ -70,7 +70,7 @@ export async function runCreateERC20PairFarm(
             gas: estimatedGas,
         })
 
-        metastate = [
+        const metastate = [
             {
                 key: padRight(asciiToHex('dailyRewardRate'), 64),
                 value: defaultAbiCoder.encode(['uint256'], [toWei(dailyFarmReward.toString(), 'ether')]),
@@ -87,13 +87,13 @@ export async function runCreateERC20PairFarm(
                 ...config,
                 gas: estimatedGas2,
             })
-            .on(TransactionEventType.RECEIPT, (onSucceed) => {
+            .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                 onStart(true)
             })
-            .on(TransactionEventType.CONFIRMATION, (onSucceed) => {
+            .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
                 onConfirm(true)
             })
-            .on(TransactionEventType.ERROR, (error) => {
+            .on(TransactionEventType.ERROR, (error: Error) => {
                 alert(error)
                 onConfirm(false)
                 onStart(false)
@@ -106,8 +106,8 @@ export async function runCreateERC20PairFarm(
 }
 
 export async function runCreateNativeFarm(
-    onConfirm,
-    onStart,
+    onConfirm: (type: boolean) => void,
+    onStart: (type: boolean) => void,
     web3: Web3,
     account: string,
     rewardTokenAddr: string,
@@ -145,13 +145,13 @@ export async function runCreateNativeFarm(
                 ...config,
                 gas: estimatedGas,
             })
-            .on(TransactionEventType.RECEIPT, (onSucceed) => {
+            .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                 onStart(true)
             })
-            .on(TransactionEventType.CONFIRMATION, (onSucceed) => {
+            .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
                 onConfirm(true)
             })
-            .on(TransactionEventType.ERROR, (error) => {
+            .on(TransactionEventType.ERROR, (error: Error) => {
                 onConfirm(false)
                 onStart(false)
             })

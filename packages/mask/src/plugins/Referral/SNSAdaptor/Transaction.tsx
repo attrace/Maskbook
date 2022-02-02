@@ -1,47 +1,89 @@
-import { useState } from 'react'
-
-// import { ProtocolType } from '../types'
 import { useI18N } from '../../../utils'
-import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
+import { useChainId } from '@masknet/web3-shared-evm'
 
-interface ReferralDialogProps {
-    open: boolean
-    onClose?: () => void
-    onSwapDialogOpen?: () => void
-}
+import { TransactionStatus } from '../types'
+import { Grid, Typography, CircularProgress, Link } from '@mui/material'
+import DoneIcon from '@mui/icons-material/Done'
+import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    walletStatusBox: {
-        width: 535,
-        margin: '24px auto',
+    confirmation: {
+        padding: '44px 60px 40px',
     },
-    bold: {},
-    normal: {},
-    container: {
-        flex: 1,
-        height: '100%',
+    heading: {
+        fontSize: '20px',
+        fontWeight: 600,
     },
-    tab: {
-        maxHeight: '100%',
-        height: '100%',
-        overflow: 'auto',
-        padding: `${theme.spacing(3)} 0`,
-    },
-    tabs: {
-        width: '288px',
+    title: {
+        marginTop: '12px',
+        fontSize: '18px',
+        fontWeight: 600,
     },
 }))
-interface TransactionProps {
-    value: string
-}
+
+type TransactionProps =
+    | {
+          status: TransactionStatus.CONFIRMATION
+      }
+    | {
+          status: TransactionStatus.CONFIRMED
+          actionButton: {
+              label: string
+              onClick: () => void
+          }
+      }
+
 export function Transaction(props: TransactionProps) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
+    const currentChainId = useChainId()
     const { classes } = useStyles({ isDashboard })
 
-    const [confirmTransaction, setConfirmTransaction] = useState(false)
-    return <>{!confirmTransaction ? null : null}</>
+    if (props.status === TransactionStatus.CONFIRMATION) {
+        return (
+            <Grid
+                container
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                className={classes.confirmation}>
+                <CircularProgress size={72} />
+                <Typography className={classes.title}>{t('plugin_referral_transaction_confirmation_title')}</Typography>
+            </Grid>
+        )
+    }
+    if (props.status === TransactionStatus.CONFIRMED) {
+        return (
+            <Typography>
+                <Grid container textAlign="center" rowSpacing="5px" sx={{ p: 2 }}>
+                    <Grid item xs={12}>
+                        <DoneIcon sx={{ fontSize: 60 }} />
+                    </Grid>
+                    <Grid item xs={12} className={classes.heading}>
+                        {t('plugin_wallet_transaction_confirmed')}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Link
+                            href=""
+                            // href={resolveTransactionLinkOnExplorer(currentChainId, '')}
+                        >
+                            {t('plugin_wallet_view_on_explorer')}
+                        </Link>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <br />
+                        <br />
+                        <ActionButton fullWidth variant="contained" size="large" onClick={props.actionButton.onClick}>
+                            {props.actionButton.label}
+                        </ActionButton>
+                    </Grid>
+                </Grid>
+            </Typography>
+        )
+    }
+    return <>{null}</>
 }

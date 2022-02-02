@@ -16,19 +16,41 @@ interface ReferralDialogProps {
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {
         padding: theme.spacing(3, 0, 3),
+        fontSize: '16px',
+    },
+    heading: {
+        background: theme.palette.background.default,
+        height: '174px',
+        padding: theme.spacing(3, 4, 3),
+        borderRadius: '8px',
+        marginBottom: '24px',
+    },
+    headingText: {
+        fontSize: '18px',
+        lineHeight: '25px',
+    },
+    subTitle: {
+        fontSize: '18px',
+        marginBottom: '16px',
     },
     walletStatusBox: {
         width: 535,
         margin: '24px auto',
     },
     img: {
-        width: 50,
-        marginRight: 4,
+        height: 60,
+        width: 60,
         justifyContent: 'center',
         display: 'flex',
+        marginBottom: '16px',
     },
     smallText: {
         fontSize: '15px',
+    },
+    dataItem: {
+        '& b': {
+            fontWeight: 600,
+        },
     },
 }))
 const data = [
@@ -45,7 +67,11 @@ const data = [
         desc: 'incentivize referrals for the purchase of crypto tokens or NFT collection.',
     },
 ]
-export function Landing(props) {
+export interface LandingProps {
+    continue: (currentPage: PagesType, nextPage: PagesType) => void
+}
+
+export function Landing(props: LandingProps) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
@@ -55,37 +81,44 @@ export function Landing(props) {
 
     return (
         <div className={classes.wrapper}>
-            <Grid container>
-                <Grid xs={12} display="flex" justifyContent="center">
+            <Grid container className={classes.heading} display="flex" justifyContent="center">
+                <Grid item xs={12} display="flex" justifyContent="center">
                     <img className={classes.img} src={IconURLS.referral} />
                 </Grid>
+                <Typography className={classes.headingText} textAlign="center" fontWeight={400}>
+                    <b>{t('plugin_referral_referral_farming')}</b>
+                    {t('plugin_referral_referral_farms_short_desc')}
+                </Typography>
             </Grid>
-            <br />
-            <Typography variant="h6" textAlign="center">
-                <b>{t('plugin_referral')}</b>
-                {t('referral_farms_short_desc')}
-                <br />
-                <br />
-                <h4 align="left">{t('how_it_works')}</h4>
-                <Grid textAlign="left" direction="row" container className={classes.smallText} rowSpacing="10px">
-                    {data.map((e) => {
-                        return (
-                            <Grid key={e.name} item xs={12} alignContent="flex-start" justifyItems="flex-start">
-                                <b>{e.name}</b> -{e.desc}
-                            </Grid>
-                        )
-                    })}
-                    <Grid item xs={12} direction="row" textAlign="right">
-                        <Button
-                            onClick={() => {
-                                props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)
-                            }}
-                            variant="contained">
-                            Continue
-                        </Button>
-                    </Grid>
-                </Grid>
+            <Typography fontWeight={600} className={classes.subTitle}>
+                {t('plugin_referral_how_it_works')}
             </Typography>
+            <Grid textAlign="left" direction="row" container className={classes.smallText} rowSpacing="12px">
+                {data.map((e) => {
+                    return (
+                        <Grid
+                            key={e.name}
+                            item
+                            xs={12}
+                            alignContent="flex-start"
+                            justifyItems="flex-start"
+                            className={classes.dataItem}>
+                            <Typography>
+                                <b>{e.name}</b> - {e.desc}
+                            </Typography>
+                        </Grid>
+                    )
+                })}
+                <Grid item xs={12} direction="row" textAlign="right">
+                    <Button
+                        onClick={() => {
+                            props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)
+                        }}
+                        variant="contained">
+                        Continue
+                    </Button>
+                </Grid>
+            </Grid>
         </div>
     )
 }

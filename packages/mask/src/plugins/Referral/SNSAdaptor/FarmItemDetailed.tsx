@@ -1,10 +1,11 @@
 import { makeStyles } from '@masknet/theme'
 import { useERC20TokenDetailed } from '@masknet/web3-shared-evm'
+import { isDashboardPage } from '@masknet/shared-base'
 import { useI18N } from '../../../utils'
 
-import { Avatar } from '@mui/material'
+import { Avatar, Typography } from '@mui/material'
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
         display: 'flex',
         alignItems: 'center',
@@ -25,9 +26,14 @@ const useStyles = makeStyles()((theme) => ({
     },
 }))
 
-export function FarmItemDetailed({ address }: { address: string }) {
-    const { classes } = useStyles()
+export interface FarmItemDetailedProps extends React.PropsWithChildren<{}> {
+    address: string
+}
+
+export function FarmItemDetailed({ address }: FarmItemDetailedProps) {
     const { t } = useI18N()
+    const isDashboard = isDashboardPage()
+    const { classes } = useStyles({ isDashboard })
     const { value, loading, error, retry } = useERC20TokenDetailed(address)
 
     return value ? (
@@ -39,10 +45,10 @@ export function FarmItemDetailed({ address }: { address: string }) {
                     <Avatar>{value.name?.charAt(0).toUpperCase()}</Avatar>
                 )}
             </div>
-            <div className={classes.details}>
-                {value.symbol} {t('referral_farm')}
-                <div className={classes.name}>{value.name}</div>
-            </div>
+            <Typography className={classes.details} display="flex" flexDirection="column">
+                {value.symbol} {t('plugin_referral_referral_farm')}
+                <span className={classes.name}>{value.name}</span>
+            </Typography>
         </div>
     ) : null
 }

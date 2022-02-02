@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Typography, Box, Tab, Tabs, Grid, TextField, Link, CircularProgress } from '@mui/material'
+import { useCallback, useState } from 'react'
+import { Typography, Box, Tab, Tabs, Grid, TextField, CircularProgress } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
 import {
     ChainId,
-    resolveTransactionLinkOnExplorer,
     TransactionState,
     useAccount,
     useChainId,
@@ -14,16 +13,16 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TokenType } from '../types'
+import { TabsCreateFarm, TokenType, PagesType, TransactionStatus } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
+import { Transaction } from './Transaction'
 
 import { SelectTokenChip, useRemoteControlledDialog } from '@masknet/shared'
 import { SelectTokenDialogEvent, WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
-import DoneIcon from '@mui/icons-material/Done'
 import { blue } from '@mui/material/colors'
 import { NATIVE_TOKEN, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
@@ -31,12 +30,6 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
 
-// import { getDaoAddress } from '../Worker/apis/discovery'
-interface ReferralDialogProps {
-    open: boolean
-    onClose?: () => void
-    onSwapDialogOpen?: () => void
-}
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
         width: 535,
@@ -49,9 +42,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         height: '100%',
     },
     tab: {
-        width: '50%',
-    },
-    tabPanel: {
         maxHeight: '100%',
         height: '100%',
         overflow: 'auto',
@@ -72,20 +62,109 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '20px',
         fontWeight: 'bold',
     },
+    depositRoot: {
+        padding: `${theme.spacing(3)} 0`,
+    },
 }))
 
-export function CreateFarm(props) {
+// Deposit
+interface DepositProps {
+    totalFarmReward: string
+    rewardTokenSymbol?: string
+    requiredChainId: ChainId
+    isTransactionProcessing: boolean
+    onDeposit: () => Promise<void>
+}
+function Deposit({
+    totalFarmReward,
+    rewardTokenSymbol,
+    requiredChainId,
+    isTransactionProcessing,
+    onDeposit,
+}: DepositProps) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
 
+    const totalFarmRewardNum = Number.parseFloat(totalFarmReward)
+    const attraceFee = (totalFarmRewardNum * 5) / 100
+    const totalDeposit = totalFarmRewardNum + attraceFee
+
+    return (
+        <div className={classes.depositRoot}>
+            <Typography>
+                <br />
+                <Grid container justifyContent="space-between" rowSpacing="20px">
+                    <Grid xs={12}>
+                        <b>{t('plugin_referral_deposit_total_rewards')}</b>
+                    </Grid>
+                    <Grid item xs={6}>
+                        {t('plugin_referral_total_farm_rewards')}
+                    </Grid>
+                    <Grid item xs={6} display="flex" justifyContent="right">
+                        {totalFarmReward} {rewardTokenSymbol}
+                    </Grid>
+                    <Grid item xs={6}>
+                        {t('plugin_referral_attrace_fees')}
+                    </Grid>
+                    <Grid item xs={6} display="flex" justifyContent="right">
+                        {attraceFee} {rewardTokenSymbol}
+                    </Grid>
+                    <Grid item xs={6}>
+                        {t('plugin_referral_deposit_total')}
+                    </Grid>
+                    <Grid item xs={6} display="flex" justifyContent="right">
+                        {totalFarmRewardNum + attraceFee} {rewardTokenSymbol}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                            <ActionButton
+                                fullWidth
+                                variant="contained"
+                                size="large"
+                                disabled={isTransactionProcessing}
+                                onClick={async () => {
+                                    await onDeposit()
+                                }}>
+                                {!isTransactionProcessing ? (
+                                    <div>
+                                        Deposit {totalDeposit} {rewardTokenSymbol}
+                                    </div>
+                                ) : (
+                                    <CircularProgress size={20} />
+                                )}
+                            </ActionButton>
+                        </EthereumChainBoundary>
+                    </Grid>
+                </Grid>
+            </Typography>
+        </div>
+    )
+}
+
+interface CreateFarmProps {
+    onClose?: () => void
+    continue: (currentPage: PagesType, nextPage: PagesType) => void
+}
+
+export function CreateFarm(props: CreateFarmProps) {
+    const { t } = useI18N()
+    const currentChainId = useChainId()
+    const isDashboard = isDashboardPage()
+    const { classes } = useStyles({ isDashboard })
+
+    const [chainId, setChainId] = useState<ChainId>(currentChainId)
+    const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
     const [createFarm, setCreateFarm] = useState(false)
-    const [formComplete, setFromComplete] = useState(false)
+
     // #region select token
-    const { amount, token, balance, setAmount, setToken } = useFungibleTokenWatched()
+    const {
+        amount,
+        token: referredToken,
+        balance,
+        setAmount,
+        setToken: setReferredTokenToken,
+    } = useFungibleTokenWatched()
     const {
         amount: rewardAmount,
         token: rewardToken,
@@ -111,11 +190,22 @@ export function CreateFarm(props) {
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
         WalletMessages.events.walletStatusDialogUpdated,
     )
-    const depositButton = async () => {
-        if (token?.value?.address !== NATIVE_TOKEN) {
-            if (rewardToken?.value?.address === NATIVE_TOKEN) {
+
+    const onDeposit = useCallback(async () => {
+        if (!referredToken?.value?.address || !rewardToken?.value?.address) {
+            return alert('TOKEN DID NOT SELECT')
+        }
+
+        if (referredToken.value.address !== NATIVE_TOKEN) {
+            const { address: rewardTokenAddr } = rewardToken.value
+            const { address: referredTokenAddr } = referredToken.value
+            const totalFarmRewardNum = Number.parseFloat(totalFarmReward)
+            const dailyFarmRewardNum = Number.parseFloat(dailyFarmReward)
+
+            if (rewardToken.value.address === NATIVE_TOKEN) {
                 await runCreateNativeFarm(
                     (val: boolean) => {
+                        setTransactionProcessing(!val)
                         setTransactionConfirmed(val)
                     },
                     (val: boolean) => {
@@ -123,14 +213,15 @@ export function CreateFarm(props) {
                     },
                     web3,
                     account,
-                    rewardToken?.value?.address ?? '',
-                    token?.value?.address ?? '',
-                    Number.parseFloat(totalFarmReward),
-                    Number.parseFloat(dailyFarmReward),
+                    rewardTokenAddr,
+                    referredTokenAddr,
+                    totalFarmRewardNum,
+                    dailyFarmRewardNum,
                 )
             } else {
                 await runCreateERC20PairFarm(
                     (val: boolean) => {
+                        setTransactionProcessing(!val)
                         setTransactionConfirmed(val)
                     },
                     (val: boolean) => {
@@ -138,41 +229,58 @@ export function CreateFarm(props) {
                     },
                     web3,
                     account,
-                    rewardToken?.value?.address ?? '',
-                    token?.value?.address ?? '',
-                    Number.parseFloat(totalFarmReward),
-                    Number.parseFloat(dailyFarmReward),
+                    rewardTokenAddr,
+                    referredTokenAddr,
+                    totalFarmRewardNum,
+                    dailyFarmRewardNum,
                 )
             }
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
-    }
+    }, [web3, account, rewardToken, referredToken, totalFarmReward, dailyFarmReward])
 
-    const insertData = (selectedReferralData: ReferralMetaData) => {
+    const onInsertData = useCallback(() => {
+        if (!referredToken?.value?.address) {
+            return alert('REFERRED TOKEN DID NOT SELECT')
+        }
+
+        const { address, name = '', symbol = '', logoURI = [''] } = referredToken.value
+        const selectedReferralData = {
+            referral_token: address,
+            referral_token_name: name,
+            referral_token_symbol: symbol,
+            referral_token_icon: logoURI,
+            sender: senderName ?? '',
+        }
         if (selectedReferralData) {
             attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
         } else {
             dropMetadata(REFERRAL_META_KEY)
         }
+
         closeWalletStatusDialog()
-        props.onClose()
-    }
+        props.onClose?.()
+    }, [])
+
+    const onUpdateByRemote = useCallback(
+        (ev: SelectTokenDialogEvent) => {
+            if (ev.open || !ev.token || ev.uuid !== id) return
+
+            if (focusedTokenPanelType === TokenType.REFER) {
+                setReferredTokenToken(ev.token)
+            } else {
+                setRewardToken(ev.token)
+            }
+        },
+        [id, focusedTokenPanelType],
+    )
+
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
         WalletMessages.events.selectTokenDialogUpdated,
-        useCallback(
-            (ev: SelectTokenDialogEvent) => {
-                if (ev.open || !ev.token || ev.uuid !== id) return
-
-                if (focusedTokenPanelType === TokenType.REFER) {
-                    setToken(ev.token)
-                } else {
-                    setRewardToken(ev.token)
-                }
-            },
-            [id, focusedTokenPanelType],
-        ),
+        onUpdateByRemote,
     )
+
     const onSelectTokenChipClick = useCallback(
         (type: TokenType) => {
             setFocusedTokenPanelType(type)
@@ -185,226 +293,140 @@ export function CreateFarm(props) {
     )
     // #endregion
 
-    useEffect(() => {
-        if (
-            token.value?.address !== null &&
-            rewardToken.value?.address !== null &&
-            dailyFarmReward !== '' &&
-            totalFarmReward !== '' &&
-            totalFarmReward !== null &&
-            dailyFarmReward !== null
-        ) {
-            setFromComplete(true)
-        } else {
-            setFromComplete(false)
-        }
-    }, [token, rewardToken, dailyFarmReward, totalFarmReward])
     const clickCreateFarm = () => {
-        if (token?.value?.address !== NATIVE_TOKEN) {
+        if (referredToken?.value?.address !== NATIVE_TOKEN) {
             setCreateFarm(true)
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
     }
+
+    if (isTransactionProcessing) {
+        return <Transaction status={TransactionStatus.CONFIRMATION} />
+    }
+
+    if (isTransactionConfirmed) {
+        return (
+            <Transaction
+                status={TransactionStatus.CONFIRMED}
+                actionButton={{ label: t('plugin_referral_publish_farm'), onClick: onInsertData }}
+            />
+        )
+    }
+
+    if (createFarm) {
+        return (
+            <Deposit
+                totalFarmReward={totalFarmReward}
+                rewardTokenSymbol={rewardToken.value?.symbol}
+                isTransactionProcessing={isTransactionProcessing}
+                onDeposit={onDeposit}
+                requiredChainId={requiredChainId}
+            />
+        )
+    }
+
+    const createFarmBtnDisabled =
+        !referredToken.value?.address || !rewardToken.value?.address || !totalFarmReward || !dailyFarmReward
+
     return (
-        <>
-            {!isTransactionConfirmed ? (
-                !createFarm ? (
-                    <div>
-                        <Box className={classes.container}>
-                            <TabContext value={String(tab)}>
-                                <Tabs
-                                    value={tab}
-                                    onChange={(e, v) => setTab(v)}
-                                    aria-label="persona-post-contacts-button-group">
-                                    <Tab value={TabsCreateFarm.NEW} className={classes.tab} label="New" />
-                                    <Tab value={TabsCreateFarm.CREATED} className={classes.tab} label="Created" />
-                                </Tabs>
-                                <TabPanel value={TabsCreateFarm.NEW} className={classes.tabPanel}>
-                                    <Grid container />
-                                    <Typography>
-                                        <b>{t('create_referral_farm_desc')}</b>
-                                        <br />
-                                        <br />
-                                        {t('select_a_token_desc')}
-                                        <br />
-                                        <br />
-
-                                        <Grid
-                                            container
-                                            justifyContent="space-around"
-                                            alignItems="center"
-                                            rowSpacing="20px">
-                                            <Grid item xs={6} justifyContent="center" display="flex">
-                                                <SelectTokenChip
-                                                    token={token?.value}
-                                                    ChipProps={{
-                                                        onClick: () => {
-                                                            onSelectTokenChipClick(TokenType.REFER)
-                                                        },
-                                                        size: 'medium',
-                                                        className: classes.chip,
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={6} justifyContent="center" display="flex">
-                                                <SelectTokenChip
-                                                    token={rewardToken?.value}
-                                                    ChipProps={{
-                                                        onClick: () => {
-                                                            onSelectTokenChipClick(TokenType.REWARD)
-                                                        },
-                                                        size: 'medium',
-                                                        className: classes.chip,
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={6} justifyContent="center" display="flex">
-                                                <Box>
-                                                    <TextField
-                                                        required
-                                                        label={t('daily_farm_reward')}
-                                                        value={dailyFarmReward}
-                                                        variant="standard"
-                                                        onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
-                                                        inputMode="numeric"
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={6} justifyContent="center" display="flex">
-                                                <Box justifyContent="center">
-                                                    <TextField
-                                                        label={t('total_farm_rewards')}
-                                                        value={totalFarmReward}
-                                                        variant="standard"
-                                                        inputMode="numeric"
-                                                        onChange={(e) => setTotalFarmReward(e.currentTarget.value)}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
-
-                                        <br />
-                                        <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                                            <ActionButton
-                                                fullWidth
-                                                variant="contained"
-                                                size="large"
-                                                disabled={!formComplete}
-                                                onClick={() => {
-                                                    clickCreateFarm()
-                                                }}>
-                                                {t('create_referral_farm')}
-                                            </ActionButton>
-                                        </EthereumChainBoundary>
-                                    </Typography>
-                                </TabPanel>
-                                <TabPanel value={TabsCreateFarm.CREATED} className={classes.tabPanel}>
-                                    <CreatedFarms />
-                                </TabPanel>
-                            </TabContext>
-                        </Box>
-                    </div>
-                ) : (
-                    <div>
+        <div>
+            <Box className={classes.container}>
+                <TabContext value={String(tab)}>
+                    <Tabs
+                        value={tab}
+                        centered
+                        variant="fullWidth"
+                        onChange={(e, v) => setTab(v)}
+                        aria-label="persona-post-contacts-button-group">
+                        <Tab value={TabsCreateFarm.NEW} label="New" />
+                        <Tab value={TabsCreateFarm.CREATED} label="Created" />
+                    </Tabs>
+                    <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
+                        <Grid container />
                         <Typography>
+                            <b>{t('plugin_referral_create_referral_farm_desc')}</b>
                             <br />
-                            <Grid container justifyContent="space-between" rowSpacing="20px">
-                                <Grid xs={12}>
-                                    <b>{t('deposit_total_rewards')}</b>
+                            <br />
+                            {t('plugin_referral_select_a_token_desc')}
+                            <br />
+                            <br />
+                            <Grid container justifyContent="space-around" alignItems="center" rowSpacing="20px">
+                                <Grid item xs={6} justifyContent="center" display="flex">
+                                    <SelectTokenChip
+                                        token={referredToken?.value}
+                                        ChipProps={{
+                                            onClick: () => {
+                                                onSelectTokenChipClick(TokenType.REFER)
+                                            },
+                                            size: 'medium',
+                                            className: classes.chip,
+                                        }}
+                                    />
                                 </Grid>
-                                <Grid item xs={6}>
-                                    {t('total_farm_rewards')}
+                                <Grid item xs={6} justifyContent="center" display="flex">
+                                    <SelectTokenChip
+                                        token={rewardToken?.value}
+                                        ChipProps={{
+                                            onClick: () => {
+                                                onSelectTokenChipClick(TokenType.REWARD)
+                                            },
+                                            size: 'medium',
+                                            className: classes.chip,
+                                        }}
+                                    />
                                 </Grid>
-                                <Grid item xs={6} display="flex" justifyContent="right">
-                                    {totalFarmReward} {rewardToken?.value?.symbol}
+                                <Grid item xs={6} justifyContent="center" display="flex">
+                                    <Box>
+                                        <TextField
+                                            required
+                                            label={t('plugin_referral_daily_farm_reward')}
+                                            value={dailyFarmReward}
+                                            variant="standard"
+                                            onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
+                                            inputMode="numeric"
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                        />
+                                    </Box>
                                 </Grid>
-                                <Grid item xs={6}>
-                                    {t('attrace_fees')}
+                                <Grid item xs={6} justifyContent="center" display="flex">
+                                    <Box justifyContent="center">
+                                        <TextField
+                                            label={t('plugin_referral_total_farm_rewards')}
+                                            value={totalFarmReward}
+                                            variant="standard"
+                                            inputMode="numeric"
+                                            onChange={(e) => setTotalFarmReward(e.currentTarget.value)}
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                        />
+                                    </Box>
                                 </Grid>
-                                <Grid item xs={6} display="flex" justifyContent="right">
-                                    {(Number.parseFloat(totalFarmReward) * 5) / 100} {rewardToken?.value?.symbol}
-                                </Grid>
-                                <Grid item xs={6}>
-                                    {t('deposit_total')}
-                                </Grid>
-                                <Grid item xs={6} display="flex" justifyContent="right">
-                                    {Number.parseFloat(totalFarmReward) +
-                                        (Number.parseFloat(totalFarmReward) * 5) / 100}{' '}
-                                    {rewardToken?.value?.symbol}
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                                        <ActionButton
-                                            fullWidth
-                                            variant="contained"
-                                            size="large"
-                                            disabled={isTransactionProcessing}
-                                            onClick={async () => {
-                                                await depositButton()
-                                            }}>
-                                            {!isTransactionProcessing ? (
-                                                <div>
-                                                    Deposit{' '}
-                                                    {Number.parseFloat(totalFarmReward) +
-                                                        (Number.parseFloat(totalFarmReward) * 5) / 100}{' '}
-                                                    {rewardToken?.value?.symbol}
-                                                </div>
-                                            ) : (
-                                                <CircularProgress />
-                                            )}
-                                        </ActionButton>
-                                    </EthereumChainBoundary>
-                                </Grid>
-                            </Grid>
-                        </Typography>
-                    </div>
-                )
-            ) : (
-                <div>
-                    <Typography>
-                        <Grid container textAlign="center" rowSpacing="5px" sx={{ p: 2 }}>
-                            <Grid item xs={12}>
-                                <DoneIcon sx={{ fontSize: 60 }} />
-                            </Grid>
-                            <Grid item xs={12} className={classes.heading}>
-                                {t('plugin_wallet_transaction_confirmed')}
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Link href={resolveTransactionLinkOnExplorer(chainId, '')}>
-                                    {t('plugin_wallet_view_on_explorer')}
-                                </Link>
                             </Grid>
 
-                            <Grid item xs={12}>
-                                <br />
-                                <br />
+                            <br />
+                            <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
                                 <ActionButton
                                     fullWidth
                                     variant="contained"
                                     size="large"
+                                    disabled={createFarmBtnDisabled}
                                     onClick={() => {
-                                        insertData({
-                                            referral_token: token?.value?.address ?? '',
-                                            referral_token_name: token?.value?.name ?? '',
-                                            referral_token_symbol: token?.value?.symbol ?? '',
-                                            referral_token_icon: token?.value?.logoURI ?? [''],
-                                            sender: senderName ?? '',
-                                        })
+                                        clickCreateFarm()
                                     }}>
-                                    {t('publish_farm')}
+                                    {t('plugin_referral_create_referral_farm')}
                                 </ActionButton>
-                            </Grid>
-                        </Grid>
-                    </Typography>
-                </div>
-            )}
-        </>
+                            </EthereumChainBoundary>
+                        </Typography>
+                    </TabPanel>
+                    <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
+                        <CreatedFarms />
+                    </TabPanel>
+                </TabContext>
+            </Box>
+        </div>
     )
 }

@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData, PagesType } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -54,7 +54,12 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
-export function ReferToFarm(props) {
+export interface ReferToFarmProps extends React.PropsWithChildren<{}> {
+    onClose?: () => void
+    continue: (currentPage: PagesType, nextPage: PagesType) => void
+}
+
+export function ReferToFarm(props: ReferToFarmProps) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
@@ -71,9 +76,9 @@ export function ReferToFarm(props) {
         daily_reward: '1 wETH',
         total_reward: '5 wETH',
     })
-    const [attraceRewardData, setAttraceRewardData] = useState<RewardData>(null)
+    const [attraceRewardData, setAttraceRewardData] = useState<RewardData | null>(null)
     const requiredChainId = ChainId.Rinkeby
-    const web3 = useWeb3(false, requiredChainId)
+    const web3 = useWeb3({ chainId: requiredChainId })
     const account = useAccount()
 
     const { attachMetadata, dropMetadata } = useCompositionContext()
@@ -112,7 +117,7 @@ export function ReferToFarm(props) {
             dropMetadata(REFERRAL_META_KEY)
         }
         closeWalletStatusDialog()
-        props.onClose()
+        props.onClose?.()
     }
     const referFarm = async () => {
         try {
@@ -136,6 +141,7 @@ export function ReferToFarm(props) {
                         <Tabs
                             value={tab}
                             centered
+                            variant="fullWidth"
                             onChange={(e, v) => setTab(v)}
                             aria-label="persona-post-contacts-button-group">
                             <Tab value={TabsCreateFarm.NEW} label="New" />
@@ -144,10 +150,10 @@ export function ReferToFarm(props) {
                         <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
                             <Grid container />
                             <Typography>
-                                <b>{t('select_token_refer')}</b>
+                                <b>{t('plugin_referral_select_token_refer')}</b>
                                 <br />
                                 <br />
-                                {t('select_token_refer_desc')}
+                                {t('plugin_referral_select_token_refer_desc')}
                             </Typography>
                             <Typography>
                                 <Grid
@@ -171,18 +177,18 @@ export function ReferToFarm(props) {
 
                                     <Grid item xs={6} justifyContent="center" display="flex" />
                                     <Grid item xs={12}>
-                                        <b>{t('sponsered_referral_farm')}</b>
+                                        <b>{t('plugin_referral_sponsered_referral_farm')}</b>
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            {t('apr_estimated')}
+                                            {t('plugin_referral_apr_estimated')}
                                             <br />
                                             <b>{rewardData.apr}</b>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            {t('daily_rewards')}
+                                            {t('plugin_referral_daily_rewards')}
 
                                             <br />
                                             <b>{rewardData.daily_reward}</b>
@@ -190,7 +196,7 @@ export function ReferToFarm(props) {
                                     </Grid>
                                     <Grid item xs={4} justifyContent="center" display="flex">
                                         <Box>
-                                            {t('total_farm_rewards')}
+                                            {t('plugin_referral_total_farm_rewards')}
                                             <br />
                                             <b>{rewardData.total_reward}</b>
                                         </Box>
@@ -198,19 +204,19 @@ export function ReferToFarm(props) {
                                     {attraceRewardData !== null ? (
                                         <div>
                                             <Grid item xs={12}>
-                                                <b>{t('attrace_referral_farm')}</b>
+                                                <b>{t('plugin_referral_attrace_referral_farm')}</b>
                                             </Grid>
 
                                             <Grid item xs={4} justifyContent="center" display="flex">
                                                 <Box>
-                                                    {t('apr')}
+                                                    {t('plugin_referral_apr')}
                                                     <br />
                                                     <b>{rewardData.apr}</b>
                                                 </Box>
                                             </Grid>
                                             <Grid item xs={4} justifyContent="center" display="flex">
                                                 <Box>
-                                                    {t('daily_rewards')}
+                                                    {t('plugin_referral_daily_rewards')}
 
                                                     <br />
                                                     <b>{rewardData.daily_reward}</b>
@@ -218,7 +224,7 @@ export function ReferToFarm(props) {
                                             </Grid>
                                             <Grid item xs={4} justifyContent="center" display="flex">
                                                 <Box>
-                                                    {t('total_farm_rewards')}
+                                                    {t('plugin_referral_total_farm_rewards')}
                                                     <br />
                                                     <b>{rewardData.total_reward}</b>
                                                 </Box>

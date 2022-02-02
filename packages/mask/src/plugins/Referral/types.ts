@@ -19,7 +19,7 @@ export enum ProtocolType {
 //     LANDING = 'landing',
 //     REFERRAL_FARMS = 'Referral Farms',
 //     CREATE_FARM = 'Create Farm',
-//     REFER_TO_FARM = 'Refer to Farm',
+//     plugin_referral_refer_to_farm = 'Refer to Farm',
 //     BUY_TO_FARM = 'Buy to Farm',
 //     SELECT_TOKEN = 'Select a Token to Refer',
 //     TRANSACTION = 'Transaction',
@@ -34,7 +34,7 @@ export enum PagesType {
     LANDING = 'landing',
     REFERRAL_FARMS = 'Referral Farms',
     CREATE_FARM = 'Create Farm',
-    REFER_TO_FARM = 'Refer to Farm',
+    plugin_referral_refer_to_farm = 'Refer to Farm',
     BUY_TO_FARM = 'Buy to Farm',
     SELECT_TOKEN = 'Select a Token to Refer',
     TRANSACTION = 'Transaction',
@@ -217,4 +217,10 @@ export function parseChainAddress(chaddr: ChainAddress): ChainAddressProps {
         address,
         isNative,
     }
+}
+
+export enum TransactionStatus {
+    CONFIRMATION = 'Confirmation',
+    CONFIRMED = 'CONFIRMED',
+    FAILED = 'FAILED',
 }
