@@ -1017,13 +1017,16 @@
     "join_receive_rewards": "Join the farms and receive rewards based on the value of tokens purchased via referrals&#x1F525;",
     "refer_to_farm": "Refer to Farm",
     "sponsored_farm": "Sponsored Referral Farm",
+    "apr": "APR",
     "apr_with_data": "APR: {{reward}}",
     "daily_rewards_with_data": "Daily Reward: {{reward}}",
+    "total_rewards": "Total Rewards",
     "total_rewards_with_data": "Total Rewards: {{reward}}",
-    "apr": "Estimated APR",
+    "apr_estimated": "Estimated APR",
     "daily_rewards": "Daily Farm Reward",
-    "total_rewards": "Total Farm Rewards",
     "buy_refer_earn_yield": "Buy or refer ${{token}} and receive farming yield without farming!",
     "attrace_referral_farm": "Attrace Referral Farm",
-    "sponsered_referral_farm": "Sponsered Referral Farm"
+    "sponsered_referral_farm": "Sponsered Referral Farm",
+    "referral_farm": "Referral Farm",
+    "no_created_farm": "You haven't created any referral farm yet"
 }
