@@ -59,9 +59,7 @@ interface TokenFilter {
 }
 
 export async function getMyFarms(web3: Web3, account: string, filter?: TokenFilter): Promise<Array<FarmExistsEvent>> {
-    console.log('getMyFarms')
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
-    console.log('farmsAddr', farmsAddr)
     // Query for existing farms and their deposits
     // TODO paging
 

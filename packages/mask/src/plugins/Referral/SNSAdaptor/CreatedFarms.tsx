@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { Grid, Typography } from '@mui/material'
+import { Grid, Typography, CircularProgress } from '@mui/material'
 
 import { useI18N } from '../../../utils'
+import { v4 as uuid } from 'uuid'
 import { fromWei } from 'web3-utils'
 import { useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
@@ -33,12 +34,14 @@ const useStyles = makeStyles()((theme) => ({
         marginBottom: '20px',
     },
     noFarm: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         borderRadius: '12px',
         background: theme.palette.background.default,
         height: '44px',
         color: theme.palette.text.strong,
-    },
-    noFarmText: {
         fontWeight: 500,
     },
     total: {
@@ -102,22 +105,16 @@ export function CreatedFarms() {
                     </Typography>
                 </Grid>
             </Grid>
-            <div className={classes.content}>
-                {!loading && (
+            <Grid container justifyContent="center" className={classes.content}>
+                {loading ? (
+                    <CircularProgress size={50} />
+                ) : (
                     <>
                         {farms.length === 0 ? (
-                            <Grid container justifyContent="center" alignItems="center" className={classes.noFarm}>
-                                <Typography className={classes.noFarmText}>
-                                    {t('plugin_referral_no_created_farm')}
-                                </Typography>
-                            </Grid>
+                            <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
                             farms.map((farm) => (
-                                <Grid
-                                    container
-                                    justifyContent="space-between"
-                                    key={farm.farmHash}
-                                    className={classes.farm}>
+                                <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
                                     <Grid item xs={6}>
                                         <FarmItemDetailed
                                             address={parseChainAddress(chainId, farm.referredTokenDefn)}
@@ -137,7 +134,7 @@ export function CreatedFarms() {
                         )}
                     </>
                 )}
-            </div>
+            </Grid>
         </div>
     )
 }
