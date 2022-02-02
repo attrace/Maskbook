@@ -22,6 +22,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
     bold: {},
     normal: {},
+    content: {
+        padding: theme.spacing(0, 3, 0),
+    },
 }))
 
 export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDialogProps) {
@@ -48,7 +51,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 return <ReferralFarms continue={nextPage} />
             case PagesType.CREATE_FARM:
                 return <CreateFarm continue={nextPage} onClose={onClose} />
-            case PagesType.REFER_TO_FARM:
+            case PagesType.plugin_referral_refer_to_farm:
                 return <ReferToFarm continue={nextPage} onClose={onClose} />
             default:
                 return <Landing continue={nextPage} />
@@ -69,7 +72,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             }}
             title={currentTitle}
             disableBackdropClick>
-            <DialogContent>{renderViews()}</DialogContent>
+            <DialogContent className={classes.content}>{renderViews()}</DialogContent>
         </InjectedDialog>
     )
 }

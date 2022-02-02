@@ -8,7 +8,7 @@ export async function getWomOracle(): Promise<string> {
     return womOracles[Math.floor(Math.random() * womOracles.length)].url
 }
 
-export async function postToWomOracle(oracle: string, urlPath: string, body: any): Promise<WomResponse> {
+export async function postToWomOracle(oracle: string, urlPath: string, body: any): Promise<any> {
     // oracle = 'http://localhost:3000'; // testing url TODO disable!
     const res = await fetch(`${oracle}${urlPath}`, {
         method: 'POST',

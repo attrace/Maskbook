@@ -62,7 +62,7 @@ export function FarmPost(props: FarmPostProps) {
         <>
             <div>
                 <Typography>
-                    {t('buy_refer_earn_yield', { token: payload.referral_token_symbol })}
+                    {t('plugin_referral_buy_refer_earn_yield', { token: payload.referral_token_symbol })}
                     <Card variant="outlined">
                         <CardContent>
                             <Grid container spacing={2}>
@@ -73,7 +73,7 @@ export function FarmPost(props: FarmPostProps) {
                                     <Grid item xs container direction="column" spacing={2}>
                                         <Grid item xs>
                                             <Typography gutterBottom variant="subtitle1" component="div">
-                                                {t('mask_plugin')}
+                                                {t('plugin_referral_mask_plugin')}
                                             </Typography>
                                             <Typography variant="h6" gutterBottom>
                                                 <b> {t('plugin_referral')}</b>
@@ -83,10 +83,10 @@ export function FarmPost(props: FarmPostProps) {
                                     <Grid item direction="column" spacing={2}>
                                         <Grid item xs>
                                             <Typography gutterBottom component="div">
-                                                {t('provided_by')}
+                                                {t('plugin_referral_provided_by')}
                                             </Typography>
                                             <Typography gutterBottom>
-                                                <b> {t('attrace_protocol')}</b>
+                                                <b> {t('plugin_referral_attrace_protocol')}</b>
                                             </Typography>
                                         </Grid>
                                     </Grid>
@@ -114,12 +114,14 @@ export function FarmPost(props: FarmPostProps) {
                                             </Typography>
                                         </Grid>
                                     </Grid>
-                                    {t('join_receive_rewards')}
+                                    {t('plugin_referral_join_receive_rewards')}
                                     <br />
-                                    <br /> <b>{t('sponsored_farm')}</b>
-                                    <br /> {t('apr_with_data', { reward: rewardData.apr })}
-                                    <br /> {t('daily_rewards_with_data', { reward: rewardData.daily_reward })}
-                                    <br /> {t('total_rewards_with_data', { reward: rewardData.total_reward })}
+                                    <br /> <b>{t('plugin_referral_sponsored_farm')}</b>
+                                    <br /> {t('plugin_referral_apr_with_data', { reward: rewardData.apr })}
+                                    <br />{' '}
+                                    {t('plugin_referral_daily_rewards_with_data', { reward: rewardData.daily_reward })}
+                                    <br />{' '}
+                                    {t('plugin_referral_total_rewards_with_data', { reward: rewardData.total_reward })}
                                 </Card>
                             </Box>
                         </CardContent>
@@ -137,7 +139,7 @@ export function FarmPost(props: FarmPostProps) {
                                         onClick={async () => {
                                             await referButton()
                                         }}>
-                                        {t('refer_to_farm')}
+                                        {t('plugin_referral_refer_to_farm')}
                                     </Button>
                                 </Grid>
                             </Grid>

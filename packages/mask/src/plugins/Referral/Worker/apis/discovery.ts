@@ -47,6 +47,8 @@ export async function getDaoAddress(web3: Web3, key: string) {
     const chainId = ChainId.Rinkeby
     const daoConfig = daos.filter((d) => d.chainId === chainId)[0]
     const dao = createContract(web3, daoConfig?.address ?? '', daoABIT as AbiItem[])
+
     const val = await dao?.methods.addresses(key).call()
+
     return val
 }

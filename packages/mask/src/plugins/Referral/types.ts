@@ -1,4 +1,5 @@
 import type { ChainId as ChainIdMain } from '@masknet/web3-shared-evm'
+import type BigNumber from 'bignumber.js'
 import { padStart } from 'lodash-unified'
 
 export interface SavingsNetwork {
@@ -18,7 +19,7 @@ export enum ProtocolType {
 //     LANDING = 'landing',
 //     REFERRAL_FARMS = 'Referral Farms',
 //     CREATE_FARM = 'Create Farm',
-//     REFER_TO_FARM = 'Refer to Farm',
+//     plugin_referral_refer_to_farm = 'Refer to Farm',
 //     BUY_TO_FARM = 'Buy to Farm',
 //     SELECT_TOKEN = 'Select a Token to Refer',
 //     TRANSACTION = 'Transaction',
@@ -33,7 +34,7 @@ export enum PagesType {
     LANDING = 'landing',
     REFERRAL_FARMS = 'Referral Farms',
     CREATE_FARM = 'Create Farm',
-    REFER_TO_FARM = 'Refer to Farm',
+    plugin_referral_refer_to_farm = 'Refer to Farm',
     BUY_TO_FARM = 'Buy to Farm',
     SELECT_TOKEN = 'Select a Token to Refer',
     TRANSACTION = 'Transaction',
@@ -116,7 +117,15 @@ export interface FarmExistsEvent {
     rewardTokenDefn: ChainAddress
     sponsor: EvmAddress
 }
-export type FarmEvent = FarmExistsEvent
+export interface FarmDepositChange {
+    farmHash: FarmHash
+    delta: BigNumber
+}
+export interface FarmMetastate {
+    farmHash: FarmHash
+    dailyFarmReward: BigNumber
+}
+export interface FarmEvent extends FarmExistsEvent, FarmDepositChange {}
 
 export type Node = {
     url: string
@@ -208,4 +217,10 @@ export function parseChainAddress(chaddr: ChainAddress): ChainAddressProps {
         address,
         isNative,
     }
+}
+
+export enum TransactionStatus {
+    CONFIRMATION = 'Confirmation',
+    CONFIRMED = 'CONFIRMED',
+    FAILED = 'FAILED',
 }
