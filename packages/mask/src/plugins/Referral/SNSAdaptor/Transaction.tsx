@@ -1,7 +1,7 @@
 import { useI18N } from '../../../utils'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { useChainId } from '@masknet/web3-shared-evm'
+import { resolveTransactionLinkOnExplorer, useChainId } from '@masknet/web3-shared-evm'
 
 import { TransactionStatus } from '../types'
 import { Grid, Typography, CircularProgress, Link } from '@mui/material'
@@ -33,6 +33,7 @@ type TransactionProps =
               label: string
               onClick: () => void
           }
+          transactionHash: string
       }
 
 export function Transaction(props: TransactionProps) {
@@ -66,10 +67,7 @@ export function Transaction(props: TransactionProps) {
                         {t('plugin_wallet_transaction_confirmed')}
                     </Grid>
                     <Grid item xs={12}>
-                        <Link
-                            href=""
-                            // href={resolveTransactionLinkOnExplorer(currentChainId, '')}
-                        >
+                        <Link href={resolveTransactionLinkOnExplorer(currentChainId, props.transactionHash)}>
                             {t('plugin_wallet_view_on_explorer')}
                         </Link>
                     </Grid>
