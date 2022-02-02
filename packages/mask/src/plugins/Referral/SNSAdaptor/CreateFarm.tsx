@@ -18,8 +18,9 @@ import ActionButton from '../../../extension/options-page/DashboardComponents/Ac
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
 import { Transaction } from './Transaction'
+import { TokenSelectField } from './shared-ui/TokenSelectField'
 
-import { FormattedBalance, SelectTokenChip, useRemoteControlledDialog } from '@masknet/shared'
+import { FormattedBalance, useRemoteControlledDialog } from '@masknet/shared'
 import { SelectTokenDialogEvent, WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
@@ -299,7 +300,7 @@ export function CreateFarm(props: CreateFarmProps) {
         onUpdateByRemote,
     )
 
-    const onSelectTokenChipClick = useCallback(
+    const onTokenSelectClick = useCallback(
         (type: TokenType) => {
             setFocusedTokenPanelType(type)
             setSelectTokenDialog({
@@ -372,26 +373,20 @@ export function CreateFarm(props: CreateFarmProps) {
                             <br />
                             <Grid container justifyContent="space-around" alignItems="center" rowSpacing="20px">
                                 <Grid item xs={6} justifyContent="center" display="flex">
-                                    <SelectTokenChip
+                                    <TokenSelectField
+                                        label={t('plugin_referral_token_to_refer')}
                                         token={referredToken?.value}
-                                        ChipProps={{
-                                            onClick: () => {
-                                                onSelectTokenChipClick(TokenType.REFER)
-                                            },
-                                            size: 'medium',
-                                            className: classes.chip,
+                                        onClick={() => {
+                                            onTokenSelectClick(TokenType.REFER)
                                         }}
                                     />
                                 </Grid>
                                 <Grid item xs={6} justifyContent="center" display="flex">
-                                    <SelectTokenChip
+                                    <TokenSelectField
+                                        label={t('plugin_referral_reward_token')}
                                         token={rewardToken?.value}
-                                        ChipProps={{
-                                            onClick: () => {
-                                                onSelectTokenChipClick(TokenType.REWARD)
-                                            },
-                                            size: 'medium',
-                                            className: classes.chip,
+                                        onClick={() => {
+                                            onTokenSelectClick(TokenType.REWARD)
                                         }}
                                     />
                                 </Grid>

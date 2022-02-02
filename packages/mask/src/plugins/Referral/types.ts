@@ -34,7 +34,7 @@ export enum PagesType {
     LANDING = 'landing',
     REFERRAL_FARMS = 'Referral Farms',
     CREATE_FARM = 'Create Farm',
-    plugin_referral_refer_to_farm = 'Refer to Farm',
+    REFER_TO_FARM = 'Refer to Farm',
     BUY_TO_FARM = 'Buy to Farm',
     SELECT_TOKEN = 'Select a Token to Refer',
     TRANSACTION = 'Transaction',
