@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useAsync } from 'react-use'
 
 import { Grid, Typography, CircularProgress } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
 import { fromWei } from 'web3-utils'
-import { useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
+import { useAccount, useChainId, useWeb3, useWeb3Context, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { parseChainAddress } from './helpers'
-
 import type { FarmEvent } from '../types'
 
-import { FarmItemDetailed } from './FarmItemDetailed'
-import { TokenSymbol } from './TokenSymbol'
+import { ReferredTokenDetailed } from './ReferredTokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -55,13 +54,19 @@ export function CreatedFarms() {
     const chainId = useChainId()
     const account = useAccount()
     const web3 = useWeb3({ chainId })
+    const { fetchERC20TokensFromTokenLists } = useWeb3Context()
+    const { ERC20 } = useTokenListConstants()
+    const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
+        async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
+        [chainId, ERC20?.sort().join()],
+    )
 
-    const [loading, setLoading] = useState(true)
+    const [loadingFarms, setLoadingFarms] = useState(true)
     const [farms, setFarms] = useState<FarmEvent[]>([])
 
     useEffect(() => {
         async function fetchFarms() {
-            setLoading(true)
+            setLoadingFarms(true)
             const farms: FarmEvent[] = []
 
             // fetch farms created by sponsor and all farms deposits
@@ -74,17 +79,18 @@ export function CreatedFarms() {
                 farmsDeposits.value.forEach((deposit) => {
                     myFarms.value.forEach((farm) => {
                         if (!(deposit.farmHash === farm.farmHash)) return
-
                         farms.push({ ...deposit, ...farm })
                     })
                 })
 
                 setFarms(farms)
             }
-            setLoading(false)
+            setLoadingFarms(false)
         }
         fetchFarms()
     }, [])
+
+    const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
     return (
         <div className={classes.container}>
@@ -106,7 +112,7 @@ export function CreatedFarms() {
                 </Grid>
             </Grid>
             <Grid container justifyContent="center" className={classes.content}>
-                {loading ? (
+                {loadingFarms || loadingAllTokens ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
@@ -116,8 +122,8 @@ export function CreatedFarms() {
                             farms.map((farm) => (
                                 <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
                                     <Grid item xs={6}>
-                                        <FarmItemDetailed
-                                            address={parseChainAddress(chainId, farm.referredTokenDefn)}
+                                        <ReferredTokenDetailed
+                                            token={allTokensMap.get(parseChainAddress(farm.referredTokenDefn))}
                                         />
                                     </Grid>
                                     <Grid item xs={2} display="flex" alignItems="center">
@@ -127,7 +133,9 @@ export function CreatedFarms() {
                                         <Typography className={classes.total}>
                                             {fromWei(farm.delta.toString())}
                                         </Typography>
-                                        <TokenSymbol address={parseChainAddress(chainId, farm.rewardTokenDefn)} />
+                                        <Typography className={classes.total}>
+                                            {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn))?.symbol}
+                                        </Typography>
                                     </Grid>
                                 </Grid>
                             ))
