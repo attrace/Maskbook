@@ -17,7 +17,7 @@ import { TabsCreateFarm, TokenType, PagesType, TransactionStatus } from '../type
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
-import { Transaction } from './Transaction'
+import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 
 import { FormattedBalance, useRemoteControlledDialog } from '@masknet/shared'

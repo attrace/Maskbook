@@ -1032,6 +1032,5 @@
     "plugin_referral_no_created_farm": "You haven't created any referral farm yet",
     "plugin_referral_transaction_confirmation_title": "Confirm permission and deposit",
     "plugin_referral_token_to_refer": "Token to Refer",
-    "plugin_referral_reward_token": "Reward Token",
-    "plugin_referral_select_token": "Select a Token"
+    "plugin_referral_reward_token": "Reward Token"
 }

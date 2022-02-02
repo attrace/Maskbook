@@ -1,6 +1,6 @@
 import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
-import { useI18N } from '../../../utils'
+import { useI18N } from '../../../../utils'
 
 import type { ERC20TokenDetailed } from '@masknet/web3-shared-evm'
 

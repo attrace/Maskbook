@@ -1,12 +1,12 @@
-import { useI18N } from '../../../utils'
+import { useI18N } from '../../../../utils'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { resolveTransactionLinkOnExplorer, useChainId } from '@masknet/web3-shared-evm'
 
-import { TransactionStatus } from '../types'
+import { TransactionStatus } from '../../types'
 import { Grid, Typography, CircularProgress, Link } from '@mui/material'
 import DoneIcon from '@mui/icons-material/Done'
-import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
+import ActionButton from '../../../../extension/options-page/DashboardComponents/ActionButton'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     confirmation: {

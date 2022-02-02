@@ -6,13 +6,15 @@ import { Grid, Typography, CircularProgress } from '@mui/material'
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
 import { fromWei } from 'web3-utils'
-import { useAccount, useChainId, useWeb3, useWeb3Context, useTokenListConstants } from '@masknet/web3-shared-evm'
+import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { parseChainAddress } from './helpers'
 import type { FarmEvent } from '../types'
 
-import { ReferredTokenDetailed } from './ReferredTokenDetailed'
+import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
+
+import { ReferredTokenDetailed } from './shared-ui/ReferredTokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -54,7 +56,6 @@ export function CreatedFarms() {
     const chainId = useChainId()
     const account = useAccount()
     const web3 = useWeb3({ chainId })
-    const { fetchERC20TokensFromTokenLists } = useWeb3Context()
     const { ERC20 } = useTokenListConstants()
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
