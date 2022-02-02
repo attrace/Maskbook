@@ -10,6 +10,8 @@ import { Landing } from './Landing'
 import { ReferralFarms } from './ReferralFarms'
 import { CreateFarm } from './CreateFarm'
 import { ReferToFarm } from './ReferToFarm'
+import { SelectToken } from './SelectToken'
+
 interface ReferralDialogProps {
     open: boolean
     onClose?: () => void
@@ -51,8 +53,10 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 return <ReferralFarms continue={nextPage} />
             case PagesType.CREATE_FARM:
                 return <CreateFarm continue={nextPage} onClose={onClose} />
-            case PagesType.plugin_referral_refer_to_farm:
+            case PagesType.REFER_TO_FARM:
                 return <ReferToFarm continue={nextPage} onClose={onClose} />
+            case PagesType.SELECT_TOKEN:
+                return <SelectToken />
             default:
                 return <Landing continue={nextPage} />
         }

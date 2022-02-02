@@ -97,7 +97,7 @@ export function ReferralFarms(props: ReferralFarmsProps) {
         {
             name: 'Refer to Farm',
             onClick: () => {
-                props.continue(PagesType.REFERRAL_FARMS, PagesType.plugin_referral_refer_to_farm)
+                props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM)
             },
         },
         {
