@@ -9,8 +9,7 @@ import { fromWei } from 'web3-utils'
 import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { parseChainAddress } from './helpers'
-import type { FarmEvent } from '../types'
+import { FarmEvent, parseChainAddress } from '../types'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 
@@ -72,7 +71,7 @@ export function CreatedFarms() {
 
             // fetch farms created by sponsor and all farms deposits
             const [myFarms, farmsDeposits] = await Promise.allSettled([
-                getMyFarms(web3, account),
+                getMyFarms(web3, account, chainId),
                 getFarmsDeposits(web3),
             ])
 
@@ -89,7 +88,7 @@ export function CreatedFarms() {
             setLoadingFarms(false)
         }
         fetchFarms()
-    }, [])
+    }, [chainId, account, web3])
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
@@ -124,7 +123,7 @@ export function CreatedFarms() {
                                 <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
                                     <Grid item xs={6}>
                                         <ReferredTokenDetailed
-                                            token={allTokensMap.get(parseChainAddress(farm.referredTokenDefn))}
+                                            token={allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)}
                                         />
                                     </Grid>
                                     <Grid item xs={2} display="flex" alignItems="center">
@@ -135,7 +134,7 @@ export function CreatedFarms() {
                                             {fromWei(farm.delta.toString())}
                                         </Typography>
                                         <Typography className={classes.total}>
-                                            {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn))?.symbol}
+                                            {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)?.symbol}
                                         </Typography>
                                     </Grid>
                                 </Grid>
