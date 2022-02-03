@@ -7,11 +7,12 @@ import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } fro
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData, PagesType, TransactionStatus } from '../types'
+
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
 import { SelectTokenChip, useRemoteControlledDialog } from '@masknet/shared'
-import { SelectTokenDialogEvent, WalletMessages } from '@masknet/plugin-wallet'
+import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
@@ -20,7 +21,9 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
 import { Transaction } from './shared-ui/Transaction'
-// import { getDaoAddress } from '../Worker/apis/discovery'
+
+import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
+
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -92,24 +95,22 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const currentIdentity = useCurrentIdentity()
     const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
-        WalletMessages.events.selectTokenDialogUpdated,
+        PluginReferralMessages.selectTokenUpdated,
         useCallback(
-            (ev: SelectTokenDialogEvent) => {
+            (ev: SelectTokenUpdated) => {
                 if (ev.open || !ev.token || ev.uuid !== id) return
                 setToken(ev.token)
             },
             [id, setToken],
         ),
     )
-    const onSelectTokenChipClick = useCallback(
-        (type: TokenType) => {
-            setSelectTokenDialog({
-                open: true,
-                uuid: id,
-            })
-        },
-        [id, setToken],
-    )
+    const onSelectTokenChipClick = useCallback(() => {
+        setSelectTokenDialog({
+            open: true,
+            uuid: id,
+            title: t('plugin_referral_select_a_referral_token'),
+        })
+    }, [id, setToken])
     // #endregion
 
     const insertData = (selectedReferralData: ReferralMetaData) => {
@@ -175,7 +176,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                             token={token?.value}
                                             ChipProps={{
                                                 onClick: () => {
-                                                    onSelectTokenChipClick(TokenType.REFER)
+                                                    onSelectTokenChipClick()
                                                 },
                                                 size: 'medium',
                                                 className: classes.chip,
