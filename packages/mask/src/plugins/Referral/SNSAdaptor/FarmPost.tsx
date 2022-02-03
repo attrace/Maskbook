@@ -1,4 +1,4 @@
-import { isDashboardPage } from '@masknet/shared-base'
+import { isDashboardPage, makeTypedMessageText } from '@masknet/shared-base'
 import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
@@ -9,9 +9,10 @@ import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
 import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 
-import { useI18N } from '../../../utils'
+import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon } from '@masknet/shared'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 
 interface FarmPostProps {
     payload: ReferralMetaData
@@ -45,24 +46,44 @@ export function FarmPost(props: FarmPostProps) {
         daily_reward: '1wETH',
         total_reward: '5wETH',
     })
-    const insertData = (selectedReferralData: ReferralMetaData) => {
-        if (selectedReferralData) {
-            attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
-        } else {
-            dropMetadata(REFERRAL_META_KEY)
-        }
-    }
-    // TODO: Need to be Implemented
-    const shareFarm = () => {}
+
+    const currentIdentity = useCurrentIdentity()
+
+    const openEncryptedMessage = useCallback(
+        (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
+            MaskMessages.events.requestComposition.sendToLocal({
+                reason: 'timeline',
+                open: true,
+                content: makeTypedMessageText(message, selectedReferralData),
+            }),
+        [],
+    )
     const referButton = async () => {
-        await runCreateReferralLink(web3, account, payload.referral_token, MASK_SWAP_V1)
-        shareFarm()
+        try {
+            await runCreateReferralLink(web3, account, payload.referral_token, MASK_SWAP_V1)
+            const senderName =
+                currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
+            const metadata = new Map<string, ReferralMetaData>()
+            metadata.set(REFERRAL_META_KEY, {
+                referral_token: payload.referral_token,
+                referral_token_name: payload.referral_token_name,
+                referral_token_symbol: payload.referral_token_symbol,
+                referral_token_icon: payload.referral_token_icon,
+                sender: senderName,
+            })
+
+            openEncryptedMessage(
+                t('plugin_referral_buy_refer_earn_yield', { token: payload.referral_token_symbol }),
+                metadata,
+            )
+        } catch (error) {
+            alert(error)
+        }
     }
     return (
         <>
             <div>
                 <Typography>
-                    {t('plugin_referral_buy_refer_earn_yield', { token: payload.referral_token_symbol })}
                     <Card variant="outlined">
                         <CardContent>
                             <Grid container spacing={2}>

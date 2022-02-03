@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData, PagesType } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData, PagesType, TransactionStatus } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -19,6 +19,7 @@ import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
+import { Transaction } from './shared-ui/Transaction'
 // import { getDaoAddress } from '../Worker/apis/discovery'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -77,6 +78,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
         total_reward: '5 wETH',
     })
     const [attraceRewardData, setAttraceRewardData] = useState<RewardData | null>(null)
+    const [isTransactionProcessing, setIsTransactionProcessing] = useState<boolean>(false)
     const requiredChainId = ChainId.Rinkeby
     const web3 = useWeb3({ chainId: requiredChainId })
     const account = useAccount()
@@ -87,8 +89,8 @@ export function ReferToFarm(props: ReferToFarmProps) {
         WalletMessages.events.walletStatusDialogUpdated,
     )
 
-    const senderName = useCurrentIdentity()?.linkedPersona?.nickname
-
+    const currentIdentity = useCurrentIdentity()
+    const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
         WalletMessages.events.selectTokenDialogUpdated,
         useCallback(
@@ -121,7 +123,9 @@ export function ReferToFarm(props: ReferToFarmProps) {
     }
     const referFarm = async () => {
         try {
+            setIsTransactionProcessing(true)
             const sig = await runCreateReferralLink(web3, account, token?.value?.address ?? '', MASK_SWAP_V1)
+            setIsTransactionProcessing(false)
             insertData({
                 referral_token: token?.value?.address ?? '',
                 referral_token_name: token?.value?.name ?? '',
@@ -130,8 +134,12 @@ export function ReferToFarm(props: ReferToFarmProps) {
                 sender: senderName ?? '',
             })
         } catch (error) {
+            setIsTransactionProcessing(false)
             alert(error)
         }
+    }
+    if (isTransactionProcessing) {
+        return <Transaction status={TransactionStatus.CONFIRMATION} />
     }
     return (
         <>
@@ -211,7 +219,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                                 <Box>
                                                     {t('plugin_referral_apr')}
                                                     <br />
-                                                    <b>{rewardData.apr}</b>
+                                                    <b>{attraceRewardData.apr}</b>
                                                 </Box>
                                             </Grid>
                                             <Grid item xs={4} justifyContent="center" display="flex">
@@ -219,14 +227,14 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                                     {t('plugin_referral_daily_rewards')}
 
                                                     <br />
-                                                    <b>{rewardData.daily_reward}</b>
+                                                    <b>{attraceRewardData.daily_reward}</b>
                                                 </Box>
                                             </Grid>
                                             <Grid item xs={4} justifyContent="center" display="flex">
                                                 <Box>
                                                     {t('plugin_referral_total_farm_rewards')}
                                                     <br />
-                                                    <b>{rewardData.total_reward}</b>
+                                                    <b>{attraceRewardData.total_reward}</b>
                                                 </Box>
                                             </Grid>
                                         </div>
@@ -243,7 +251,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                     onClick={async () => {
                                         await referFarm()
                                     }}>
-                                    Refer to Farm
+                                    {t('plugin_referral_refer_to_farm')}
                                 </ActionButton>
                             </EthereumChainBoundary>
                         </TabPanel>
