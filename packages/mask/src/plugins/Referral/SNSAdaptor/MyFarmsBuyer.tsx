@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useAsync } from 'react-use'
+import { uniqWith, isEqual } from 'lodash-unified'
 
 import { Grid, Typography, CircularProgress } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
-import { fromWei } from 'web3-utils'
 import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
-import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { FarmEvent, parseChainAddress } from '../types'
-
+import { getFarmsForReferredToken } from '../Worker/apis/farms'
+import { FarmExistsEvent, parseChainAddress, Proof } from '../types'
+import { fetchAccountProofs } from '../Worker/apis/proofs'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-
+import { ZERO_ADDR } from '../constants'
+import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
 import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
@@ -48,52 +49,61 @@ const useStyles = makeStyles()((theme) => ({
         fontWeight: 500,
     },
     total: {
-        marginRight: '4px',
+        marginRight: '5px',
     },
 }))
 
-export function CreatedFarms() {
+export function MyFarmsBuyer() {
     const { t } = useI18N()
     const { classes } = useStyles()
     const chainId = useChainId()
     const account = useAccount()
     const web3 = useWeb3({ chainId })
     const { ERC20 } = useTokenListConstants()
+
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
         [chainId, ERC20?.sort().join()],
     )
+    const { value: proofsData, loading: loadingProofs } = useAsync(async () => fetchAccountProofs(account), [])
+    const accountProofs: Proof[] = proofsData?.items || []
 
     const [loadingFarms, setLoadingFarms] = useState(true)
-    const [farms, setFarms] = useState<FarmEvent[]>([])
+    const [farms, setFarms] = useState<FarmExistsEvent[]>([])
 
     useEffect(() => {
         async function fetchFarms() {
+            if (!accountProofs.length) return
+
             setLoadingFarms(true)
-            const farms: FarmEvent[] = []
+            const farms: FarmExistsEvent[] = []
 
-            // fetch farms created by sponsor and all farms deposits
-            const [myFarms, farmsDeposits] = await Promise.allSettled([
-                getMyFarms(web3, account, chainId),
-                getFarmsDeposits(web3),
-            ])
+            // filter out promoter's proofs
+            const buyerProofs = accountProofs.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
 
-            if (myFarms.status === 'fulfilled' && farmsDeposits.status === 'fulfilled') {
-                farmsDeposits.value.forEach((deposit) => {
-                    myFarms.value.forEach((farm) => {
-                        if (!(deposit.farmHash === farm.farmHash)) return
-                        farms.push({ ...deposit, ...farm })
-                    })
-                })
+            const reqList = buyerProofs.map((proof) =>
+                getFarmsForReferredToken(web3, toChainAddress(chainId, proof.token)),
+            )
 
-                setFarms(farms)
-            }
+            const responses = await Promise.allSettled(reqList)
+            responses.forEach((response) => {
+                if (response.status === 'fulfilled') {
+                    farms.push(...response.value)
+                }
+            })
+
+            setFarms(farms)
+
             setLoadingFarms(false)
         }
         fetchFarms()
-    }, [chainId, account, web3])
+    }, [chainId, web3, accountProofs])
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
+
+    // TODO: check it
+    const uniqueFarms = uniqWith(farms, isEqual)
+    const nativeRewardToken = toNativeRewardTokenDefn(chainId)
 
     return (
         <div className={classes.container}>
@@ -115,14 +125,14 @@ export function CreatedFarms() {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingFarms || loadingAllTokens ? (
+                {loadingProofs || loadingAllTokens || loadingFarms ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
-                        {farms.length === 0 ? (
+                        {uniqueFarms.length === 0 ? (
                             <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
-                            farms.map((farm) => (
+                            uniqueFarms.map((farm) => (
                                 <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
                                     <Grid item xs={6}>
                                         <ReferredFarmTokenDetailed
@@ -136,11 +146,12 @@ export function CreatedFarms() {
                                         <Typography className={classes.total}>-</Typography>
                                     </Grid>
                                     <Grid item xs={4} display="flex" alignItems="center">
+                                        <Typography className={classes.total}>0</Typography>
                                         <Typography className={classes.total}>
-                                            {fromWei(farm.delta.toString())}
-                                        </Typography>
-                                        <Typography className={classes.total}>
-                                            {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)?.symbol}
+                                            {farm.rewardTokenDefn === nativeRewardToken
+                                                ? 'ETH'
+                                                : allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)
+                                                      ?.symbol}
                                         </Typography>
                                     </Grid>
                                 </Grid>

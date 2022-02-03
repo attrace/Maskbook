@@ -29,6 +29,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { IconURLS } from './IconURL'
+import { MyFarmsBuyer } from './MyFarmsBuyer'
 
 import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
 import { toChainAddress } from './helpers'
@@ -237,7 +238,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
                     </EthereumChainBoundary>
                 </TabPanel>
                 <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                    Buyer: My Farms
+                    <MyFarmsBuyer />
                 </TabPanel>
             </TabContext>
         </Box>

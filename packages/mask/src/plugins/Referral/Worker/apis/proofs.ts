@@ -4,6 +4,7 @@ import { MASK_REFERRER, ZERO_HASH, ZERO_ADDR } from '../../constants'
 import {
     postToWomOracle,
     getWomOracle,
+    getFromToWomOracle,
     createLegacyProofOfRecommandationOriginMessage,
     createLegacyProofOfRecommandationMessage,
 } from './wom'
@@ -51,7 +52,6 @@ export async function singAndPostProofWithReferrer(
     token: EvmAddress,
     referrer: EvmAddress,
 ) {
-    console.log(token, referrer)
     // Interact with a single oracle
     const host = await getWomOracle()
     const dapp = ZERO_HASH
@@ -85,4 +85,16 @@ export async function singAndPostProofWithReferrer(
         // Set linkReferrer to request Referer header, who linked into the extension. Capture this by storing inbound referrer (document.referrer for sites) in some session storage when the user arrives into the app.
         linkReferrer: document.referrer,
     })
+}
+
+// fetch proofs
+export async function fetchAccountProofs(signer: EvmAddress, referrer?: EvmAddress) {
+    const host = await getWomOracle()
+    let urlPath = `/v4/proofs?signer=${signer.toLowerCase()}`
+    if (referrer) {
+        urlPath = `${urlPath}&referrer=${referrer.toLowerCase()}`
+    }
+    // Post signed proof of recommendation
+    const res = await getFromToWomOracle(host, urlPath)
+    return res
 }

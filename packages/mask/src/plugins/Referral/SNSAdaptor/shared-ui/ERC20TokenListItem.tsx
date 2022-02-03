@@ -7,9 +7,9 @@ import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import type { ChainAddress, TokensGroupedByType } from '../../types'
+import type { TokensGroupedByType } from '../../types'
 import { IconURLS } from '../IconURL'
-import { toChainAddress } from '../helpers'
+import { toChainAddress, getTokenTypeIcons } from '../helpers'
 
 const useStyles = makeStyles()((theme) => ({
     icon: {
@@ -68,23 +68,9 @@ const useStyles = makeStyles()((theme) => ({
         alignItems: 'center',
     },
     typeIcon: {
-        margin: '0 3px',
+        margin: '0 5px',
     },
 }))
-
-function getTokenTypeIcons(tokenChainAddr: ChainAddress, tokensGroupedByType: TokensGroupedByType) {
-    const icons = []
-    if (tokensGroupedByType.sponsoredFarmTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.sponsoredFarmLogo)
-    }
-    if (tokensGroupedByType.attrFarmsTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.attrLogo)
-    }
-    if (tokensGroupedByType.maskFarmsTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.maskLogo)
-    }
-    return icons
-}
 
 export const getERC20TokenListItem =
     (
@@ -123,7 +109,7 @@ export const getERC20TokenListItem =
                 noFarmForToken ? (
                     '-'
                 ) : (
-                    <span>{loadingAsset ? <LoadingAnimation /> : 0}</span>
+                    <span>{loadingAsset ? <LoadingAnimation /> : '-'}</span>
                 )
             ) : null
         }, [info, isNotAdded, isAdded, data.balance])

@@ -9,7 +9,6 @@ export async function getWomOracle(): Promise<string> {
 }
 
 export async function postToWomOracle(oracle: string, urlPath: string, body: any): Promise<any> {
-    // oracle = 'http://localhost:3000'; // testing url TODO disable!
     const res = await fetch(`${oracle}${urlPath}`, {
         method: 'POST',
         headers: {
@@ -17,6 +16,15 @@ export async function postToWomOracle(oracle: string, urlPath: string, body: any
         },
         body: JSON.stringify(body),
     })
+    if (res.status !== 200) {
+        throw new Error(res.statusText)
+    }
+    const val = await res.json()
+    return val
+}
+
+export async function getFromToWomOracle(oracle: string, urlPath: string): Promise<any> {
+    const res = await fetch(`${oracle}${urlPath}`)
     if (res.status !== 200) {
         throw new Error(res.statusText)
     }

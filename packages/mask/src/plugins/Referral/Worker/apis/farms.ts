@@ -7,7 +7,6 @@ import {
     FarmDepositChange,
     ChainId,
     Farm,
-    PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN,
     FARM_TYPE,
 } from '../../types'
 import type Web3 from 'web3'
@@ -17,6 +16,8 @@ import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import { FARM_ABI } from './abis'
+
+import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
 
 const iface = new Interface(FARM_ABI)
 
@@ -182,4 +183,37 @@ export async function getAllFarms(web3: Web3, chainId?: ChainId, filter?: TokenF
     })
 
     return parseBasicFarmEvents(res.items)
+}
+
+interface TokenFilter {
+    rewardTokens?: [ChainAddress]
+    referredTokens?: [ChainAddress]
+}
+
+export async function getFarmsForReferredToken(web3: Web3, chaddr: ChainAddress): Promise<Array<FarmExistsEvent>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+
+    // Query for existing farms and their deposits
+    // TODO paging
+    const res = await queryIndexersWithNearestQuorum({
+        addresses: [farmsAddr],
+        topic1: [eventIds.FarmExists],
+        topic4: [expandBytes24ToBytes32(chaddr)],
+    })
+
+    return parseFarmExistsEvents(res.items)
+}
+
+export async function getFarmsForRewardToken(web3: Web3, chaddr: ChainAddress): Promise<Array<FarmExistsEvent>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+
+    // Query for existing farms and their deposits
+    // TODO paging
+    const res = await queryIndexersWithNearestQuorum({
+        addresses: [farmsAddr],
+        topic1: [eventIds.FarmExists],
+        topic3: [expandBytes24ToBytes32(chaddr)],
+    })
+
+    return parseFarmExistsEvents(res.items)
 }

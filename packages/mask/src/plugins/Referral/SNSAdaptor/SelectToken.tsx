@@ -12,13 +12,11 @@ import { ERC20TokenList } from './shared-ui/ERC20TokenList'
 import { getAllFarms } from '../Worker/apis/farms'
 import { ChainAddress, Farm, FARM_TYPE, parseChainAddress } from '../types'
 
+import { MASK_TOKEN_ADDR, ATTR_TOKEN_ADDR } from '../constants'
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {},
 }))
-
-// TODO: get ADDR FOR CURRENT CHAIN ID
-const MASK_TOKEN_ADDR = '"0xFD9Eb54f6aC885079e7bB3E207922Bb7256E3fcb"'
-const ATTR_TOKEN_ADDR = '0x926362b451a012f72b34240f36c3bdc163d462e0'
 
 function groupFarmTokensByType(farms: Farm[]) {
     const sponsoredFarmTokens: ChainAddress[] = []
