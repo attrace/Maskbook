@@ -7,4 +7,8 @@ export const IconURLS: Readonly<Record<string, string>> = {
     sponsoredFarm: new URL('./assets/sponsored_farm.png', import.meta.url).toString(),
     underReview: new URL('./assets/under_review.png', import.meta.url).toString(),
     maskIcon: new URL('./assets/mask.png', import.meta.url).toString(),
+    attrLogo: new URL('./assets/attrLogo.png', import.meta.url).toString(),
+    maskLogo: new URL('./assets/maskLogo.png', import.meta.url).toString(),
+    sponsoredFarmLogo: new URL('./assets/sponsoredFarm.png', import.meta.url).toString(),
+    underReviewLogo: new URL('./assets/underReviewLogo.png', import.meta.url).toString(),
 }

@@ -22,7 +22,7 @@ import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { IconURLS } from './IconURL'
-// import { getDaoAddress } from '../Worker/apis/discovery'
+
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -111,7 +111,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
         setSelectTokenDialog({
             open: true,
             uuid: id,
-            title: t('plugin_referral_select_a_referral_token'),
+            title: t('plugin_referral_select_a_token_to_refer'),
         })
     }, [id, setToken])
     // #endregion
@@ -202,6 +202,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
             </>
         )
     }
+
     return (
         <>
             <div>
@@ -272,6 +273,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                             </>
                                         )
                                     })}
+
                                 </Grid>
                             </Typography>
 

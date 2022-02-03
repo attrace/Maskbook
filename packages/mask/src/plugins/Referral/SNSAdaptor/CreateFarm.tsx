@@ -382,7 +382,7 @@ export function CreateFarm(props: CreateFarmProps) {
                                         onClick={() => {
                                             onTokenSelectClick(
                                                 TokenType.REFER,
-                                                t('plugin_referral_select_a_referral_token'),
+                                                t('plugin_referral_select_a_token_to_refer'),
                                             )
                                         }}
                                     />

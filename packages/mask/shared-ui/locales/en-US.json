@@ -1040,5 +1040,8 @@
     "plugin_referral_mask_referral_farm_desc": "rewards in $MASK",
     "plugin_referral_sponsored_referral_farm_desc": "rewards in tokens chosen by the sponsor",
     "plugin_referral_under_review": "Under Review",
-    "plugin_referral_under_review_desc": "may earn rewards from Attrace Referral Farm in future"
+    "plugin_referral_under_review_desc": "may earn rewards from Attrace Referral Farm in future",
+    "plugin_referral_select_a_token_to_refer": "Select a Token to Refer",
+    "plugin_referral_search_placeholder_token": "Token name or contract address",
+    "plugin_referral_placeholder_loading": "Loading"
 }

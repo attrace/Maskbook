@@ -4,7 +4,8 @@ import { useI18N } from '../../../../utils'
 
 import type { ERC20TokenDetailed } from '@masknet/web3-shared-evm'
 
-import { Avatar, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
+import { TokenIcon } from '@masknet/shared'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -40,13 +41,7 @@ export function ReferredTokenDetailed({ token }: ReferredTokenDetailedProps) {
         <div className={classes.container}>
             {token && (
                 <>
-                    <div className={classes.logo}>
-                        {token.logoURI?.length ? (
-                            <img src={token.logoURI[0]} alt={token.name} />
-                        ) : (
-                            <Avatar>{token.name?.charAt(0).toUpperCase()}</Avatar>
-                        )}
-                    </div>
+                    <TokenIcon {...token} />
                     <Typography className={classes.details} display="flex" flexDirection="column">
                         {token.symbol} {t('plugin_referral_referral_farm')}
                         <span className={classes.name}>{token.name}</span>
