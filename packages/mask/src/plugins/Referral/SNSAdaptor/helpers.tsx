@@ -1,6 +1,6 @@
 import { createRenderWithMetadata, createTypedMessageMetadataReader } from '@masknet/shared-base'
 import { REFERRAL_META_KEY } from '../constants'
-import type { ChainAddress, ReferralMetaData } from '../types'
+import type { ReferralMetaData } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
@@ -30,8 +30,4 @@ export function toChainAddress(chainId: ChainId, address: string): string {
 export function toNativeRewardTokenDefn(chainId: ChainId): string {
     const nativeTokenAddr = '0x' + padStart(Number(chainId).toString(16), 40, '0')
     return toChainAddress(chainId, nativeTokenAddr)
-}
-export function parseChainAddress(chainAddress: ChainAddress): string {
-    const address = '0x' + chainAddress.substring(10).toLowerCase()
-    return address
 }

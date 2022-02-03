@@ -1,6 +1,7 @@
 import type { ChainId as ChainIdMain } from '@masknet/web3-shared-evm'
 import type BigNumber from 'bignumber.js'
 import { padStart } from 'lodash-unified'
+import { asciiToHex, padRight } from 'web3-utils'
 
 export interface ReferralNetwork {
     chainId: ChainIdMain
@@ -115,7 +116,22 @@ export interface FarmMetastate {
     farmHash: FarmHash
     dailyFarmReward: BigNumber
 }
+export interface FarmTokenChange {
+    farmHash: FarmHash
+    token: ChainAddress
+}
 export interface FarmEvent extends FarmExistsEvent, FarmDepositChange {}
+
+export enum FARM_TYPE {
+    PAIR_TOKEN = 'PAIR_TOKEN', // named after uniswapv2 pairs, where a pair represents a token pair liquidity pool, in our case it represents a token pair referral farm, no DEX value conversion happens to calculate position in the farm
+    PROPORTIONAL = 'PROPORTIONAL', // where multiple referred tokens are watched for added value, complex DEX value conversion happens to calculate proportional position compared to other farm participants
+}
+export const PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN = padRight(asciiToHex('prorate'), 64).substring(0, 2 + 24 * 2)
+
+export interface Farm extends FarmExistsEvent {
+    tokens?: ChainAddress[]
+    farmType: FARM_TYPE
+}
 
 export type Node = {
     url: string
@@ -213,4 +229,10 @@ export enum TransactionStatus {
     CONFIRMATION = 'Confirmation',
     CONFIRMED = 'CONFIRMED',
     FAILED = 'FAILED',
+}
+
+export type TokensGroupedByType = {
+    sponsoredFarmTokens: string[]
+    maskFarmsTokens: string[]
+    attrFarmsTokens: string[]
 }
