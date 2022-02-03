@@ -64,7 +64,10 @@ export function SelectToken(props: SelectTokenProps) {
         setId(ev.uuid)
         setTitle(ev.title)
     })
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, chainId), [chainId])
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(
+        async () => getAllFarms(web3, currentChainId),
+        [currentChainId],
+    )
 
     const onClose = useCallback(async () => {
         setDialog({

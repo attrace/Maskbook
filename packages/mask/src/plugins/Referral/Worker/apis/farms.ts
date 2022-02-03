@@ -128,7 +128,7 @@ function parseFarmExistsAndTokenChangeEvents(unparsed: any) {
 
     return farms
 }
-export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFilter): Promise<Array<Farm>> {
+export async function getAllFarms(web3: Web3, chainId?: ChainId, filter?: TokenFilter): Promise<Array<Farm>> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
 
     // Allow filtering by tokens
@@ -146,7 +146,7 @@ export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFi
         topic1: [eventIds.FarmExists, eventIds.FarmTokenChange],
         topic3,
         topic4,
-        chainId: [chainId],
+        chainId: chainId ? [chainId] : [],
     })
 
     return parseFarmExistsAndTokenChangeEvents(res.items)
