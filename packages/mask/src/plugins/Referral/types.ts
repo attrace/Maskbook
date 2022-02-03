@@ -2,7 +2,7 @@ import type { ChainId as ChainIdMain } from '@masknet/web3-shared-evm'
 import type BigNumber from 'bignumber.js'
 import { padStart } from 'lodash-unified'
 
-export interface SavingsNetwork {
+export interface ReferralNetwork {
     chainId: ChainIdMain
     chainName: string
 }
