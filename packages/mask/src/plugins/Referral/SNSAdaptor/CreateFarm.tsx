@@ -21,7 +21,7 @@ import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 
 import { FormattedBalance, useRemoteControlledDialog } from '@masknet/shared'
-import { SelectTokenDialogEvent, WalletMessages } from '@masknet/plugin-wallet'
+import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
@@ -30,6 +30,7 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
+import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -283,7 +284,7 @@ export function CreateFarm(props: CreateFarmProps) {
     }, [])
 
     const onUpdateByRemote = useCallback(
-        (ev: SelectTokenDialogEvent) => {
+        (ev: SelectTokenUpdated) => {
             if (ev.open || !ev.token || ev.uuid !== id) return
 
             if (focusedTokenPanelType === TokenType.REFER) {
@@ -296,16 +297,17 @@ export function CreateFarm(props: CreateFarmProps) {
     )
 
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
-        WalletMessages.events.selectTokenDialogUpdated,
+        PluginReferralMessages.selectTokenUpdated,
         onUpdateByRemote,
     )
 
     const onTokenSelectClick = useCallback(
-        (type: TokenType) => {
+        (type: TokenType, title: string) => {
             setFocusedTokenPanelType(type)
             setSelectTokenDialog({
                 open: true,
                 uuid: id,
+                title: title,
             })
         },
         [id, focusedTokenPanelType],
@@ -377,7 +379,10 @@ export function CreateFarm(props: CreateFarmProps) {
                                         label={t('plugin_referral_token_to_refer')}
                                         token={referredToken?.value}
                                         onClick={() => {
-                                            onTokenSelectClick(TokenType.REFER)
+                                            onTokenSelectClick(
+                                                TokenType.REFER,
+                                                t('plugin_referral_select_a_referral_token'),
+                                            )
                                         }}
                                     />
                                 </Grid>
@@ -386,7 +391,10 @@ export function CreateFarm(props: CreateFarmProps) {
                                         label={t('plugin_referral_reward_token')}
                                         token={rewardToken?.value}
                                         onClick={() => {
-                                            onTokenSelectClick(TokenType.REWARD)
+                                            onTokenSelectClick(
+                                                TokenType.REWARD,
+                                                t('plugin_referral_select_a_reward_token'),
+                                            )
                                         }}
                                     />
                                 </Grid>
