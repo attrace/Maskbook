@@ -15,16 +15,6 @@ export enum ProtocolType {
     Lido = 0,
 }
 
-// export enum PagesType {
-//     LANDING = 'landing',
-//     REFERRAL_FARMS = 'Referral Farms',
-//     CREATE_FARM = 'Create Farm',
-//     plugin_referral_refer_to_farm = 'Refer to Farm',
-//     BUY_TO_FARM = 'Buy to Farm',
-//     SELECT_TOKEN = 'Select a Token to Refer',
-//     TRANSACTION = 'Transaction',
-// }
-
 export enum TokenType {
     REFER = 0,
     REWARD = 1,

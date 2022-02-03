@@ -199,7 +199,8 @@ export function CreateFarm(props: CreateFarmProps) {
 
     // const [selectedReferralData, setSelectedReferralData] = useState<ReferralMetaData | null>(null)
     const { attachMetadata, dropMetadata } = useCompositionContext()
-    const senderName = useCurrentIdentity()?.linkedPersona?.nickname
+    const currentIdentity = useCurrentIdentity()
+    const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
 
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
         WalletMessages.events.walletStatusDialogUpdated,
