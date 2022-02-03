@@ -1018,6 +1018,7 @@
     "plugin_referral_join_receive_rewards": "Join the farms and receive rewards based on the value of tokens purchased via referrals&#x1F525;",
     "plugin_referral_refer_to_farm": "Refer to Farm",
     "plugin_referral_sponsored_farm": "Sponsored Referral Farm",
+    "plugin_referral_sponsored_farm_detail": "- rewards in tokens chosen by the sponsor",
     "plugin_referral_apr": "APR",
     "plugin_referral_apr_with_data": "APR: {{reward}}",
     "plugin_referral_daily_rewards_with_data": "Daily Reward: {{reward}}",
@@ -1031,10 +1032,17 @@
     "plugin_referral_referral_farm": "Referral Farm",
     "plugin_referral_no_created_farm": "You haven't created any referral farm yet",
     "plugin_referral_transaction_confirmation_title": "Confirm permission and deposit",
+    "plugin_referral_transaction_complete_signature_request": "Complete signature request",
+    "plugin_referral_transaction_sign_the_message_for_rewards": "Sign the message to register your address for rewards",
     "plugin_referral_token_to_refer": "Token to Refer",
     "plugin_referral_reward_token": "Reward Token",
     "plugin_referral_select_a_reward_token": "Select a Reward Token",
     "plugin_referral_select_a_token_to_refer": "Select a Token to Refer",
     "plugin_referral_search_placeholder_token": "Token name or contract address",
-    "plugin_referral_placeholder_loading": "Loading"
+    "plugin_referral_placeholder_loading": "Loading",
+    "plugin_referral_select_a_token_to_buy_and_hold": "Select a Token to Buy & Hold via Referral",
+    "plugin_referral_token_to_buy_and_hold": "Token to Buy & Hold via Referral",
+    "plugin_referral_select_a_token_to_buy_and_hold_and_earn_rewards": "Select a token to Buy & Hold and earn rewards!",
+    "plugin_referral_join_the_farm": "Join the farm and receive rewards based on the value of tokens purchased via referrals.",
+    "plugin_referral_buy_to_farm": "Buy to Farm"
 }

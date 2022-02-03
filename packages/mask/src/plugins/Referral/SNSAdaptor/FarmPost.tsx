@@ -5,7 +5,7 @@ import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
 import type { ReferralMetaData, RewardData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
-import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
+import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 
@@ -60,7 +60,7 @@ export function FarmPost(props: FarmPostProps) {
     )
     const referButton = async () => {
         try {
-            await runCreateReferralLink(web3, account, payload.referral_token, MASK_SWAP_V1)
+            await singAndPostProofOrigin(web3, account, payload.referral_token, MASK_SWAP_V1)
             const senderName =
                 currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
             const metadata = new Map<string, ReferralMetaData>()

@@ -1,6 +1,7 @@
 import { createPluginMessage, createPluginRPC, PluginMessageEmitter } from '@masknet/plugin-infra'
 import type { FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { REFERRAL_META_KEY } from './constants'
+import type { ChainAddress } from './types'
 
 export type SelectTokenUpdated =
     | {
@@ -14,11 +15,25 @@ export type SelectTokenUpdated =
           token?: FungibleTokenDetailed
       }
 
+export type SelectTokenToBuy =
+    | {
+          open: true
+          uuid: string
+          title: string
+          tokensChainAddrs: ChainAddress[]
+      }
+    | {
+          open: false
+          uuid: string
+          token?: FungibleTokenDetailed
+      }
+
 interface ReferralMessages {
     /**
      * Open select token dialog
      */
     selectTokenUpdated: SelectTokenUpdated
+    selectTokenToBuy: SelectTokenToBuy
 
     rpc: unknown
 }

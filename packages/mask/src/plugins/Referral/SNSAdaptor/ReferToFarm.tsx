@@ -19,7 +19,7 @@ import { blue } from '@mui/material/colors'
 import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
+import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
@@ -124,7 +124,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const referFarm = async () => {
         try {
             setIsTransactionProcessing(true)
-            const sig = await runCreateReferralLink(web3, account, token?.value?.address ?? '', MASK_SWAP_V1)
+            const sig = await singAndPostProofOrigin(web3, account, token?.value?.address ?? '', MASK_SWAP_V1)
             setIsTransactionProcessing(false)
             insertData({
                 referral_token: token?.value?.address ?? '',

@@ -11,6 +11,7 @@ import { ReferralFarms } from './ReferralFarms'
 import { CreateFarm } from './CreateFarm'
 import { ReferToFarm } from './ReferToFarm'
 import { SelectToken } from './SelectToken'
+import { BuyToFarm } from './BuyToFarm'
 
 interface ReferralDialogProps {
     open: boolean
@@ -55,6 +56,8 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 return <CreateFarm continue={nextPage} onClose={onClose} />
             case PagesType.REFER_TO_FARM:
                 return <ReferToFarm continue={nextPage} onClose={onClose} />
+            case PagesType.BUY_TO_FARM:
+                return <BuyToFarm continue={nextPage} onClose={onClose} />
             case PagesType.SELECT_TOKEN:
                 return <SelectToken />
             default:

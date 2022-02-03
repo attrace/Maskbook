@@ -1,13 +1,10 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { getAddress } from '@ethersproject/address'
 import { ChainId, createContract, TransactionEventType } from '@masknet/web3-shared-evm'
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
-import { addrRepresentingThisApp } from '../../constants'
 import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helpers'
-import { Metastate, ReferralFarmsV1, ZERO_ADDR, ZERO_HASH } from '../../types'
+import { Metastate, ReferralFarmsV1 } from '../../types'
 import { getDaoAddress } from './discovery'
-import { postToWomOracle, getWomOracle, createLegacyProofOfRecommandationOriginMessage } from './wom'
 import { FARM_ABI } from './abis'
 
 export const getChainId = ChainId.Rinkeby
@@ -168,36 +165,4 @@ export async function runCreateNativeFarm(
         onStart(false)
         alert(error)
     }
-}
-
-export async function runCreateReferralLink(web3: Web3, account: string, token: string, dapp = '') {
-    const host = await getWomOracle()
-
-    const { time, sig: timePromise } = await postToWomOracle(host, '/v4/time-promise', {
-        signer: account,
-        token,
-        dapp: ZERO_HASH,
-        referrer: ZERO_ADDR,
-        router: addrRepresentingThisApp,
-    })
-    const sig = await web3.eth.personal.sign(
-        createLegacyProofOfRecommandationOriginMessage(account, token, time, addrRepresentingThisApp, timePromise),
-        account,
-        '',
-    )
-
-    // Post signed proof of recommendation origin
-    const commitment = await postToWomOracle(host, '/v4/proofs', {
-        data: {
-            signer: getAddress(account),
-            token: getAddress(token),
-            referrer: ZERO_ADDR,
-            dapp: ZERO_HASH,
-            router: getAddress(addrRepresentingThisApp),
-            time,
-            timePromise,
-            sig,
-        },
-        linkReferrer: '',
-    })
 }

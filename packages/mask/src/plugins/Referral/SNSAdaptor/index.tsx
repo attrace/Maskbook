@@ -6,6 +6,8 @@ import { FarmPost } from './FarmPost'
 import type { ReferralMetaData } from '../types'
 import { ReferralDialog } from './ReferralDialog'
 import { SelectToken } from './SelectToken'
+import { SelectTokenToBuy } from './SelectTokenToBuy'
+
 const sns: Plugin.SNSAdaptor.Definition = {
     ...base,
     init(signal) {},
@@ -27,7 +29,12 @@ const sns: Plugin.SNSAdaptor.Definition = {
         dialog: ReferralDialog,
     },
     GlobalInjection: function Component() {
-        return <SelectToken />
+        return (
+            <>
+                <SelectToken />
+                <SelectTokenToBuy />
+            </>
+        )
     },
 }
 

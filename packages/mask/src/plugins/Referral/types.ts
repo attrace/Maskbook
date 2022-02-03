@@ -131,6 +131,9 @@ export const PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN = padRight(asciiToHex('prorat
 export interface Farm extends FarmExistsEvent {
     tokens?: ChainAddress[]
     farmType: FARM_TYPE
+    // sum of all delta in FarmDepositChange event
+    totalFarmRewards: number
+    dailyFarmReward: number
 }
 
 export type Node = {
@@ -157,9 +160,6 @@ export type Discovery = {
     womOracles: Node[]
     airports: Airport[]
 }
-
-export const ZERO_ADDR = '0x0000000000000000000000000000000000000000'
-export const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 export function toLinkUrlV1(token: EvmAddress, referrer: EvmAddress, dapp: RedirectTarget = ''): Link {
     const version = padStart(Number(1).toString(16), 2, '0')

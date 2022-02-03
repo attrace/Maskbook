@@ -103,7 +103,7 @@ export function ReferralFarms(props: ReferralFarmsProps) {
         {
             name: 'Buy to Farm',
             onClick: () => {
-                props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM)
+                props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM)
             },
         },
         {

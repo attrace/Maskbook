@@ -11,9 +11,8 @@ import {
     FARM_TYPE,
 } from '../../types'
 import type Web3 from 'web3'
-import { keccak256 } from 'web3-utils'
-
-import { Interface } from '@ethersproject/abi'
+import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
+import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
@@ -105,16 +104,49 @@ export async function getFarmsDeposits(web3: Web3): Promise<Array<FarmDepositCha
     return parseFarmDepositChangeEvents(res.items)
 }
 
-function parseFarmExistsAndTokenChangeEvents(unparsed: any) {
+function parseBasicFarmEvents(unparsed: any) {
     const parsed = parseEvents(unparsed)
     const farms: Array<Farm> = []
 
     const allEventsFarmExists = parsed.filter((e) => e.topic === eventIds.FarmExists)
     const allEventsFarmTokenChange = parsed.filter((e) => e.topic === eventIds.FarmTokenChange)
 
+    // colect all deposit and dailyRewardRate for farmHash
+    const farmTotalDepositMap = new Map<string, { totalFarmRewards?: number; dailyFarmReward?: number }>()
+    parsed.forEach((e) => {
+        const { farmHash } = e.args
+        const prevFarmState = farmTotalDepositMap.get(farmHash)
+
+        if (e.topic === eventIds.FarmDepositChange) {
+            const totalFarmRewards = prevFarmState?.totalFarmRewards || 0 + Number(fromWei(e.args.delta.toString()))
+            farmTotalDepositMap.set(farmHash, { ...prevFarmState, totalFarmRewards })
+        }
+        if (e.topic === eventIds.FarmMetastate) {
+            const { key, value } = e.args
+
+            const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
+            if (key === dailyRewardRateKey) {
+                const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
+
+                farmTotalDepositMap.set(farmHash, {
+                    ...prevFarmState,
+                    dailyFarmReward: Number(fromWei(dailyRewardRate.toString())),
+                })
+            }
+        }
+    })
+
     allEventsFarmExists.forEach((farmExistEvent) => {
         const { farmHash, referredTokenDefn, rewardTokenDefn, sponsor } = farmExistEvent.args
-        let farm: Farm = { farmHash, referredTokenDefn, rewardTokenDefn, sponsor, farmType: FARM_TYPE.PAIR_TOKEN }
+        let farm: Farm = {
+            farmHash,
+            referredTokenDefn,
+            rewardTokenDefn,
+            sponsor,
+            farmType: FARM_TYPE.PAIR_TOKEN,
+            totalFarmRewards: farmTotalDepositMap.get(farmHash)?.totalFarmRewards || 0,
+            dailyFarmReward: farmTotalDepositMap.get(farmHash)?.dailyFarmReward || 0,
+        }
 
         if (referredTokenDefn === PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN) {
             const farmTokens: string[] = allEventsFarmTokenChange
@@ -143,11 +175,11 @@ export async function getAllFarms(web3: Web3, chainId?: ChainId, filter?: TokenF
     // Query indexers
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
-        topic1: [eventIds.FarmExists, eventIds.FarmTokenChange],
+        topic1: [eventIds.FarmExists, eventIds.FarmTokenChange, eventIds.FarmDepositChange, eventIds.FarmMetastate],
         topic3,
         topic4,
         chainId: chainId ? [chainId] : [],
     })
 
-    return parseFarmExistsAndTokenChangeEvents(res.items)
+    return parseBasicFarmEvents(res.items)
 }

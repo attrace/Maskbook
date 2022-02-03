@@ -324,7 +324,12 @@ export function CreateFarm(props: CreateFarmProps) {
     }
 
     if (isTransactionProcessing) {
-        return <Transaction status={TransactionStatus.CONFIRMATION} />
+        return (
+            <Transaction
+                status={TransactionStatus.CONFIRMATION}
+                title={t('plugin_referral_transaction_confirmation_title')}
+            />
+        )
     }
 
     if (isTransactionConfirmed) {

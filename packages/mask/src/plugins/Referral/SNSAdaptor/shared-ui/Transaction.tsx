@@ -17,15 +17,15 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontWeight: 600,
     },
     title: {
-        marginTop: '12px',
-        fontSize: '18px',
-        fontWeight: 600,
+        margin: '12px 0 8px',
     },
 }))
 
 type TransactionProps =
     | {
           status: TransactionStatus.CONFIRMATION
+          title: string
+          subtitle: string
       }
     | {
           status: TransactionStatus.CONFIRMED
@@ -52,7 +52,10 @@ export function Transaction(props: TransactionProps) {
                 alignItems="center"
                 className={classes.confirmation}>
                 <CircularProgress size={72} />
-                <Typography className={classes.title}>{t('plugin_referral_transaction_confirmation_title')}</Typography>
+                <Typography fontWeight={600} className={classes.title} variant="h6">
+                    {props.title}
+                </Typography>
+                {props.subtitle && <Typography fontWeight={500}>{props.subtitle}</Typography>}
             </Grid>
         )
     }

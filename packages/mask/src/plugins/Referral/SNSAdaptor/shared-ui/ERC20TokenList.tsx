@@ -31,6 +31,7 @@ export interface ERC20TokenListProps extends withClasses<'list' | 'placeholder'>
     targetChainId?: ChainId
     whitelist?: string[]
     blacklist?: string[]
+    renderTokensList?: string[]
     tokens?: FungibleTokenDetailed[]
     selectedTokens?: string[]
     disableSearch?: boolean
@@ -66,6 +67,7 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
         FixedSizeListProps,
         selectedTokens = [],
         dataLoading,
+        renderTokensList = [],
     } = props
 
     const { ERC20 } = useTokenListConstants(chainId)
@@ -86,7 +88,13 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     const { value: searchedToken, loading: searchedTokenLoading } = useERC20TokenDetailed(matchedTokenAddress ?? '')
     // #endregion
 
-    const filteredTokens = erc20TokensDetailed.filter(
+    // filter by renderTokensList
+    let filteredTokens = renderTokensList.length
+        ? erc20TokensDetailed.filter((token) => renderTokensList.some(currySameAddress(token.address)))
+        : erc20TokensDetailed
+
+    // filter by includeTokens and excludeTokens
+    filteredTokens = filteredTokens.filter(
         (token) =>
             (!includeTokens || includeTokens.some(currySameAddress(token.address))) &&
             (!excludeTokens.length || !excludeTokens.some(currySameAddress(token.address))),
