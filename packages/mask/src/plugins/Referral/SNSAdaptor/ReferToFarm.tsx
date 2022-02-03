@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TokenType, RewardData, PagesType, TransactionStatus } from '../types'
+import { ReferralMetaData, TabsCreateFarm, RewardData, PagesType, TransactionStatus } from '../types'
 
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
@@ -23,7 +23,6 @@ import { runCreateReferralLink } from '../Worker/apis/createReferralFarm'
 import { Transaction } from './shared-ui/Transaction'
 
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -108,7 +107,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
         setSelectTokenDialog({
             open: true,
             uuid: id,
-            title: t('plugin_referral_select_a_referral_token'),
+            title: t('plugin_referral_select_a_token_to_refer'),
         })
     }, [id, setToken])
     // #endregion
