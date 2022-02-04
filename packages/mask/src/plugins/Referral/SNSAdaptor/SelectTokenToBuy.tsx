@@ -32,10 +32,6 @@ export function SelectTokenToBuy() {
         setTitle(ev.title)
         setTokensChainAddrs(ev.tokensChainAddrs)
     })
-    // const { value: farms = [], loading: loadingAllFarms } = useAsync(
-    //     async () => getAllFarms(web3, currentChainId),
-    //     [currentChainId],
-    // )
 
     const onClose = useCallback(async () => {
         setDialog({

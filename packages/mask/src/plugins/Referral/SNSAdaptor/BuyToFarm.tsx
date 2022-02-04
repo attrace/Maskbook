@@ -93,7 +93,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
         [currentChainId],
     )
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
-    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
+    const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
 
     const [token, setToken] = useState<FungibleTokenDetailed>()
 
@@ -115,7 +115,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
             title: t('plugin_referral_select_a_token_to_buy_and_hold'),
             tokensChainAddrs: referredTokensDefn,
         })
-    }, [id, setToken, pairTokenFarms])
+    }, [id, setToken, referredTokensDefn])
     // #endregion
 
     useEffect(() => {
@@ -220,7 +220,9 @@ export function BuyToFarm(props: BuyToFarmProps) {
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_daily_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {rewardData.daily_reward || '-'}
+                                        {rewardData.daily_reward
+                                            ? Number.parseFloat(rewardData.daily_reward.toFixed(5))
+                                            : '-'}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -228,7 +230,9 @@ export function BuyToFarm(props: BuyToFarmProps) {
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_total_farm_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {rewardData.total_reward || '-'}
+                                        {rewardData.total_reward
+                                            ? Number.parseFloat(rewardData.total_reward.toFixed(5))
+                                            : '-'}
                                     </Typography>
                                 </Box>
                             </Grid>
