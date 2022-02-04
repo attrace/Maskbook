@@ -6,6 +6,7 @@ import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helper
 import { Metastate, ReferralFarmsV1 } from '../../types'
 import { getDaoAddress } from './discovery'
 import { FARM_ABI } from './abis'
+import BigNumber from 'bignumber.js'
 
 export const getChainId = ChainId.Rinkeby
 
@@ -34,6 +35,29 @@ export const erc20ABI = [
         stateMutability: 'nonpayable',
         type: 'function',
     },
+    {
+        constant: true,
+        inputs: [
+            {
+                name: '_owner',
+                type: 'address',
+            },
+            {
+                name: '_spender',
+                type: 'address',
+            },
+        ],
+        name: 'allowance',
+        outputs: [
+            {
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function',
+    },
 ]
 export async function runCreateERC20PairFarm(
     onConfirm: (type: boolean) => void,
@@ -43,17 +67,17 @@ export async function runCreateERC20PairFarm(
     account: string,
     rewardTokenAddr: string,
     referredTokenAddr: string,
-    totalFarmReward: number,
-    dailyFarmReward: number,
+    totalFarmReward: BigNumber,
+    dailyFarmReward: BigNumber,
 ) {
     try {
         onStart(true)
         let tx: any
+        const maxAllowance = new BigNumber(toWei('10000000000000', 'ether'))
 
         const chainId = getChainId
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
         const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
-
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
         const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
 
@@ -61,12 +85,19 @@ export async function runCreateERC20PairFarm(
         const config = {
             from: account,
         }
-        totalFarmReward = Number.parseFloat(toWei(totalFarmReward.toString(), 'ether'))
+        totalFarmReward = new BigNumber(toWei(totalFarmReward.toString(), 'ether'))
         const estimatedGas = await rewardTokenInstance?.methods.approve(farmsAddr, totalFarmReward).estimateGas(config)
-        tx = await rewardTokenInstance?.methods.approve(farmsAddr, totalFarmReward).send({
-            ...config,
-            gas: estimatedGas,
-        })
+
+        const allowance = await rewardTokenInstance?.methods.allowance(account, farmsAddr).call()
+
+        const isNeededGrantPermission = allowance < totalFarmReward
+
+        if (isNeededGrantPermission) {
+            tx = await rewardTokenInstance?.methods.approve(farmsAddr, maxAllowance).send({
+                ...config,
+                gas: estimatedGas,
+            })
+        }
 
         const metastate = [
             {
@@ -114,8 +145,8 @@ export async function runCreateNativeFarm(
     account: string,
     rewardTokenAddr: string,
     referredTokenAddr: string,
-    totalFarmReward: number,
-    dailyFarmReward: number,
+    totalFarmReward: BigNumber,
+    dailyFarmReward: BigNumber,
 ) {
     try {
         onStart(true)
