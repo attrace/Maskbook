@@ -23,7 +23,6 @@ import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { IconURLS } from './IconURL'
 
-
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
         width: 535,
@@ -119,22 +118,22 @@ export function ReferToFarm(props: ReferToFarmProps) {
         {
             title: t('plugin_referral_attrace_referral_farm'),
             desc: t('plugin_referral_attrace_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.attrace} />,
+            icon: <img className={classes.icon} src={IconURLS.attrLogo} />,
         },
         {
             title: t('plugin_referral_mask_referral_farm'),
             desc: t('plugin_referral_mask_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.maskIcon} />,
+            icon: <img className={classes.icon} src={IconURLS.maskLogo} />,
         },
         {
             title: t('plugin_referral_sponsored_referral_farm'),
             desc: t('plugin_referral_sponsored_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.sponsoredFarm} />,
+            icon: <img className={classes.icon} src={IconURLS.sponsoredFarmLogo} />,
         },
         {
             title: t('plugin_referral_under_review'),
             desc: t('plugin_referral_under_review_desc'),
-            icon: <img className={classes.icon} src={IconURLS.underReview} />,
+            icon: <img className={classes.icon} src={IconURLS.underReviewLogo} />,
         },
     ]
     const insertData = (selectedReferralData: ReferralMetaData) => {
@@ -247,13 +246,13 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                     {referralFarmWidget(
                                         rewardData,
                                         t('plugin_referral_sponsored_referral_farm'),
-                                        IconURLS.sponsoredFarm,
+                                        IconURLS.sponsoredFarmLogo,
                                     )}
                                     {attraceRewardData !== null
                                         ? referralFarmWidget(
                                               attraceRewardData,
                                               t('plugin_referral_attrace_referral_farm'),
-                                              IconURLS.sponsoredFarm,
+                                              IconURLS.attrLogo,
                                           )
                                         : null}
                                 </Grid>
@@ -273,7 +272,6 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                             </>
                                         )
                                     })}
-
                                 </Grid>
                             </Typography>
 
