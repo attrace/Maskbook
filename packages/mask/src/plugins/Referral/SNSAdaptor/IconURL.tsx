@@ -8,4 +8,5 @@ export const IconURLS: Readonly<Record<string, string>> = {
     sponsoredFarmLogo: new URL('./assets/sponsoredFarm.png', import.meta.url).toString(),
     underReviewLogo: new URL('./assets/underReviewLogo.png', import.meta.url).toString(),
     attrTextLogo: new URL('./assets/attrTextLogo.png', import.meta.url).toString(),
+    attrLightLogo: new URL('./assets/attrLightLogo.png', import.meta.url).toString(),
 }
