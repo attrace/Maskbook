@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Typography, Button, Grid } from '@mui/material'
+import { Trans } from 'react-i18next'
 // import { ProtocolType } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
@@ -25,14 +26,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         borderRadius: '8px',
         marginBottom: '24px',
     },
-    headingText: {
-        fontSize: '18px',
-        lineHeight: '25px',
-    },
-    subTitle: {
-        fontSize: '18px',
-        marginBottom: '16px',
-    },
     walletStatusBox: {
         width: 535,
         margin: '24px auto',
@@ -51,22 +44,14 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         '& b': {
             fontWeight: 600,
         },
+        '& img': {
+            width: '36px',
+            height: '36px',
+            marginRight: '12px',
+        },
     },
 }))
-const data = [
-    {
-        name: 'Refer to Farm',
-        desc: 'earn farming rewards for tokens purchased via your referrals.',
-    },
-    {
-        name: 'Buy to Farm',
-        desc: 'buy & hold sponsored tokens and earn farming rewards.',
-    },
-    {
-        name: 'Manage Farms',
-        desc: 'incentivize referrals for the purchase of crypto tokens or NFT collection.',
-    },
-]
+
 export interface LandingProps {
     continue: (currentPage: PagesType, nextPage: PagesType) => void
 }
@@ -79,18 +64,47 @@ export function Landing(props: LandingProps) {
     const { classes } = useStyles({ isDashboard })
     // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
 
+    const data = [
+        {
+            name: t('plugin_referral_refer_to_farm'),
+            desc: t('plugin_referral_refer_to_farm_desc'),
+            iconUrl: IconURLS.referToFarm,
+        },
+        {
+            name: t('plugin_referral_buy_to_farm'),
+            desc: t('plugin_referral_buy_to_farm_desc'),
+            iconUrl: IconURLS.buyToFarm,
+        },
+        {
+            name: t('plugin_referral_manage_farms'),
+            desc: t('plugin_referral_manage_farms_desc'),
+            iconUrl: IconURLS.createFarm,
+        },
+        {
+            desc: (
+                <Trans
+                    i18nKey="plugin_referral_manage_farms_rewards_desc"
+                    components={{
+                        strong: <strong />,
+                    }}
+                />
+            ),
+            iconUrl: IconURLS.rewards,
+        },
+    ]
+
     return (
         <div className={classes.wrapper}>
             <Grid container className={classes.heading} display="flex" justifyContent="center">
                 <Grid item xs={12} display="flex" justifyContent="center">
                     <img className={classes.img} src={IconURLS.referral} />
                 </Grid>
-                <Typography className={classes.headingText} textAlign="center" fontWeight={400}>
+                <Typography variant="h6" textAlign="center" fontWeight={400}>
                     <b>{t('plugin_referral_referral_farming')}</b>
                     {t('plugin_referral_referral_farms_short_desc')}
                 </Typography>
             </Grid>
-            <Typography fontWeight={600} className={classes.subTitle}>
+            <Typography fontWeight={600} variant="h6" marginBottom="16px">
                 {t('plugin_referral_how_it_works')}
             </Typography>
             <Grid textAlign="left" direction="row" container className={classes.smallText} rowSpacing="12px">
@@ -100,11 +114,13 @@ export function Landing(props: LandingProps) {
                             key={e.name}
                             item
                             xs={12}
-                            alignContent="flex-start"
+                            display="flex"
+                            alignContent="center"
                             justifyItems="flex-start"
                             className={classes.dataItem}>
+                            <img src={e.iconUrl} />
                             <Typography>
-                                <b>{e.name}</b> - {e.desc}
+                                <b>{e.name}</b> {e.name && '-'} {e.desc}
                             </Typography>
                         </Grid>
                     )

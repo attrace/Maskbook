@@ -16,6 +16,12 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         cursor: 'pointer',
         backgroundColor: 'transparent',
         padding: 0,
+        '&:hover': {
+            background: 'transparent',
+        },
+        '&:focus': {
+            background: 'transparent',
+        },
     },
     icon: {
         width: '20px',

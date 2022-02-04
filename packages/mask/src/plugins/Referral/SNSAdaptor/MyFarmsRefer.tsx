@@ -20,6 +20,17 @@ const useStyles = makeStyles()((theme) => ({
     container: {
         lineHeight: '22px',
         fontWeight: 300,
+        '& > div::-webkit-scrollbar': {
+            width: '7px',
+        },
+        '& > div::-webkit-scrollbar-track': {
+            boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+            webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+        },
+        '& > div::-webkit-scrollbar-thumb': {
+            borderRadius: '4px',
+            backgroundColor: theme.palette.background.default,
+        },
     },
     col: {
         color: theme.palette.text.secondary,

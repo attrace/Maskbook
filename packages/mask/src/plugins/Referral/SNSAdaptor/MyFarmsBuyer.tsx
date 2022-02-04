@@ -20,6 +20,17 @@ const useStyles = makeStyles()((theme) => ({
     container: {
         lineHeight: '22px',
         fontWeight: 300,
+        '& > div::-webkit-scrollbar': {
+            width: '7px',
+        },
+        '& > div::-webkit-scrollbar-track': {
+            boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+            webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+        },
+        '& > div::-webkit-scrollbar-thumb': {
+            borderRadius: '4px',
+            backgroundColor: theme.palette.background.default,
+        },
     },
     col: {
         color: theme.palette.text.secondary,
@@ -71,6 +82,18 @@ export function MyFarmsBuyer() {
     const [loadingFarms, setLoadingFarms] = useState(true)
     const [farms, setFarms] = useState<FarmExistsEvent[]>([])
 
+    // const referProofs = accountProofs?.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
+    // const referredTokens = referProofs?.map((proof) => toChainAddress(chainId, proof.token))
+    // const uniqReferredTokens = [...new Set(referredTokens)]
+    // const { value: farms = [], loading: loadingFarms } = useAsync(
+    //     async () =>
+    //         !uniqReferredTokens || uniqReferredTokens.length === 0
+    //             ? []
+    //             : getAllFarms(web3, undefined, { referredTokens: uniqReferredTokens }),
+    //     [],
+    // )
+
+    // TODO:check use effect
     useEffect(() => {
         async function fetchFarms() {
             if (!accountProofs.length) return
