@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Typography, Box, Tab, Tabs, Grid, TextField, CircularProgress, Chip } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
@@ -33,6 +33,7 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
+import BigNumber from 'bignumber.js'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -84,6 +85,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 interface DepositProps {
     totalFarmReward: string
     rewardTokenSymbol?: string
+    attraceFee: BigNumber
     requiredChainId: ChainId
     isTransactionProcessing: boolean
     onDeposit: () => Promise<void>
@@ -91,6 +93,7 @@ interface DepositProps {
 function Deposit({
     totalFarmReward,
     rewardTokenSymbol,
+    attraceFee,
     requiredChainId,
     isTransactionProcessing,
     onDeposit,
@@ -99,10 +102,9 @@ function Deposit({
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
 
-    const totalFarmRewardNum = Number.parseFloat(totalFarmReward)
-    const attraceFeesPercent = 5
-    const attraceFee = (totalFarmRewardNum * attraceFeesPercent) / 100
-    const totalDeposit = totalFarmRewardNum + attraceFee
+    const totalFarmRewardNum = new BigNumber(totalFarmReward)
+
+    const totalDeposit = totalFarmRewardNum.plus(attraceFee).toString()
 
     return (
         <div className={classes.depositRoot}>
@@ -122,13 +124,13 @@ function Deposit({
                         {t('plugin_referral_attrace_fees')}
                     </Grid>
                     <Grid item xs={6} display="flex" justifyContent="right">
-                        {attraceFee} {rewardTokenSymbol}
+                        {attraceFee.toString()} {rewardTokenSymbol}
                     </Grid>
                     <Grid item xs={6}>
                         {t('plugin_referral_deposit_total')}
                     </Grid>
                     <Grid item xs={6} display="flex" justifyContent="right">
-                        {totalFarmRewardNum + attraceFee} {rewardTokenSymbol}
+                        {totalDeposit} {rewardTokenSymbol}
                     </Grid>
                     <Grid item xs={12}>
                         <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
@@ -166,6 +168,7 @@ export function CreateFarm(props: CreateFarmProps) {
     const currentChainId = useChainId()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+    const attraceFeesPercent = 5
 
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
@@ -184,6 +187,7 @@ export function CreateFarm(props: CreateFarmProps) {
     // const [transactionState, setTransactionState] = useState<TransactionState | null>(null)
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
+    const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
     const [id] = useState(uuid())
     const [focusedTokenPanelType, setFocusedTokenPanelType] = useState(TokenType.REFER)
     const requiredChainId = ChainId.Rinkeby
@@ -209,8 +213,8 @@ export function CreateFarm(props: CreateFarmProps) {
         if (referredToken.address !== NATIVE_TOKEN) {
             const { address: rewardTokenAddr } = rewardToken
             const { address: referredTokenAddr } = referredToken
-            const totalFarmRewardNum = Number.parseFloat(totalFarmReward)
-            const dailyFarmRewardNum = Number.parseFloat(dailyFarmReward)
+            const totalFarmRewardNum = new BigNumber(totalFarmReward).plus(attraceFee)
+            const dailyFarmRewardNum = new BigNumber(dailyFarmReward)
 
             if (rewardToken.address === NATIVE_TOKEN) {
                 await runCreateNativeFarm(
@@ -317,13 +321,20 @@ export function CreateFarm(props: CreateFarmProps) {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
     }
-
+    useEffect(() => {
+        const totalFarmRewardNum = new BigNumber(totalFarmReward)
+        const attraceFeeTemp = totalFarmRewardNum.multipliedBy(attraceFeesPercent).dividedBy(100)
+        setAttraceFee(attraceFeeTemp)
+    }, [clickCreateFarm])
     if (isTransactionProcessing) {
         return (
             <Transaction
                 status={TransactionStatus.CONFIRMATION}
                 title={t('plugin_referral_transaction_confirmation_title')}
-                subtitle=""
+                subtitle={t('plugin_referral_confirmation_desc', {
+                    reward: attraceFee.plus(totalFarmReward),
+                    token: referredToken?.symbol ?? '',
+                })}
             />
         )
     }
@@ -343,6 +354,7 @@ export function CreateFarm(props: CreateFarmProps) {
             <Deposit
                 totalFarmReward={totalFarmReward}
                 rewardTokenSymbol={rewardToken?.symbol}
+                attraceFee={attraceFee}
                 isTransactionProcessing={isTransactionProcessing}
                 onDeposit={onDeposit}
                 requiredChainId={requiredChainId}

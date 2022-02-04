@@ -89,7 +89,7 @@ export function SelectToken(props: SelectTokenProps) {
     const tokensGroupedByType = groupFarmTokensByType(farms)
 
     return (
-        <InjectedDialog titleBarIconStyle="close" open={open} onClose={onClose} title={title} maxWidth="xs">
+        <InjectedDialog titleBarIconStyle="back" open={open} onClose={onClose} title={title} maxWidth="xs">
             <DialogContent>
                 <ERC20TokenList
                     dataLoading={loadingAllFarms}
