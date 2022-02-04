@@ -465,102 +465,57 @@ export function CreateFarm(props: CreateFarmProps) {
                                                 disableUnderline: true,
                                                 endAdornment: (
                                                     <InputAdornment position="start">
-                                                        <>
-                                                            <Grid container>
-                                                                <Grid item container>
-                                                                    <Box>
-                                                                        <Typography
-                                                                            className={classes.balance}
-                                                                            color="textSecondary"
-                                                                            variant="body2"
-                                                                            component="span">
-                                                                            {t('wallet_balance')}:
-                                                                            <FormattedBalance
-                                                                                value={rewardBalance ?? '0'}
-                                                                                decimals={token?.decimals}
-                                                                                significant={6}
-                                                                                formatter={formatBalance}
+                                                        {token && rewardBalance ? (
+                                                            <>
+                                                                <Grid container>
+                                                                    <Grid item container>
+                                                                        <Box>
+                                                                            <Typography
+                                                                                className={classes.balance}
+                                                                                color="textSecondary"
+                                                                                variant="body2"
+                                                                                component="span">
+                                                                                {t('wallet_balance')}:
+                                                                                <FormattedBalance
+                                                                                    value={rewardBalance ?? '0'}
+                                                                                    decimals={token?.decimals}
+                                                                                    significant={6}
+                                                                                    formatter={formatBalance}
+                                                                                />
+                                                                            </Typography>
+                                                                        </Box>
+                                                                    </Grid>
+                                                                    <Grid item container columnSpacing={1}>
+                                                                        <Grid item xs={6}>
+                                                                            {token?.symbol}
+                                                                        </Grid>
+                                                                        <Grid item xs={6}>
+                                                                            <Chip
+                                                                                size="small"
+                                                                                label="MAX"
+                                                                                clickable
+                                                                                color="primary"
+                                                                                variant="outlined"
+                                                                                onClick={() => {
+                                                                                    setTotalFarmReward(
+                                                                                        formatBalance(
+                                                                                            rewardBalance ?? '',
+                                                                                            token?.decimals,
+                                                                                            6,
+                                                                                        ),
+                                                                                    )
+                                                                                }}
                                                                             />
-                                                                        </Typography>
-                                                                    </Box>
-                                                                </Grid>
-                                                                <Grid item container columnSpacing={1}>
-                                                                    <Grid item xs={6}>
-                                                                        {token?.symbol}
-                                                                    </Grid>
-                                                                    <Grid item xs={6}>
-                                                                        <Chip
-                                                                            size="small"
-                                                                            label="MAX"
-                                                                            clickable
-                                                                            color="primary"
-                                                                            variant="outlined"
-                                                                            onClick={() => {
-                                                                                setTotalFarmReward(
-                                                                                    formatBalance(
-                                                                                        rewardBalance ?? '',
-                                                                                        token?.decimals,
-                                                                                        6,
-                                                                                    ),
-                                                                                )
-                                                                            }}
-                                                                        />
+                                                                        </Grid>
                                                                     </Grid>
                                                                 </Grid>
-                                                            </Grid>
-                                                        </>
+                                                            </>
+                                                        ) : null}
                                                     </InputAdornment>
                                                 ),
                                             }}
                                         />
                                     </Box>
-                                    {/* {token && rewardBalance !== '0' ? (
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'center',
-                                                alignItems: 'flex-start',
-                                            }}>
-                                            <Typography
-                                                className={classes.balance}
-                                                color="textSecondary"
-                                                variant="body2"
-                                                component="span">
-                                                {t('wallet_balance')}:
-                                                <FormattedBalance
-                                                    value={rewardBalance ?? '0'}
-                                                    decimals={token?.decimals}
-                                                    significant={6}
-                                                    formatter={formatBalance}
-                                                />
-                                            </Typography>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    marginTop: 2,
-                                                }}>
-
-                                                <Chip
-                                                    size="small"
-                                                    label="MAX"
-                                                    clickable
-                                                    color="primary"
-                                                    variant="outlined"
-                                                    onClick={() => {
-                                                        setTotalFarmReward(
-                                                            formatBalance(
-                                                                rewardBalance ?? '',
-                                                                token?.decimals,
-                                                                6,
-                                                            ),
-                                                        )
-                                                    }}
-                                                />
-                                            </Box>
-                                        </Box>
-                                    ) : null} */}
                                 </Grid>
                             </Grid>
 
