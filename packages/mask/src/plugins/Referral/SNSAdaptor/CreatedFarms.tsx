@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
 import { useAsync } from 'react-use'
 
 import { Grid, Typography, CircularProgress } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
-import { fromWei } from 'web3-utils'
 import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { FarmExistsEvent, parseChainAddress } from '../types'
+import { FarmDepositChange, FarmExistsEvent, parseChainAddress } from '../types'
+import { fromWei } from 'web3-utils'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 
@@ -51,9 +50,29 @@ const useStyles = makeStyles()((theme) => ({
         marginRight: '4px',
     },
 }))
+
 interface Farm extends FarmExistsEvent {
     totalFarmRewards: number
 }
+function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDepositChange[]) {
+    const farms: Farm[] = []
+    const farmTotalDepositMap = new Map<string, number>()
+
+    farmsDeposits.forEach((deposit) => {
+        const { farmHash, delta } = deposit
+        const prevFarmState = farmTotalDepositMap.get(farmHash) || 0
+
+        const totalFarmRewards = prevFarmState + Number(fromWei(delta.toString()))
+        farmTotalDepositMap.set(farmHash, totalFarmRewards)
+    })
+
+    myFarms.forEach((farm) => {
+        farms.push({ totalFarmRewards: farmTotalDepositMap.get(farm.farmHash) || 0, ...farm })
+    })
+
+    return farms
+}
+
 export function CreatedFarms() {
     const { t } = useI18N()
     const { classes } = useStyles()
@@ -65,45 +84,19 @@ export function CreatedFarms() {
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
         [chainId, ERC20?.sort().join()],
     )
-
-    const [loadingFarms, setLoadingFarms] = useState(true)
-    const [farms, setFarms] = useState<Farm[]>([])
-
-    useEffect(() => {
-        async function fetchFarms() {
-            setLoadingFarms(true)
-            const farms: Farm[] = []
-
-            // fetch farms created by sponsor and all farms deposits
-            const [myFarms, farmsDeposits] = await Promise.allSettled([
-                getMyFarms(web3, account, chainId),
-                getFarmsDeposits(web3),
-            ])
-
-            if (myFarms.status === 'fulfilled' && farmsDeposits.status === 'fulfilled') {
-                // colect all totalFarmRewards for farmHash
-                const farmTotalDepositMap = new Map<string, number>()
-
-                farmsDeposits.value.forEach((deposit) => {
-                    const { farmHash, delta } = deposit
-                    const prevFarmState = farmTotalDepositMap.get(farmHash) || 0
-
-                    const totalFarmRewards = prevFarmState + Number(fromWei(delta.toString()))
-                    farmTotalDepositMap.set(farmHash, totalFarmRewards)
-                })
-
-                myFarms.value.forEach((farm) => {
-                    farms.push({ totalFarmRewards: farmTotalDepositMap.get(farm.farmHash) || 0, ...farm })
-                })
-
-                setFarms(farms)
-            }
-            setLoadingFarms(false)
-        }
-        fetchFarms()
-    }, [chainId, account, web3])
+    // fetch my farms
+    const { value: myFarms = [], loading: loadingMyFarms } = useAsync(
+        async () => getMyFarms(web3, account),
+        [web3, account],
+    )
+    // fetch all deposits
+    const { value: farmsDeposits = [], loading: loadingFarmsDeposits } = useAsync(
+        async () => getFarmsDeposits(web3),
+        [web3],
+    )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
+    const farms = groupDepositForFarms(myFarms, farmsDeposits)
 
     return (
         <div className={classes.container}>
@@ -125,7 +118,7 @@ export function CreatedFarms() {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingFarms || loadingAllTokens ? (
+                {loadingMyFarms || loadingFarmsDeposits || loadingAllTokens ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>

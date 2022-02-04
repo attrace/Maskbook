@@ -98,10 +98,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const account = useAccount()
 
     // fetch all farms
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(
-        async () => getAllFarms(web3, currentChainId),
-        [currentChainId],
-    )
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3), [])
 
     useEffect(() => {
         if (!token) return

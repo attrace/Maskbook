@@ -23,7 +23,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    console.log(title, icon, rewardData, tokenSymbol)
+
     return (
         <Grid container marginTop="24px">
             {title && (

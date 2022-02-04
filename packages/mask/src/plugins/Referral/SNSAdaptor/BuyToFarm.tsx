@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
 
 import { v4 as uuid } from 'uuid'
@@ -15,7 +15,7 @@ import { getAllFarms } from '../Worker/apis/farms'
 
 import { TabsCreateFarm, PagesType, TransactionStatus, FARM_TYPE, Farm, ChainAddress } from '../types'
 
-import { Typography, Box, Tab, Tabs, Grid } from '@mui/material'
+import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
@@ -23,6 +23,7 @@ import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { IconURLS } from './IconURL'
 import { MyFarmsBuyer } from './MyFarmsBuyer'
+import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 
 import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
 import { toChainAddress, getFarmsRewardData } from './helpers'
@@ -46,16 +47,8 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     subtitle: {
         margin: '12px 0 24px',
     },
-    rewardItem: {
-        width: '100%',
-        fontWeight: 500,
-    },
-    rewardItemValue: {
-        marginTop: '4px',
-        fontWeight: 600,
-    },
     typeNote: {
-        marginBottom: '24px',
+        marginBottom: '20px',
         '& img': {
             marginRight: '7px',
         },
@@ -84,7 +77,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
     // TODO: why do we need chainId and currentChainId?
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    const [referredTokenFarms, setReferredTokenFarms] = useState<Farm[]>()
+    // const [referredTokenFarms, setReferredTokenFarms] = useState<Farm[]>()
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>()
 
     // fetch all farms
@@ -118,18 +111,6 @@ export function BuyToFarm(props: BuyToFarmProps) {
     }, [id, setToken, referredTokensDefn])
     // #endregion
 
-    useEffect(() => {
-        if (!token) return
-
-        const { chainId, address } = token
-        const referredTokenFarms = pairTokenFarms.filter(
-            (farm) => farm.referredTokenDefn === toChainAddress(chainId, address),
-        )
-
-        if (referredTokenFarms.length) {
-            setReferredTokenFarms(referredTokenFarms)
-        }
-    }, [token, pairTokenFarms])
     const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
 
     const swapToken = useCallback(() => {
@@ -171,7 +152,9 @@ export function BuyToFarm(props: BuyToFarmProps) {
             />
         )
     }
-
+    const referredTokenFarms = token
+        ? pairTokenFarms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
+        : []
     const rewardData = getFarmsRewardData(referredTokenFarms)
 
     return (
@@ -209,45 +192,22 @@ export function BuyToFarm(props: BuyToFarmProps) {
                                 />
                             </Grid>
                             <Grid item xs={6} justifyContent="center" display="flex" />
-                            <Grid item xs={4} justifyContent="center" display="flex">
-                                <Box className={classes.rewardItem}>
-                                    {t('plugin_referral_apr')}
-                                    <Typography className={classes.rewardItemValue}>
-                                        {rewardData.apr ? `${rewardData.apr} %` : '-'}
-                                    </Typography>
+                            {!token ? (
+                                <RewardDataWidget />
+                            ) : (
+                                <RewardDataWidget
+                                    title={t('plugin_referral_sponsored_farm')}
+                                    icon={IconURLS.sponsoredFarmLogo}
+                                    rewardData={rewardData}
+                                    tokenSymbol={token?.symbol}
+                                />
+                            )}
+                            <Grid item xs={12}>
+                                <Box marginTop="7px">
+                                    <Divider />
                                 </Box>
                             </Grid>
-                            <Grid item xs={4} justifyContent="center" display="flex">
-                                <Box className={classes.rewardItem}>
-                                    {t('plugin_referral_daily_rewards')}
-                                    <Typography className={classes.rewardItemValue}>
-                                        {rewardData.dailyReward ? (
-                                            <>
-                                                {Number.parseFloat(rewardData.dailyReward.toFixed(5))}{' '}
-                                                {token?.symbol ?? '-'}
-                                            </>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                            <Grid item xs={4} justifyContent="center" display="flex">
-                                <Box className={classes.rewardItem}>
-                                    {t('plugin_referral_total_farm_rewards')}
-                                    <Typography className={classes.rewardItemValue}>
-                                        {rewardData.totalReward ? (
-                                            <>
-                                                {Number.parseFloat(rewardData.totalReward.toFixed(5))}{' '}
-                                                {token?.symbol ?? '-'}
-                                            </>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} alignItems="center" display="flex" className={classes.typeNote}>
+                            <Grid item xs={12} display="flex" alignItems="center" className={classes.typeNote}>
                                 <img src={IconURLS.sponsoredFarmLogo} />
                                 <Typography>
                                     <b>{t('plugin_referral_sponsored_farm')}</b>
@@ -257,7 +217,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
                         </Grid>
                     </Typography>
                     <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                        <ActionButton fullWidth variant="contained" size="large" onClick={referFarm}>
+                        <ActionButton fullWidth variant="contained" size="large" onClick={referFarm} disabled={!token}>
                             {t('plugin_referral_buy_to_farm')}
                         </ActionButton>
                     </EthereumChainBoundary>
