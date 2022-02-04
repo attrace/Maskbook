@@ -51,9 +51,9 @@ export interface ReferralMetaData {
     sender: string
 }
 export interface RewardData {
-    apr: string
-    daily_reward: string
-    total_reward: string
+    apr: number
+    dailyReward: number
+    totalReward: number
 }
 export interface PageHistory {
     page: PagesType

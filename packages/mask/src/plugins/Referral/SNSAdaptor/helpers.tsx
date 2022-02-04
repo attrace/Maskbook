@@ -5,7 +5,7 @@ import {
     MASK_TOKEN_ADDR,
     ATTR_TOKEN_ADDR,
 } from '../constants'
-import type { ReferralMetaData, ChainAddress, TokensGroupedByType } from '../types'
+import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
@@ -71,4 +71,22 @@ export function getFarmTypeIconByReferredToken(
         return IconURLS.maskLogo
     }
     return IconURLS.underReviewLogo
+}
+
+export function getFarmsRewardData(farms?: Farm[]): RewardData {
+    const dailyReward = farms?.reduce(function (previousValue, currentValue) {
+        return previousValue + currentValue.dailyFarmReward
+    }, 0)
+    const totalReward = farms?.reduce(function (previousValue, currentValue) {
+        return previousValue + currentValue.totalFarmRewards
+    }, 0)
+
+    // TODO: add APR logic
+    const apr = 0
+
+    return {
+        dailyReward: dailyReward || 0,
+        totalReward: totalReward || 0,
+        apr: apr || 0,
+    }
 }
