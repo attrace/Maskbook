@@ -43,7 +43,12 @@ function parseFarmExistsEvents(unparsed: any) {
         return { farmHash, referredTokenDefn, rewardTokenDefn, sponsor }
     })
 
-    return farms
+    // select unique farms(uniq farmHash)
+    const uniqueFarms = farms.filter(
+        (val, index) => index === farms.findIndex((elem) => elem.farmHash === val.farmHash),
+    )
+
+    return uniqueFarms
 }
 
 function parseFarmDepositChangeEvents(unparsed: any) {
@@ -108,14 +113,15 @@ function parseBasicFarmEvents(unparsed: any) {
     const allEventsFarmTokenChange = parsed.filter((e) => e.topic === eventIds.FarmTokenChange)
 
     // colect all deposit and dailyRewardRate for farmHash
-    const farmTotalDepositMap = new Map<string, { totalFarmRewards?: number; dailyFarmReward?: number }>()
+    const farmMap = new Map<string, { totalFarmRewards?: number; dailyFarmReward?: number }>()
     parsed.forEach((e) => {
         const { farmHash } = e.args
-        const prevFarmState = farmTotalDepositMap.get(farmHash)
+        const prevFarmState = farmMap.get(farmHash)
 
         if (e.topic === eventIds.FarmDepositChange) {
-            const totalFarmRewards = prevFarmState?.totalFarmRewards || 0 + Number(fromWei(e.args.delta.toString()))
-            farmTotalDepositMap.set(farmHash, { ...prevFarmState, totalFarmRewards })
+            const prevTotalFarmRewards = prevFarmState?.totalFarmRewards || 0
+            const totalFarmRewards = prevTotalFarmRewards + Number(fromWei(e.args.delta.toString()))
+            farmMap.set(farmHash, { ...prevFarmState, totalFarmRewards })
         }
         if (e.topic === eventIds.FarmMetastate) {
             const { key, value } = e.args
@@ -124,7 +130,7 @@ function parseBasicFarmEvents(unparsed: any) {
             if (key === dailyRewardRateKey) {
                 const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
 
-                farmTotalDepositMap.set(farmHash, {
+                farmMap.set(farmHash, {
                     ...prevFarmState,
                     dailyFarmReward: Number(fromWei(dailyRewardRate.toString())),
                 })
@@ -132,16 +138,20 @@ function parseBasicFarmEvents(unparsed: any) {
         }
     })
 
-    allEventsFarmExists.forEach((farmExistEvent) => {
-        const { farmHash, referredTokenDefn, rewardTokenDefn, sponsor } = farmExistEvent.args
+    // select unique farms
+    const uniqueFarms = allEventsFarmExists.filter(
+        (val, index) => index === allEventsFarmExists.findIndex((event) => event.args.farmHash === val.args.farmHash),
+    )
+    uniqueFarms.forEach((event) => {
+        const { farmHash, referredTokenDefn, rewardTokenDefn, sponsor } = event.args
         let farm: Farm = {
             farmHash,
             referredTokenDefn,
             rewardTokenDefn,
             sponsor,
             farmType: FARM_TYPE.PAIR_TOKEN,
-            totalFarmRewards: farmTotalDepositMap.get(farmHash)?.totalFarmRewards || 0,
-            dailyFarmReward: farmTotalDepositMap.get(farmHash)?.dailyFarmReward || 0,
+            totalFarmRewards: farmMap.get(farmHash)?.totalFarmRewards || 0,
+            dailyFarmReward: farmMap.get(farmHash)?.dailyFarmReward || 0,
         }
 
         if (referredTokenDefn === PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN) {

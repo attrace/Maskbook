@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { v4 as uuid } from 'uuid'
@@ -68,7 +69,7 @@ const useStyles = makeStyles()((theme) => ({
         alignItems: 'center',
     },
     typeIcon: {
-        margin: '0 5px',
+        marginLeft: '5px',
     },
 }))
 

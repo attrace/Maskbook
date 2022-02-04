@@ -1052,5 +1052,6 @@
     "plugin_referral_join_the_farm": "Join the farm and receive rewards based on the value of tokens purchased via referrals.",
     "plugin_referral_buy_to_farm": "Buy to Farm",
     "plugin_referral_select_a_token": "Select a token",
-    "plugin_referral_confirmation_desc": "Confirm permission for the token and deposit {{reward}} {{token}} to create referral farm"
+    "plugin_referral_confirmation_desc": "Confirm permission for the token and deposit {{reward}} {{token}} to create referral farm",
+    "plugin_referral_rewards_earned": "Rewards earned"
 }

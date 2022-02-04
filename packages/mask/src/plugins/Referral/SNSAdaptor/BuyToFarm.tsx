@@ -84,7 +84,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
     // TODO: why do we need chainId and currentChainId?
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    const [selectedFarm, setSelectedFarm] = useState<Farm>()
+    const [referredTokenFarms, setReferredTokenFarms] = useState<Farm[]>()
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>()
 
     // fetch all farms
@@ -93,7 +93,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
         [currentChainId],
     )
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
-    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
+    const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
 
     const [token, setToken] = useState<FungibleTokenDetailed>()
 
@@ -115,16 +115,17 @@ export function BuyToFarm(props: BuyToFarmProps) {
             title: t('plugin_referral_select_a_token_to_buy_and_hold'),
             tokensChainAddrs: referredTokensDefn,
         })
-    }, [id, setToken, pairTokenFarms])
+    }, [id, setToken, referredTokensDefn])
     // #endregion
 
     useEffect(() => {
         if (!token) return
 
         const { chainId, address } = token
-        const farmData = farms.find((farm) => farm.referredTokenDefn === toChainAddress(chainId, address))
-        if (farmData) {
-            setSelectedFarm(farmData)
+        const referredTokenFarms = farms.filter((farm) => farm.referredTokenDefn === toChainAddress(chainId, address))
+
+        if (referredTokenFarms.length) {
+            setReferredTokenFarms(referredTokenFarms)
         }
     }, [token, farms])
     const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
@@ -169,11 +170,13 @@ export function BuyToFarm(props: BuyToFarmProps) {
         )
     }
 
-    const rewardData = {
-        daily_reward: selectedFarm?.dailyFarmReward,
-        total_reward: selectedFarm?.totalFarmRewards,
-        apr: 0,
-    }
+    const dailyReward = referredTokenFarms?.reduce(function (previousValue, currentValue) {
+        return previousValue + currentValue.dailyFarmReward
+    }, 0)
+    const totalRewards = referredTokenFarms?.reduce(function (previousValue, currentValue) {
+        return previousValue + currentValue.totalFarmRewards
+    }, 0)
+    const apr = 0
 
     return (
         <Box className={classes.container}>
@@ -213,14 +216,14 @@ export function BuyToFarm(props: BuyToFarmProps) {
                             <Grid item xs={4} justifyContent="center" display="flex">
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_apr')}
-                                    <Typography className={classes.rewardItemValue}>{rewardData.apr || '-'}</Typography>
+                                    <Typography className={classes.rewardItemValue}>{apr || '-'}</Typography>
                                 </Box>
                             </Grid>
                             <Grid item xs={4} justifyContent="center" display="flex">
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_daily_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {rewardData.daily_reward || '-'}
+                                        {dailyReward ? Number.parseFloat(dailyReward.toFixed(5)) : '-'}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -228,7 +231,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_total_farm_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {rewardData.total_reward || '-'}
+                                        {totalRewards ? Number.parseFloat(totalRewards.toFixed(5)) : '-'}
                                     </Typography>
                                 </Box>
                             </Grid>

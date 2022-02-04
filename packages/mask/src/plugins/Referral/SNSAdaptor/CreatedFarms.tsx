@@ -9,7 +9,7 @@ import { fromWei } from 'web3-utils'
 import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { FarmEvent, parseChainAddress } from '../types'
+import { FarmExistsEvent, parseChainAddress } from '../types'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 
@@ -51,7 +51,9 @@ const useStyles = makeStyles()((theme) => ({
         marginRight: '4px',
     },
 }))
-
+interface Farm extends FarmExistsEvent {
+    totalFarmRewards: number
+}
 export function CreatedFarms() {
     const { t } = useI18N()
     const { classes } = useStyles()
@@ -65,12 +67,12 @@ export function CreatedFarms() {
     )
 
     const [loadingFarms, setLoadingFarms] = useState(true)
-    const [farms, setFarms] = useState<FarmEvent[]>([])
+    const [farms, setFarms] = useState<Farm[]>([])
 
     useEffect(() => {
         async function fetchFarms() {
             setLoadingFarms(true)
-            const farms: FarmEvent[] = []
+            const farms: Farm[] = []
 
             // fetch farms created by sponsor and all farms deposits
             const [myFarms, farmsDeposits] = await Promise.allSettled([
@@ -79,11 +81,19 @@ export function CreatedFarms() {
             ])
 
             if (myFarms.status === 'fulfilled' && farmsDeposits.status === 'fulfilled') {
+                // colect all totalFarmRewards for farmHash
+                const farmTotalDepositMap = new Map<string, number>()
+
                 farmsDeposits.value.forEach((deposit) => {
-                    myFarms.value.forEach((farm) => {
-                        if (!(deposit.farmHash === farm.farmHash)) return
-                        farms.push({ ...deposit, ...farm })
-                    })
+                    const { farmHash, delta } = deposit
+                    const prevFarmState = farmTotalDepositMap.get(farmHash) || 0
+
+                    const totalFarmRewards = prevFarmState + Number(fromWei(delta.toString()))
+                    farmTotalDepositMap.set(farmHash, totalFarmRewards)
+                })
+
+                myFarms.value.forEach((farm) => {
+                    farms.push({ totalFarmRewards: farmTotalDepositMap.get(farm.farmHash) || 0, ...farm })
                 })
 
                 setFarms(farms)
@@ -137,7 +147,7 @@ export function CreatedFarms() {
                                     </Grid>
                                     <Grid item xs={4} display="flex" alignItems="center">
                                         <Typography className={classes.total}>
-                                            {fromWei(farm.delta.toString())}
+                                            {Number.parseFloat(farm.totalFarmRewards.toFixed(5))}
                                         </Typography>
                                         <Typography className={classes.total}>
                                             {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)?.symbol}
