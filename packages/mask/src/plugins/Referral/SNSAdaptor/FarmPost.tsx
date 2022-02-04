@@ -139,10 +139,13 @@ export function FarmPost(props: FarmPostProps) {
                                     <br />
                                     <br /> <b>{t('plugin_referral_sponsored_farm')}</b>
                                     <br /> {t('plugin_referral_apr_with_data', { reward: rewardData.apr })}
-                                    <br />{' '}
+                                    <br />
                                     {t('plugin_referral_daily_rewards_with_data', { reward: rewardData.daily_reward })}
-                                    <br />{' '}
+                                    <br />
                                     {t('plugin_referral_total_rewards_with_data', { reward: rewardData.total_reward })}
+                                    <br />
+                                    <br />
+                                    {t('plugin_referral_created_by', { name: payload.sender })}
                                 </Card>
                             </Box>
                         </CardContent>

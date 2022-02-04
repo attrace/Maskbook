@@ -25,7 +25,7 @@ type TransactionProps =
     | {
           status: TransactionStatus.CONFIRMATION
           title: string
-          subtitle: string
+          subtitle?: string
       }
     | {
           status: TransactionStatus.CONFIRMED

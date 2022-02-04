@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Typography, Box, Tab, Tabs, Grid, chipClasses } from '@mui/material'
+import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
@@ -7,7 +7,6 @@ import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from 
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { ReferralMetaData, TabsCreateFarm, RewardData, PagesType, TransactionStatus } from '../types'
-
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -21,10 +20,11 @@ import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
-
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { DropIcon } from '@masknet/icons'
 import { MyFarmsRefer } from './MyFarmsRefer'
+import { IconURLS } from './IconURL'
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
         width: 535,
@@ -56,17 +56,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '20px',
         fontWeight: 'bold',
     },
-    noToken: {
-        borderRadius: '18px !important',
-        backgroundColor: theme.palette.primary.main,
-        [`& .${chipClasses.label}`]: {
-            paddingTop: 9,
-            paddingBottom: 9,
-            fontSize: 10,
-            lineHeight: '18px',
-            color: theme.palette.primary.contrastText,
-            marginRight: 0,
-        },
+    icon: {
+        width: '20px',
+        height: '20px',
     },
 }))
 
@@ -124,7 +116,28 @@ export function ReferToFarm(props: ReferToFarmProps) {
         })
     }, [id, setToken])
     // #endregion
-
+    const farm_category_types = [
+        {
+            title: t('plugin_referral_attrace_referral_farm'),
+            desc: t('plugin_referral_attrace_referral_farm_desc'),
+            icon: <img className={classes.icon} src={IconURLS.attrLogo} />,
+        },
+        {
+            title: t('plugin_referral_mask_referral_farm'),
+            desc: t('plugin_referral_mask_referral_farm_desc'),
+            icon: <img className={classes.icon} src={IconURLS.maskLogo} />,
+        },
+        {
+            title: t('plugin_referral_sponsored_referral_farm'),
+            desc: t('plugin_referral_sponsored_referral_farm_desc'),
+            icon: <img className={classes.icon} src={IconURLS.sponsoredFarmLogo} />,
+        },
+        {
+            title: t('plugin_referral_under_review'),
+            desc: t('plugin_referral_under_review_desc'),
+            icon: <img className={classes.icon} src={IconURLS.underReviewLogo} />,
+        },
+    ]
     const insertData = (selectedReferralData: ReferralMetaData) => {
         if (selectedReferralData) {
             attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
@@ -155,11 +168,48 @@ export function ReferToFarm(props: ReferToFarmProps) {
         return (
             <Transaction
                 status={TransactionStatus.CONFIRMATION}
-                subtitle={t('plugin_referral_transaction_sign_the_message_for_rewards')}
                 title={t('plugin_referral_transaction_complete_signature_request')}
+                subtitle={t('plugin_referral_transaction_sign_the_message_for_rewards')}
             />
         )
     }
+
+    const referralFarmWidget = (data: RewardData, title: string, icon: string) => {
+        return (
+            <>
+                <Grid item xs={12} container>
+                    <img className={classes.icon} src={icon} />
+                    <Grid item paddingX={1}>
+                        <b>{title}</b>
+                    </Grid>
+                </Grid>
+
+                <Grid item xs={4} justifyContent="center" display="flex">
+                    <Box>
+                        {t('plugin_referral_apr')}
+                        <br />
+                        <b>{data.apr}</b>
+                    </Box>
+                </Grid>
+                <Grid item xs={4} justifyContent="center" display="flex">
+                    <Box>
+                        {t('plugin_referral_daily_rewards')}
+
+                        <br />
+                        <b>{data.daily_reward}</b>
+                    </Box>
+                </Grid>
+                <Grid item xs={4} justifyContent="center" display="flex">
+                    <Box>
+                        {t('plugin_referral_total_farm_rewards')}
+                        <br />
+                        <b>{data.total_reward}</b>
+                    </Box>
+                </Grid>
+            </>
+        )
+    }
+
     return (
         <>
             <div>
@@ -203,63 +253,35 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                             }}
                                         />
                                     </Grid>
-
-                                    <Grid item xs={6} justifyContent="center" display="flex" />
-                                    <Grid item xs={12}>
-                                        <b>{t('plugin_referral_sponsered_referral_farm')}</b>
-                                    </Grid>
-                                    <Grid item xs={4} justifyContent="center" display="flex">
-                                        <Box>
-                                            {t('plugin_referral_apr_estimated')}
-                                            <br />
-                                            <b>{rewardData.apr}</b>
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={4} justifyContent="center" display="flex">
-                                        <Box>
-                                            {t('plugin_referral_daily_rewards')}
-
-                                            <br />
-                                            <b>{rewardData.daily_reward}</b>
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={4} justifyContent="center" display="flex">
-                                        <Box>
-                                            {t('plugin_referral_total_farm_rewards')}
-                                            <br />
-                                            <b>{rewardData.total_reward}</b>
-                                        </Box>
-                                    </Grid>
-                                    {attraceRewardData !== null ? (
-                                        <div>
-                                            <Grid item xs={12}>
-                                                <b>{t('plugin_referral_attrace_referral_farm')}</b>
-                                            </Grid>
-
-                                            <Grid item xs={4} justifyContent="center" display="flex">
-                                                <Box>
-                                                    {t('plugin_referral_apr')}
-                                                    <br />
-                                                    <b>{attraceRewardData.apr}</b>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={4} justifyContent="center" display="flex">
-                                                <Box>
-                                                    {t('plugin_referral_daily_rewards')}
-
-                                                    <br />
-                                                    <b>{attraceRewardData.daily_reward}</b>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={4} justifyContent="center" display="flex">
-                                                <Box>
-                                                    {t('plugin_referral_total_farm_rewards')}
-                                                    <br />
-                                                    <b>{attraceRewardData.total_reward}</b>
-                                                </Box>
-                                            </Grid>
-                                        </div>
-                                    ) : null}
+                                    {referralFarmWidget(
+                                        rewardData,
+                                        t('plugin_referral_sponsored_referral_farm'),
+                                        IconURLS.sponsoredFarmLogo,
+                                    )}
+                                    {attraceRewardData !== null
+                                        ? referralFarmWidget(
+                                              attraceRewardData,
+                                              t('plugin_referral_attrace_referral_farm'),
+                                              IconURLS.attrLogo,
+                                          )
+                                        : null}
+                                </Grid>
+                                <Box paddingY={2}>
+                                    <Divider />
+                                </Box>
+                                <Grid container rowSpacing={0.5}>
+                                    {farm_category_types.map((category) => {
+                                        return (
+                                            <>
+                                                <Grid item xs={12} container columnSpacing={1}>
+                                                    <Grid item>{category.icon}</Grid>
+                                                    <Grid item>
+                                                        <b>{category.title}</b> - {category.desc}
+                                                    </Grid>
+                                                </Grid>
+                                            </>
+                                        )
+                                    })}
                                 </Grid>
                             </Typography>
 
