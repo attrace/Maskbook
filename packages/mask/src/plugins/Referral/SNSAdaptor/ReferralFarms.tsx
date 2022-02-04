@@ -59,9 +59,9 @@ const useStylesType = makeStyles()((theme) => ({
 interface TypeProps {
     name: string
     onClick?: () => void
+    iconUrl: string
 }
-
-export function Type({ name, onClick }: TypeProps) {
+export function Type({ name, onClick, iconUrl }: TypeProps) {
     const { classes } = useStylesType()
 
     return (
@@ -73,7 +73,7 @@ export function Type({ name, onClick }: TypeProps) {
                 }}
                 className={classes.root}>
                 <Grid>
-                    <img className={classes.img} src={IconURLS.referral} />
+                    <img className={classes.img} src={iconUrl} />
                     <div>{name}</div>
                 </Grid>
             </Button>
@@ -99,18 +99,21 @@ export function ReferralFarms(props: ReferralFarmsProps) {
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM)
             },
+            iconUrl: IconURLS.referToFarm,
         },
         {
             name: 'Buy to Farm',
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM)
             },
+            iconUrl: IconURLS.buyToFarm,
         },
         {
             name: 'Create Farm',
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM)
             },
+            iconUrl: IconURLS.createFarm,
         },
     ]
 
@@ -130,14 +133,14 @@ export function ReferralFarms(props: ReferralFarmsProps) {
                     <TabPanel value={TabsReferralFarms.TOKENS} className={classes.tab}>
                         <Grid container spacing="20px">
                             {types.map((type) => (
-                                <Type key={type.name} name={type.name} onClick={type.onClick} />
+                                <Type key={type.name} name={type.name} onClick={type.onClick} iconUrl={type.iconUrl} />
                             ))}
                         </Grid>
                     </TabPanel>
                     <TabPanel value={TabsReferralFarms.NFT} className={classes.tab}>
                         <Grid container spacing="20px">
                             {types.map((type) => (
-                                <Type key={type.name} name={type.name} onClick={type.onClick} />
+                                <Type key={type.name} name={type.name} onClick={type.onClick} iconUrl={type.iconUrl} />
                             ))}
                         </Grid>
                     </TabPanel>
