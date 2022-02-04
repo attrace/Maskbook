@@ -202,7 +202,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
                             <Grid item xs={6} justifyContent="center" display="flex" />
                             <Grid item xs={4} justifyContent="center" display="flex">
                                 <Box className={classes.rewardItem}>
-                                    {t('plugin_referral_apr_estimated')}
+                                    {t('plugin_referral_apr')}
                                     <Typography className={classes.rewardItemValue}>{rewardData.apr || '-'}</Typography>
                                 </Box>
                             </Grid>

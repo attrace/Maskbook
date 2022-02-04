@@ -163,7 +163,13 @@ export function ReferToFarm(props: ReferToFarmProps) {
         }
     }
     if (isTransactionProcessing) {
-        return <Transaction status={TransactionStatus.CONFIRMATION} />
+        return (
+            <Transaction
+                status={TransactionStatus.CONFIRMATION}
+                title={t('plugin_referral_transaction_complete_signature_request')}
+                subtitle={t('plugin_referral_transaction_sign_the_message_for_rewards')}
+            />
+        )
     }
 
     const referralFarmWidget = (data: RewardData, title: string, icon: string) => {

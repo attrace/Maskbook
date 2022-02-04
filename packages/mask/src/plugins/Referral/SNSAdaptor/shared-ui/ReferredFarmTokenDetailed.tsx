@@ -3,7 +3,7 @@ import { isDashboardPage } from '@masknet/shared-base'
 import { useI18N } from '../../../../utils'
 
 import type { ERC20TokenDetailed } from '@masknet/web3-shared-evm'
-import type { ChainAddress, ChainId } from '../types'
+import type { ChainAddress, ChainId } from '../../types'
 
 import { getFarmTypeIconByReferredToken } from '../helpers'
 

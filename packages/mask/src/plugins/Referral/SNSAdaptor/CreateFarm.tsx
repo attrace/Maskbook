@@ -282,7 +282,7 @@ export function CreateFarm(props: CreateFarmProps) {
 
         closeWalletStatusDialog()
         props.onClose?.()
-    }, [])
+    }, [referredToken])
 
     const onUpdateByRemote = useCallback(
         (ev: SelectTokenUpdated) => {
