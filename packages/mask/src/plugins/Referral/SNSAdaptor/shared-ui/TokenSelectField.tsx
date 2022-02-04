@@ -37,10 +37,14 @@ export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
     return (
         <Button onClick={onClick} variant="text" className={classes.root}>
             <TextField
-                label={!token ? t('plugin_referral_select_a_token') : label}
+                label={label}
                 value={token?.symbol}
+                variant="standard"
+                placeholder={t('plugin_referral_select_a_token')}
                 InputProps={{
                     readOnly: true,
+                    disableUnderline: true,
+
                     startAdornment: token && (
                         <InputAdornment position="start">
                             <TokenIcon {...token} classes={classes} />
@@ -52,6 +56,7 @@ export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
                         </InputAdornment>
                     ),
                 }}
+                InputLabelProps={{ shrink: true }}
             />
         </Button>
     )
