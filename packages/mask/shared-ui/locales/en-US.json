@@ -1021,6 +1021,7 @@
     "plugin_referral_sponsored_farm_detail": "- rewards in tokens chosen by the sponsor",
     "plugin_referral_apr": "APR",
     "plugin_referral_apr_with_data": "APR: {{reward}}",
+    "plugin_referral_estimated_apr": "Estimated APR",
     "plugin_referral_daily_rewards_with_data": "Daily Reward: {{reward}}",
     "plugin_referral_total_rewards": "Total Rewards",
     "plugin_referral_total_rewards_with_data": "Total Rewards: {{reward}}",

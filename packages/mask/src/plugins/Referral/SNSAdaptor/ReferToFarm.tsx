@@ -1,29 +1,40 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
+import { useAsync } from 'react-use'
 
 import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, RewardData, PagesType, TransactionStatus } from '../types'
+import { ReferralMetaData, TabsCreateFarm, PagesType, TransactionStatus, Farm, FARM_TYPE } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
-import { SelectTokenChip, useRemoteControlledDialog } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
+import {
+    ATTR_TOKEN_ADDR,
+    ATTR_TOKEN_SYMBOL,
+    MASK_SWAP_V1,
+    MASK_TOKEN_ADDR,
+    MASK_TOKEN_SYMBOL,
+    REFERRAL_META_KEY,
+} from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-import { DropIcon } from '@masknet/icons'
 import { MyFarmsRefer } from './MyFarmsRefer'
 import { IconURLS } from './IconURL'
+import { TokenSelectField } from './shared-ui/TokenSelectField'
+import { getAllFarms } from '../Worker/apis/farms'
+import { toChainAddress, getFarmsRewardData } from './helpers'
+import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -74,21 +85,48 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
+    const [sponsoredFarms, setSponsoredFarms] = useState<Farm[]>()
+    const [attrFarms, setAttrFarms] = useState<Farm[]>()
+    const [maskFarms, setMaskFarms] = useState<Farm[]>()
 
     // #region select token
-    // const { amount, token, balance, setAmount, setToken } = useFungibleTokenWatched()
     const [token, setToken] = useState<FungibleTokenDetailed>()
     const [id] = useState(uuid())
-    const [rewardData, setRewardData] = useState<RewardData>({
-        apr: '42%',
-        daily_reward: '1 wETH',
-        total_reward: '5 wETH',
-    })
-    const [attraceRewardData, setAttraceRewardData] = useState<RewardData | null>(null)
     const [isTransactionProcessing, setIsTransactionProcessing] = useState<boolean>(false)
     const requiredChainId = ChainId.Rinkeby
     const web3 = useWeb3({ chainId: requiredChainId })
     const account = useAccount()
+
+    // fetch all farms
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(
+        async () => getAllFarms(web3, currentChainId),
+        [currentChainId],
+    )
+
+    useEffect(() => {
+        if (!token) return
+
+        const { chainId, address } = token
+
+        const sponsoredFarms = farms.filter(
+            (farm) =>
+                farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, address),
+        )
+        const propotionalFarms = farms.filter(
+            (farm) =>
+                farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, address)),
+        )
+        const attrFarms = propotionalFarms.filter(
+            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+        )
+        const maskFarms = propotionalFarms.filter(
+            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+        )
+
+        setSponsoredFarms(sponsoredFarms)
+        setAttrFarms(attrFarms)
+        setMaskFarms(maskFarms)
+    }, [token, farms])
 
     const { attachMetadata, dropMetadata } = useCompositionContext()
 
@@ -108,7 +146,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
             [id, setToken],
         ),
     )
-    const onSelectTokenChipClick = useCallback(() => {
+    const onClickTokenSelect = useCallback(() => {
         setSelectTokenDialog({
             open: true,
             uuid: id,
@@ -174,41 +212,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
         )
     }
 
-    const referralFarmWidget = (data: RewardData, title: string, icon: string) => {
-        return (
-            <>
-                <Grid item xs={12} container>
-                    <img className={classes.icon} src={icon} />
-                    <Grid item paddingX={1}>
-                        <b>{title}</b>
-                    </Grid>
-                </Grid>
-
-                <Grid item xs={4} justifyContent="center" display="flex">
-                    <Box>
-                        {t('plugin_referral_apr')}
-                        <br />
-                        <b>{data.apr}</b>
-                    </Box>
-                </Grid>
-                <Grid item xs={4} justifyContent="center" display="flex">
-                    <Box>
-                        {t('plugin_referral_daily_rewards')}
-
-                        <br />
-                        <b>{data.daily_reward}</b>
-                    </Box>
-                </Grid>
-                <Grid item xs={4} justifyContent="center" display="flex">
-                    <Box>
-                        {t('plugin_referral_total_farm_rewards')}
-                        <br />
-                        <b>{data.total_reward}</b>
-                    </Box>
-                </Grid>
-            </>
-        )
-    }
+    const noFarmForSelectedToken = token && !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     return (
         <>
@@ -226,66 +230,70 @@ export function ReferToFarm(props: ReferToFarmProps) {
                         </Tabs>
                         <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
                             <Grid container />
-                            <Typography>
-                                <b>{t('plugin_referral_select_token_refer')}</b>
-                                <br />
-                                <br />
-                                {t('plugin_referral_select_token_refer_desc')}
+                            <Typography fontWeight={600} variant="h6" marginBottom="12px">
+                                {t('plugin_referral_select_token_refer')}
                             </Typography>
+                            <Typography marginBottom="24px">{t('plugin_referral_select_token_refer_desc')}</Typography>
+                            <Grid item xs={6}>
+                                <TokenSelectField
+                                    label={t('plugin_referral_token_to_refer')}
+                                    token={token}
+                                    onClick={onClickTokenSelect}
+                                />
+                            </Grid>
                             <Typography>
-                                <Grid
-                                    container
-                                    justifyContent="space-around"
-                                    display="flex"
-                                    alignItems="flex-start"
-                                    rowSpacing="20px">
-                                    <Grid item xs={6} justifyContent="center" display="flex">
-                                        <SelectTokenChip
-                                            token={token}
-                                            ChipProps={{
-                                                onClick: () => {
-                                                    onSelectTokenChipClick()
-                                                },
-                                                deleteIcon: <DropIcon />,
-
-                                                size: 'medium',
-                                                className: classes.chip,
-                                            }}
+                                <Grid container>
+                                    {!token && <RewardDataWidget />}
+                                    {noFarmForSelectedToken ? (
+                                        <RewardDataWidget
+                                            title={t('plugin_referral_under_review')}
+                                            icon={IconURLS.underReviewLogo}
                                         />
-                                    </Grid>
-                                    {referralFarmWidget(
-                                        rewardData,
-                                        t('plugin_referral_sponsored_referral_farm'),
-                                        IconURLS.sponsoredFarmLogo,
-                                    )}
-                                    {attraceRewardData !== null
-                                        ? referralFarmWidget(
-                                              attraceRewardData,
-                                              t('plugin_referral_attrace_referral_farm'),
-                                              IconURLS.attrLogo,
-                                          )
-                                        : null}
+                                    ) : null}
+                                    {sponsoredFarms?.length ? (
+                                        <RewardDataWidget
+                                            title={t('plugin_referral_sponsored_referral_farm')}
+                                            icon={IconURLS.sponsoredFarmLogo}
+                                            rewardData={getFarmsRewardData(sponsoredFarms)}
+                                            tokenSymbol={token?.symbol}
+                                        />
+                                    ) : null}
+                                    {attrFarms?.length ? (
+                                        <RewardDataWidget
+                                            title={t('plugin_referral_attrace_referral_farm')}
+                                            icon={IconURLS.attrLogo}
+                                            rewardData={getFarmsRewardData(attrFarms)}
+                                            tokenSymbol={ATTR_TOKEN_SYMBOL}
+                                        />
+                                    ) : null}
+                                    {maskFarms?.length ? (
+                                        <RewardDataWidget
+                                            title={t('plugin_referral_mask_referral_farm')}
+                                            icon={IconURLS.maskLogo}
+                                            rewardData={getFarmsRewardData(maskFarms)}
+                                            tokenSymbol={MASK_TOKEN_SYMBOL}
+                                        />
+                                    ) : null}
                                 </Grid>
-                                <Box paddingY={2}>
+                                <Box paddingY={2} marginTop="7px">
                                     <Divider />
                                 </Box>
-                                <Grid container rowSpacing={0.5}>
+                                <Grid container rowSpacing={0.5} marginBottom="25px">
                                     {farm_category_types.map((category) => {
                                         return (
-                                            <>
-                                                <Grid item xs={12} container columnSpacing={1}>
-                                                    <Grid item>{category.icon}</Grid>
-                                                    <Grid item>
-                                                        <b>{category.title}</b> - {category.desc}
-                                                    </Grid>
+                                            <Grid item xs={12} container columnSpacing={1} key={category.title}>
+                                                <Grid item>{category.icon}</Grid>
+                                                <Grid item display="flex">
+                                                    <Typography fontWeight={600} marginRight="4px">
+                                                        {category.title}
+                                                    </Typography>{' '}
+                                                    - {category.desc}
                                                 </Grid>
-                                            </>
+                                            </Grid>
                                         )
                                     })}
                                 </Grid>
                             </Typography>
-
-                            <br />
                             <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
                                 <ActionButton
                                     fullWidth

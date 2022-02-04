@@ -42,9 +42,9 @@ export function FarmPost(props: FarmPostProps) {
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const { t } = useI18N()
     const [rewardData, setRewardData] = useState<RewardData>({
-        apr: '42%',
-        daily_reward: '1wETH',
-        total_reward: '5wETH',
+        apr: 0,
+        dailyReward: 0,
+        totalReward: 0,
     })
 
     const currentIdentity = useCurrentIdentity()
@@ -140,9 +140,9 @@ export function FarmPost(props: FarmPostProps) {
                                     <br /> <b>{t('plugin_referral_sponsored_farm')}</b>
                                     <br /> {t('plugin_referral_apr_with_data', { reward: rewardData.apr })}
                                     <br />
-                                    {t('plugin_referral_daily_rewards_with_data', { reward: rewardData.daily_reward })}
+                                    {t('plugin_referral_daily_rewards_with_data', { reward: rewardData.dailyReward })}
                                     <br />
-                                    {t('plugin_referral_total_rewards_with_data', { reward: rewardData.total_reward })}
+                                    {t('plugin_referral_total_rewards_with_data', { reward: rewardData.totalReward })}
                                     <br />
                                     <br />
                                     {t('plugin_referral_created_by', { name: payload.sender })}

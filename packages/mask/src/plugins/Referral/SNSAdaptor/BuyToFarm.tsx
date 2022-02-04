@@ -25,7 +25,7 @@ import { IconURLS } from './IconURL'
 import { MyFarmsBuyer } from './MyFarmsBuyer'
 
 import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
-import { toChainAddress } from './helpers'
+import { toChainAddress, getFarmsRewardData } from './helpers'
 import { PluginTraderMessages } from '../../Trader/messages'
 import type { Coin } from '../../Trader/types'
 
@@ -122,12 +122,14 @@ export function BuyToFarm(props: BuyToFarmProps) {
         if (!token) return
 
         const { chainId, address } = token
-        const referredTokenFarms = farms.filter((farm) => farm.referredTokenDefn === toChainAddress(chainId, address))
+        const referredTokenFarms = pairTokenFarms.filter(
+            (farm) => farm.referredTokenDefn === toChainAddress(chainId, address),
+        )
 
         if (referredTokenFarms.length) {
             setReferredTokenFarms(referredTokenFarms)
         }
-    }, [token, farms])
+    }, [token, pairTokenFarms])
     const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
 
     const swapToken = useCallback(() => {
@@ -170,13 +172,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
         )
     }
 
-    const dailyReward = referredTokenFarms?.reduce(function (previousValue, currentValue) {
-        return previousValue + currentValue.dailyFarmReward
-    }, 0)
-    const totalRewards = referredTokenFarms?.reduce(function (previousValue, currentValue) {
-        return previousValue + currentValue.totalFarmRewards
-    }, 0)
-    const apr = 0
+    const rewardData = getFarmsRewardData(referredTokenFarms)
 
     return (
         <Box className={classes.container}>
@@ -216,14 +212,23 @@ export function BuyToFarm(props: BuyToFarmProps) {
                             <Grid item xs={4} justifyContent="center" display="flex">
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_apr')}
-                                    <Typography className={classes.rewardItemValue}>{apr || '-'}</Typography>
+                                    <Typography className={classes.rewardItemValue}>
+                                        {rewardData.apr ? `${rewardData.apr} %` : '-'}
+                                    </Typography>
                                 </Box>
                             </Grid>
                             <Grid item xs={4} justifyContent="center" display="flex">
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_daily_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {dailyReward ? Number.parseFloat(dailyReward.toFixed(5)) : '-'}
+                                        {rewardData.dailyReward ? (
+                                            <>
+                                                {Number.parseFloat(rewardData.dailyReward.toFixed(5))}{' '}
+                                                {token?.symbol ?? '-'}
+                                            </>
+                                        ) : (
+                                            '-'
+                                        )}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -231,7 +236,14 @@ export function BuyToFarm(props: BuyToFarmProps) {
                                 <Box className={classes.rewardItem}>
                                     {t('plugin_referral_total_farm_rewards')}
                                     <Typography className={classes.rewardItemValue}>
-                                        {totalRewards ? Number.parseFloat(totalRewards.toFixed(5)) : '-'}
+                                        {rewardData.totalReward ? (
+                                            <>
+                                                {Number.parseFloat(rewardData.totalReward.toFixed(5))}{' '}
+                                                {token?.symbol ?? '-'}
+                                            </>
+                                        ) : (
+                                            '-'
+                                        )}
                                     </Typography>
                                 </Box>
                             </Grid>
