@@ -96,7 +96,6 @@ export function MyFarmsBuyer() {
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
-    // TODO: check it
     const uniqueFarms = farms.filter(
         (val, index) => index === farms.findIndex((elem) => elem.referredTokenDefn === val.referredTokenDefn),
     )
