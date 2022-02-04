@@ -70,4 +70,5 @@ export function getFarmTypeIconByReferredToken(
     if (rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR)) {
         return IconURLS.maskLogo
     }
+    return IconURLS.sponsoredFarmLogo
 }

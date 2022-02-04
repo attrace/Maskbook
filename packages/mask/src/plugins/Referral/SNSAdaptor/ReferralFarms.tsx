@@ -82,7 +82,7 @@ export function Type({ name, onClick }: TypeProps) {
 }
 
 export interface ReferralFarmsProps {
-    continue: (currentPage: PagesType, nextPage: PagesType) => void
+    continue: (currentPage: PagesType, nextPage: PagesType, title: string) => void
 }
 export function ReferralFarms(props: ReferralFarmsProps) {
     const { t } = useI18N()
@@ -97,19 +97,19 @@ export function ReferralFarms(props: ReferralFarmsProps) {
         {
             name: 'Refer to Farm',
             onClick: () => {
-                props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM)
+                props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM, tab + ': ' + PagesType.REFER_TO_FARM)
             },
         },
         {
             name: 'Buy to Farm',
             onClick: () => {
-                props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM)
+                props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM, tab + ': ' + PagesType.BUY_TO_FARM)
             },
         },
         {
             name: 'Create Farm',
             onClick: () => {
-                props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM)
+                props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM, tab + ': ' + PagesType.CREATE_FARM)
             },
         },
     ]

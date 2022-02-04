@@ -4,14 +4,7 @@ import { useAsync } from 'react-use'
 import { v4 as uuid } from 'uuid'
 
 import { useI18N } from '../../../utils'
-import {
-    ChainId,
-    useAccount,
-    useChainId,
-    useWeb3,
-    useFungibleTokenWatched,
-    EthereumTokenType,
-} from '@masknet/web3-shared-evm'
+import { ChainId, useAccount, useChainId, useWeb3, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared'
@@ -33,6 +26,8 @@ import { MyFarmsBuyer } from './MyFarmsBuyer'
 
 import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
 import { toChainAddress } from './helpers'
+import { PluginTraderMessages } from '../../Trader/messages'
+import type { Coin } from '../../Trader/types'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -100,11 +95,8 @@ export function BuyToFarm(props: BuyToFarmProps) {
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
     const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
 
-    // #region select token
-    const { token, setToken } = useFungibleTokenWatched({
-        type: EthereumTokenType.Native,
-        address: '',
-    })
+    const [token, setToken] = useState<FungibleTokenDetailed>()
+
     const [id] = useState(uuid())
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
         PluginReferralMessages.selectTokenToBuy,
@@ -127,22 +119,40 @@ export function BuyToFarm(props: BuyToFarmProps) {
     // #endregion
 
     useEffect(() => {
-        if (!token.value) return
+        if (!token) return
 
-        const { chainId, address } = token.value
+        const { chainId, address } = token
         const farmData = farms.find((farm) => farm.referredTokenDefn === toChainAddress(chainId, address))
         if (farmData) {
             setSelectedFarm(farmData)
         }
     }, [token, farms])
+    const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
+
+    const swapToken = useCallback(() => {
+        if (!token) return
+        openSwapDialog({
+            open: true,
+            traderProps: {
+                coin: {
+                    id: token?.address,
+                    name: token?.name ?? '',
+                    symbol: token?.symbol ?? '',
+                    contract_address: token?.address,
+                    decimals: token?.decimals,
+                } as Coin,
+            },
+        })
+    }, [token, openSwapDialog])
 
     const referFarm = async () => {
         try {
             setTransactionStatus(TransactionStatus.CONFIRMATION)
-            const sig = await singAndPostProofWithReferrer(web3, account, token?.value?.address ?? '', MASK_REFERRER)
+            const sig = await singAndPostProofWithReferrer(web3, account, token?.address ?? '', MASK_REFERRER)
             setTransactionStatus(TransactionStatus.CONFIRMED)
 
             // TODO: add redirect to Swap plugin
+            swapToken()
         } catch (error) {
             setTransactionStatus(TransactionStatus.FAILED)
             alert(error)
@@ -195,7 +205,7 @@ export function BuyToFarm(props: BuyToFarmProps) {
                             <Grid item xs={6} justifyContent="center" display="flex">
                                 <TokenSelectField
                                     label={t('plugin_referral_token_to_buy_and_hold')}
-                                    token={token?.value}
+                                    token={token}
                                     onClick={onClickTokenSelect}
                                 />
                             </Grid>

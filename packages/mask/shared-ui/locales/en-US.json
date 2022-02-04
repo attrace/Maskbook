@@ -1044,5 +1044,6 @@
     "plugin_referral_token_to_buy_and_hold": "Token to Buy & Hold via Referral",
     "plugin_referral_select_a_token_to_buy_and_hold_and_earn_rewards": "Select a token to Buy & Hold and earn rewards!",
     "plugin_referral_join_the_farm": "Join the farm and receive rewards based on the value of tokens purchased via referrals.",
-    "plugin_referral_buy_to_farm": "Buy to Farm"
+    "plugin_referral_buy_to_farm": "Buy to Farm",
+    "plugin_referral_select_a_token": "Select a token"
 }
