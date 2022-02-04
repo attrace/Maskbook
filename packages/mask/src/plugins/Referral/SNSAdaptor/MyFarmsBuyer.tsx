@@ -96,7 +96,6 @@ export function MyFarmsBuyer() {
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
-    // TODO: check it
     const uniqueFarms = farms.filter(
         (val, index) => index === farms.findIndex((elem) => elem.referredTokenDefn === val.referredTokenDefn),
     )
@@ -117,7 +116,7 @@ export function MyFarmsBuyer() {
                 </Grid>
                 <Grid item xs={4}>
                     <Typography fontWeight={500} className={classes.col}>
-                        {t('plugin_referral_total_rewards')}
+                        {t('plugin_referral_rewards_earned')}
                     </Typography>
                 </Grid>
             </Grid>
