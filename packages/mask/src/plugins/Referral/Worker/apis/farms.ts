@@ -65,7 +65,7 @@ function parseFarmDepositChangeEvents(unparsed: any) {
 export async function getMyFarms(
     web3: Web3,
     account: string,
-    chainId: ChainId,
+    chainId?: ChainId,
     filter?: TokenFilter,
 ): Promise<Array<FarmExistsEvent>> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
@@ -88,7 +88,7 @@ export async function getMyFarms(
         topic2: [expandEvmAddressToBytes32(account)],
         topic3,
         topic4,
-        chainId: [chainId],
+        chainId: chainId ? [chainId] : [],
     })
 
     return parseFarmExistsEvents(res.items)
