@@ -30,7 +30,7 @@ export enum PagesType {
     TRANSACTION = 'Transaction',
 }
 export enum TabsReferralFarms {
-    TOKENS = 'CRYPTO TOKENS',
+    TOKENS = 'Crypto Tokens',
     NFT = 'NFTs',
 }
 
@@ -54,6 +54,10 @@ export interface RewardData {
     apr: string
     daily_reward: string
     total_reward: string
+}
+export interface PageHistory {
+    page: PagesType
+    title: string
 }
 export interface MetastateKeyValue {
     key: string

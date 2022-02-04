@@ -37,7 +37,7 @@ export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
     return (
         <Button onClick={onClick} variant="text" className={classes.root}>
             <TextField
-                label={label}
+                label={!token ? t('plugin_referral_select_a_token') : label}
                 value={token?.symbol}
                 InputProps={{
                     readOnly: true,

@@ -53,7 +53,7 @@ const useStyles = makeStyles()((theme) => ({
     },
 }))
 
-export function MyFarmsBuyer() {
+export function MyFarmsRefer() {
     const { t } = useI18N()
     const { classes } = useStyles()
     const chainId = useChainId()
@@ -74,15 +74,15 @@ export function MyFarmsBuyer() {
     useEffect(() => {
         async function fetchFarms() {
             if (!accountProofs.length) return
+
             try {
                 setLoadingFarms(true)
                 const farms: FarmExistsEvent[] = []
 
-                // filter out promoter's proofs
-                const referProofs = accountProofs.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
+                // only promoter's proofs
+                const referProofs = accountProofs.filter((proof) => proof.referrer.toLowerCase() === ZERO_ADDR)
                 let referredTokens = referProofs.map((proof) => toChainAddress(chainId, proof.token))
                 referredTokens = uniqWith(referredTokens, isEqual)
-
                 const response = await getAllFarms(web3, chainId, { referredTokens: referredTokens })
                 farms.push(...response)
                 setFarms(farms)

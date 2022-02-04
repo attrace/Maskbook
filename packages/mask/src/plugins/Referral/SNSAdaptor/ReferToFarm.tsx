@@ -3,7 +3,7 @@ import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
-import { ChainId, useAccount, useChainId, useFungibleTokenWatched, useWeb3 } from '@masknet/web3-shared-evm'
+import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { ReferralMetaData, TabsCreateFarm, RewardData, PagesType, TransactionStatus } from '../types'
@@ -21,6 +21,8 @@ import { useCurrentIdentity } from '../../../components/DataSource/useActivatedU
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
+import { DropIcon } from '@masknet/icons'
+import { MyFarmsRefer } from './MyFarmsRefer'
 import { IconURLS } from './IconURL'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -74,8 +76,8 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
 
     // #region select token
-    const { amount, token, balance, setAmount, setToken } = useFungibleTokenWatched()
-
+    // const { amount, token, balance, setAmount, setToken } = useFungibleTokenWatched()
+    const [token, setToken] = useState<FungibleTokenDetailed>()
     const [id] = useState(uuid())
     const [rewardData, setRewardData] = useState<RewardData>({
         apr: '42%',
@@ -148,13 +150,13 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const referFarm = async () => {
         try {
             setIsTransactionProcessing(true)
-            const sig = await singAndPostProofOrigin(web3, account, token?.value?.address ?? '', MASK_SWAP_V1)
+            const sig = await singAndPostProofOrigin(web3, account, token?.address ?? '', MASK_SWAP_V1)
             setIsTransactionProcessing(false)
             insertData({
-                referral_token: token?.value?.address ?? '',
-                referral_token_name: token?.value?.name ?? '',
-                referral_token_symbol: token?.value?.symbol ?? '',
-                referral_token_icon: token?.value?.logoURI ?? [''],
+                referral_token: token?.address ?? '',
+                referral_token_name: token?.name ?? '',
+                referral_token_symbol: token?.symbol ?? '',
+                referral_token_icon: token?.logoURI ?? [''],
                 sender: senderName ?? '',
             })
         } catch (error) {
@@ -239,11 +241,13 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                     rowSpacing="20px">
                                     <Grid item xs={6} justifyContent="center" display="flex">
                                         <SelectTokenChip
-                                            token={token?.value}
+                                            token={token}
                                             ChipProps={{
                                                 onClick: () => {
                                                     onSelectTokenChipClick()
                                                 },
+                                                deleteIcon: <DropIcon />,
+
                                                 size: 'medium',
                                                 className: classes.chip,
                                             }}
@@ -295,7 +299,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                             </EthereumChainBoundary>
                         </TabPanel>
                         <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                            Item 2
+                            <MyFarmsRefer />
                         </TabPanel>
                     </TabContext>
                 </Box>

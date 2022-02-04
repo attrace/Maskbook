@@ -5,10 +5,12 @@ import { TabContext, TabPanel } from '@mui/lab'
 import { useI18N } from '../../../utils'
 import {
     ChainId,
+    EthereumTokenType,
     formatBalance,
+    FungibleTokenDetailed,
     useAccount,
     useChainId,
-    useFungibleTokenWatched,
+    useFungibleTokenBalance,
     useWeb3,
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
@@ -170,20 +172,13 @@ export function CreateFarm(props: CreateFarmProps) {
     const [createFarm, setCreateFarm] = useState(false)
 
     // #region select token
+    const [referredToken, setReferredTokenToken] = useState<FungibleTokenDetailed>()
+    const [rewardToken, setRewardToken] = useState<FungibleTokenDetailed>()
     const {
-        amount,
-        token: referredToken,
-        balance,
-        setAmount,
-        setToken: setReferredTokenToken,
-    } = useFungibleTokenWatched()
-    const {
-        amount: rewardAmount,
-        token: rewardToken,
-        balance: rewardBalance,
-        setAmount: setRewardAmount,
-        setToken: setRewardToken,
-    } = useFungibleTokenWatched()
+        value: rewardBalance = '0',
+        loading: loadingRewardBalance,
+        retry: retryLoadRewardBalance,
+    } = useFungibleTokenBalance(rewardToken?.type ?? EthereumTokenType.Native, rewardToken?.address ?? '')
 
     const [transactionHash, setTransactionHash] = useState<string | null>(null)
     // const [transactionState, setTransactionState] = useState<TransactionState | null>(null)
@@ -207,17 +202,17 @@ export function CreateFarm(props: CreateFarmProps) {
     )
 
     const onDeposit = useCallback(async () => {
-        if (!referredToken?.value?.address || !rewardToken?.value?.address) {
+        if (!referredToken?.address || !rewardToken?.address) {
             return alert('TOKEN DID NOT SELECT')
         }
 
-        if (referredToken.value.address !== NATIVE_TOKEN) {
-            const { address: rewardTokenAddr } = rewardToken.value
-            const { address: referredTokenAddr } = referredToken.value
+        if (referredToken.address !== NATIVE_TOKEN) {
+            const { address: rewardTokenAddr } = rewardToken
+            const { address: referredTokenAddr } = referredToken
             const totalFarmRewardNum = Number.parseFloat(totalFarmReward)
             const dailyFarmRewardNum = Number.parseFloat(dailyFarmReward)
 
-            if (rewardToken.value.address === NATIVE_TOKEN) {
+            if (rewardToken.address === NATIVE_TOKEN) {
                 await runCreateNativeFarm(
                     (val: boolean) => {
                         setTransactionProcessing(!val)
@@ -262,11 +257,11 @@ export function CreateFarm(props: CreateFarmProps) {
     }, [web3, account, rewardToken, referredToken, totalFarmReward, dailyFarmReward])
 
     const onInsertData = useCallback(() => {
-        if (!referredToken?.value?.address) {
+        if (!referredToken?.address) {
             return alert('REFERRED TOKEN DID NOT SELECT')
         }
 
-        const { address, name = '', symbol = '', logoURI = [''] } = referredToken.value
+        const { address, name = '', symbol = '', logoURI = [''] } = referredToken
         const selectedReferralData = {
             referral_token: address,
             referral_token_name: name,
@@ -316,7 +311,7 @@ export function CreateFarm(props: CreateFarmProps) {
     // #endregion
 
     const clickCreateFarm = () => {
-        if (referredToken?.value?.address !== NATIVE_TOKEN) {
+        if (referredToken?.address !== NATIVE_TOKEN) {
             setCreateFarm(true)
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
@@ -328,6 +323,7 @@ export function CreateFarm(props: CreateFarmProps) {
             <Transaction
                 status={TransactionStatus.CONFIRMATION}
                 title={t('plugin_referral_transaction_confirmation_title')}
+                subtitle=""
             />
         )
     }
@@ -346,7 +342,7 @@ export function CreateFarm(props: CreateFarmProps) {
         return (
             <Deposit
                 totalFarmReward={totalFarmReward}
-                rewardTokenSymbol={rewardToken.value?.symbol}
+                rewardTokenSymbol={rewardToken?.symbol}
                 isTransactionProcessing={isTransactionProcessing}
                 onDeposit={onDeposit}
                 requiredChainId={requiredChainId}
@@ -355,7 +351,7 @@ export function CreateFarm(props: CreateFarmProps) {
     }
 
     const createFarmBtnDisabled =
-        !referredToken.value?.address || !rewardToken.value?.address || !totalFarmReward || !dailyFarmReward
+        !referredToken?.address || !rewardToken?.address || !totalFarmReward || !dailyFarmReward
 
     return (
         <div>
@@ -383,7 +379,7 @@ export function CreateFarm(props: CreateFarmProps) {
                                 <Grid item xs={6} justifyContent="center" display="flex">
                                     <TokenSelectField
                                         label={t('plugin_referral_token_to_refer')}
-                                        token={referredToken?.value}
+                                        token={referredToken}
                                         onClick={() => {
                                             onTokenSelectClick(
                                                 TokenType.REFER,
@@ -395,7 +391,7 @@ export function CreateFarm(props: CreateFarmProps) {
                                 <Grid item xs={6} justifyContent="center" display="flex">
                                     <TokenSelectField
                                         label={t('plugin_referral_reward_token')}
-                                        token={rewardToken?.value}
+                                        token={rewardToken}
                                         onClick={() => {
                                             onTokenSelectClick(
                                                 TokenType.REWARD,
@@ -419,7 +415,7 @@ export function CreateFarm(props: CreateFarmProps) {
                                         />
                                     </Box>
 
-                                    <Box paddingX={1}>{rewardToken?.value?.symbol}</Box>
+                                    <Box paddingX={1}>{rewardToken?.symbol}</Box>
                                 </Grid>
                                 <Grid item xs={6} justifyContent="center" display="flex" alignItems="end">
                                     <Box justifyContent="center">
@@ -434,34 +430,35 @@ export function CreateFarm(props: CreateFarmProps) {
                                             }}
                                         />
                                     </Box>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'flex-start',
-                                        }}>
-                                        <Typography
-                                            className={classes.balance}
-                                            color="textSecondary"
-                                            variant="body2"
-                                            component="span">
-                                            {t('wallet_balance')}:
-                                            <FormattedBalance
-                                                value={rewardBalance?.value ?? '0'}
-                                                decimals={rewardToken?.value?.decimals}
-                                                significant={6}
-                                                formatter={formatBalance}
-                                            />
-                                        </Typography>
+                                    {rewardToken && rewardBalance !== '0' ? (
                                         <Box
                                             sx={{
                                                 display: 'flex',
-                                                alignItems: 'center',
-                                                marginTop: 2,
+                                                flexDirection: 'column',
+                                                justifyContent: 'center',
+                                                alignItems: 'flex-start',
                                             }}>
-                                            <Box paddingX={1}>{rewardToken?.value?.symbol}</Box>
-                                            {rewardBalance?.value !== '0' ? (
+                                            <Typography
+                                                className={classes.balance}
+                                                color="textSecondary"
+                                                variant="body2"
+                                                component="span">
+                                                {t('wallet_balance')}:
+                                                <FormattedBalance
+                                                    value={rewardBalance ?? '0'}
+                                                    decimals={rewardToken?.decimals}
+                                                    significant={6}
+                                                    formatter={formatBalance}
+                                                />
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    marginTop: 2,
+                                                }}>
+                                                <Box paddingX={1}>{rewardToken?.symbol}</Box>
+
                                                 <Chip
                                                     size="small"
                                                     label="MAX"
@@ -471,16 +468,16 @@ export function CreateFarm(props: CreateFarmProps) {
                                                     onClick={() => {
                                                         setTotalFarmReward(
                                                             formatBalance(
-                                                                rewardBalance?.value ?? '',
-                                                                rewardToken?.value?.decimals,
+                                                                rewardBalance ?? '',
+                                                                rewardToken?.decimals,
                                                                 6,
                                                             ),
                                                         )
                                                     }}
                                                 />
-                                            ) : null}
+                                            </Box>
                                         </Box>
-                                    </Box>
+                                    ) : null}
                                 </Grid>
                             </Grid>
 

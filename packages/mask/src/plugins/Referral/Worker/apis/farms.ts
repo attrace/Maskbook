@@ -57,11 +57,6 @@ function parseFarmDepositChangeEvents(unparsed: any) {
     return farms
 }
 
-interface TokenFilter {
-    rewardTokens?: [ChainAddress]
-    referredTokens?: [ChainAddress]
-}
-
 export async function getMyFarms(
     web3: Web3,
     account: string,
@@ -187,7 +182,7 @@ export async function getAllFarms(web3: Web3, chainId?: ChainId, filter?: TokenF
 
 interface TokenFilter {
     rewardTokens?: [ChainAddress]
-    referredTokens?: [ChainAddress]
+    referredTokens?: ChainAddress[]
 }
 
 export async function getFarmsForReferredToken(web3: Web3, chaddr: ChainAddress): Promise<Array<FarmExistsEvent>> {

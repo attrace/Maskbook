@@ -1036,7 +1036,6 @@
     "plugin_referral_token_to_refer": "Token to Refer",
     "plugin_referral_reward_token": "Reward Token",
     "plugin_referral_select_a_reward_token": "Select a Reward Token",
-    "plugin_referral_select_a_referral_token": "Select a Referral Token",
     "plugin_referral_created_by": "Created by @{{name}}",
     "plugin_referral_mask_referral_farm": "Mask Referral Farm",
     "plugin_referral_attrace_referral_farm_desc": "rewards in $ATTR",
@@ -1051,5 +1050,6 @@
     "plugin_referral_token_to_buy_and_hold": "Token to Buy & Hold via Referral",
     "plugin_referral_select_a_token_to_buy_and_hold_and_earn_rewards": "Select a token to Buy & Hold and earn rewards!",
     "plugin_referral_join_the_farm": "Join the farm and receive rewards based on the value of tokens purchased via referrals.",
-    "plugin_referral_buy_to_farm": "Buy to Farm"
+    "plugin_referral_buy_to_farm": "Buy to Farm",
+    "plugin_referral_select_a_token": "Select a token"
 }
