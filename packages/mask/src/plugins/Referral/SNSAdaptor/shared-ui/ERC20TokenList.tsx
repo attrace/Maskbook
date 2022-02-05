@@ -20,7 +20,7 @@ import {
     useNativeTokenDetailed,
     useTrustedERC20Tokens,
 } from '@masknet/web3-shared-evm'
-import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList } from '@masknet/theme'
+import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList, makeStyles, MaskColorVar } from '@masknet/theme'
 import { Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
 import type { TokensGroupedByType } from '../../types'
@@ -50,7 +50,15 @@ const Placeholder = memo(({ message, height }: { message: string; height?: numbe
     </Stack>
 ))
 
+const useStyles = makeStyles()((theme) => ({
+    search: {
+        backgroundColor: 'transparent !important',
+        border: `solid 1px ${MaskColorVar.twitterBorderLine}`,
+    },
+}))
+
 export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
+    const { classes } = useStyles()
     const { t } = useI18N()
     const account = useAccount()
     const currentChainId = useChainId()
@@ -127,7 +135,7 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
         <SearchableList<Asset>
             SearchFieldProps={{
                 placeholder: t('plugin_referral_search_placeholder_token'),
-                ...props.SearchTextFieldProps,
+                InputProps: { classes: { root: classes.search } },
             }}
             onSelect={(asset) => onSelect?.(asset.token)}
             disableSearch={!!props.disableSearch}
