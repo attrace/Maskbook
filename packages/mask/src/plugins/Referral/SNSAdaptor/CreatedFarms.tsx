@@ -86,12 +86,12 @@ export function CreatedFarms() {
     )
     // fetch my farms
     const { value: myFarms = [], loading: loadingMyFarms } = useAsync(
-        async () => getMyFarms(web3, account),
+        async () => getMyFarms(web3, account, chainId),
         [web3, account],
     )
     // fetch all deposits
     const { value: farmsDeposits = [], loading: loadingFarmsDeposits } = useAsync(
-        async () => getFarmsDeposits(web3),
+        async () => getFarmsDeposits(web3, chainId),
         [web3],
     )
 

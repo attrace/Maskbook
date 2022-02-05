@@ -35,6 +35,7 @@ import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
 import { toChainAddress, getFarmsRewardData } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
+import { useRequiredChainId } from './hooks/useRequiredChainId'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -93,12 +94,12 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const [token, setToken] = useState<FungibleTokenDetailed>()
     const [id] = useState(uuid())
     const [isTransactionProcessing, setIsTransactionProcessing] = useState<boolean>(false)
-    const requiredChainId = ChainId.Rinkeby
-    const web3 = useWeb3({ chainId: requiredChainId })
+    const requiredChainId = useRequiredChainId(currentChainId)
+    const web3 = useWeb3()
     const account = useAccount()
 
     // fetch all farms
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3), [])
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
 
     useEffect(() => {
         if (!token) return
@@ -192,6 +193,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
                 referral_token_name: token?.name ?? '',
                 referral_token_symbol: token?.symbol ?? '',
                 referral_token_icon: token?.logoURI ?? [''],
+                referral_token_chain_id: currentChainId,
                 sender: senderName ?? '',
             })
         } catch (error) {

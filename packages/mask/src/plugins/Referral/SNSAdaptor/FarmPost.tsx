@@ -3,8 +3,8 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import { FARM_TYPE, ReferralMetaData, RewardData, Farm } from '../types'
-import { ChainId, useAccount, useWeb3 } from '@masknet/web3-shared-evm'
+import { FARM_TYPE, ReferralMetaData, Farm } from '../types'
+import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import {
     ATTR_TOKEN_ADDR,
@@ -54,18 +54,14 @@ export function FarmPost(props: FarmPostProps) {
     const web3 = useWeb3()
     const account = useAccount()
     const { t } = useI18N()
-    const chainId = ChainId.Rinkeby
-    const [rewardData, setRewardData] = useState<RewardData>({
-        apr: 0,
-        dailyReward: 0,
-        totalReward: 0,
-    })
+    const chainId = payload.referral_token_chain_id
+
     const [sponsoredFarms, setSponsoredFarms] = useState<Farm[]>()
     const [attrFarms, setAttrFarms] = useState<Farm[]>()
     const [maskFarms, setMaskFarms] = useState<Farm[]>()
 
     const currentIdentity = useCurrentIdentity()
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3), [])
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
 
     useEffect(() => {
         const address = payload.referral_token
@@ -111,6 +107,7 @@ export function FarmPost(props: FarmPostProps) {
                 referral_token_name: payload.referral_token_name,
                 referral_token_symbol: payload.referral_token_symbol,
                 referral_token_icon: payload.referral_token_icon,
+                referral_token_chain_id: chainId,
                 sender: senderName,
             })
 

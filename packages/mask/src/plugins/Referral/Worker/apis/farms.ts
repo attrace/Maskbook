@@ -65,10 +65,10 @@ function parseFarmDepositChangeEvents(unparsed: any) {
 export async function getMyFarms(
     web3: Web3,
     account: string,
-    chainId?: ChainId,
+    chainId: ChainId,
     filter?: TokenFilter,
 ): Promise<Array<FarmExistsEvent>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
     // Query for existing farms and their deposits
     // TODO paging
 
@@ -94,8 +94,8 @@ export async function getMyFarms(
     return parseFarmExistsEvents(res.items)
 }
 
-export async function getFarmsDeposits(web3: Web3): Promise<Array<FarmDepositChange>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+export async function getFarmsDeposits(web3: Web3, chainId: ChainId): Promise<Array<FarmDepositChange>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
@@ -166,8 +166,8 @@ function parseBasicFarmEvents(unparsed: any) {
 
     return farms
 }
-export async function getAllFarms(web3: Web3, chainId?: ChainId, filter?: TokenFilter): Promise<Array<Farm>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFilter): Promise<Array<Farm>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
     // Allow filtering by tokens
     let topic3, topic4
@@ -195,8 +195,12 @@ interface TokenFilter {
     referredTokens?: ChainAddress[]
 }
 
-export async function getFarmsForReferredToken(web3: Web3, chaddr: ChainAddress): Promise<Array<FarmExistsEvent>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+export async function getFarmsForReferredToken(
+    web3: Web3,
+    chaddr: ChainAddress,
+    chainId: ChainId,
+): Promise<Array<FarmExistsEvent>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
     // Query for existing farms and their deposits
     // TODO paging
@@ -209,8 +213,12 @@ export async function getFarmsForReferredToken(web3: Web3, chaddr: ChainAddress)
     return parseFarmExistsEvents(res.items)
 }
 
-export async function getFarmsForRewardToken(web3: Web3, chaddr: ChainAddress): Promise<Array<FarmExistsEvent>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+export async function getFarmsForRewardToken(
+    web3: Web3,
+    chaddr: ChainAddress,
+    chainId: ChainId,
+): Promise<Array<FarmExistsEvent>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
     // Query for existing farms and their deposits
     // TODO paging

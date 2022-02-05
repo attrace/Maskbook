@@ -4,7 +4,7 @@ import { useAsync } from 'react-use'
 import { v4 as uuid } from 'uuid'
 
 import { useI18N } from '../../../utils'
-import { ChainId, useAccount, useChainId, useWeb3, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
+import { useAccount, useChainId, useWeb3, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared'
@@ -29,6 +29,7 @@ import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
 import { toChainAddress, getFarmsRewardData } from './helpers'
 import { PluginTraderMessages } from '../../Trader/messages'
 import type { Coin } from '../../Trader/types'
+import { useRequiredChainId } from './hooks/useRequiredChainId'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -66,25 +67,19 @@ export interface BuyToFarmProps extends React.PropsWithChildren<{}> {
 
 export function BuyToFarm(props: BuyToFarmProps) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    // TODO: change requiredChainId
-    const requiredChainId = ChainId.Rinkeby
-    const web3 = useWeb3({ chainId: requiredChainId })
+    const currentChainId = useChainId()
+
+    const requiredChainId = useRequiredChainId(currentChainId)
+    const web3 = useWeb3()
     const account = useAccount()
 
-    // TODO: why do we need chainId and currentChainId?
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    // const [referredTokenFarms, setReferredTokenFarms] = useState<Farm[]>()
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>()
 
     // fetch all farms
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(
-        async () => getAllFarms(web3, currentChainId),
-        [currentChainId],
-    )
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
     const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
 
@@ -135,7 +130,6 @@ export function BuyToFarm(props: BuyToFarmProps) {
             const sig = await singAndPostProofWithReferrer(web3, account, token?.address ?? '', MASK_REFERRER)
             setTransactionStatus(TransactionStatus.CONFIRMED)
 
-            // TODO: add redirect to Swap plugin
             swapToken()
         } catch (error) {
             setTransactionStatus(TransactionStatus.FAILED)
