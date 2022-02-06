@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { Typography, Box, Tab, Tabs, Grid, TextField, CircularProgress, Chip, InputAdornment } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
@@ -27,14 +27,14 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import { NATIVE_TOKEN, REFERRAL_META_KEY } from '../constants'
+import { ATTRACE_FEE_PERCENT, NATIVE_TOKEN, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import BigNumber from 'bignumber.js'
-
+import { useRequiredChainId } from './hooks/useRequiredChainId'
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
         width: 535,
@@ -178,18 +178,17 @@ interface CreateFarmProps {
 
 export function CreateFarm(props: CreateFarmProps) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    const attraceFeesPercent = 5
+    const currentChainId = useChainId()
 
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
+    const requiredChainId = useRequiredChainId(currentChainId)
+
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
     const [createFarm, setCreateFarm] = useState(false)
 
     // #region select token
     const [token, setToken] = useState<FungibleTokenDetailed>()
-    // const [token, settoken] = useState<FungibleTokenDetailed>()
     const {
         value: rewardBalance = '0',
         loading: loadingRewardBalance,
@@ -203,12 +202,12 @@ export function CreateFarm(props: CreateFarmProps) {
     const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
     const [id] = useState(uuid())
     const [focusedTokenPanelType, setFocusedTokenPanelType] = useState(TokenType.REFER)
-    const requiredChainId = ChainId.Rinkeby
-    const web3 = useWeb3({ chainId: requiredChainId })
+
+    const web3 = useWeb3()
     const account = useAccount()
     const [isTransactionConfirmed, setTransactionConfirmed] = useState(false)
     const [isTransactionProcessing, setTransactionProcessing] = useState(false)
-
+    const componentMounted = useRef(true)
     // const [selectedReferralData, setSelectedReferralData] = useState<ReferralMetaData | null>(null)
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const currentIdentity = useCurrentIdentity()
@@ -242,6 +241,7 @@ export function CreateFarm(props: CreateFarmProps) {
                     },
                     web3,
                     account,
+                    currentChainId,
                     tokenAddr,
                     tokenAddr,
                     totalFarmRewardNum,
@@ -261,6 +261,7 @@ export function CreateFarm(props: CreateFarmProps) {
                     },
                     web3,
                     account,
+                    currentChainId,
                     tokenAddr,
                     tokenAddr,
                     totalFarmRewardNum,
@@ -330,8 +331,13 @@ export function CreateFarm(props: CreateFarmProps) {
     }
     useEffect(() => {
         const totalFarmRewardNum = new BigNumber(totalFarmReward)
-        const attraceFeeTemp = totalFarmRewardNum.multipliedBy(attraceFeesPercent).dividedBy(100)
-        setAttraceFee(attraceFeeTemp)
+        const attraceFeeTemp = totalFarmRewardNum.multipliedBy(ATTRACE_FEE_PERCENT).dividedBy(100)
+        if (componentMounted.current) {
+            setAttraceFee(attraceFeeTemp)
+        }
+        return () => {
+            componentMounted.current = false
+        }
     }, [clickCreateFarm])
     if (isTransactionProcessing) {
         return (
@@ -399,18 +405,6 @@ export function CreateFarm(props: CreateFarmProps) {
                                 display="flex"
                                 alignItems="flex-start"
                                 rowSpacing="20px">
-                                {/* <Grid item xs={12} justifyContent="center" display="flex">
-                                    <TokenSelectField
-                                        label={t('plugin_referral_token_to_refer')}
-                                        token={token}
-                                        onClick={() => {
-                                            onTokenSelectClick(
-                                                TokenType.REFER,
-                                                t('plugin_referral_select_a_token_to_refer'),
-                                            )
-                                        }}
-                                    />
-                                </Grid> */}
                                 <Grid item xs={6} justifyContent="center" display="flex">
                                     <TokenSelectField
                                         label={t('plugin_referral_token_to_refer')}

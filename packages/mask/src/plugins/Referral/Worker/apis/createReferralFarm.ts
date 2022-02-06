@@ -8,8 +8,6 @@ import { getDaoAddress } from './discovery'
 import { FARM_ABI } from './abis'
 import BigNumber from 'bignumber.js'
 
-export const getChainId = ChainId.Rinkeby
-
 export const erc20ABI = [
     {
         inputs: [
@@ -65,6 +63,7 @@ export async function runCreateERC20PairFarm(
     onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
+    chainId: ChainId,
     rewardTokenAddr: string,
     referredTokenAddr: string,
     totalFarmReward: BigNumber,
@@ -75,10 +74,9 @@ export async function runCreateERC20PairFarm(
         let tx: any
         const maxAllowance = new BigNumber(toWei('10000000000000', 'ether'))
 
-        const chainId = getChainId
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
         const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
-        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
         const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
 
         const rewardTokenInstance = createContract(web3, rewardTokenAddr, erc20ABI as AbiItem[])
@@ -143,6 +141,7 @@ export async function runCreateNativeFarm(
     onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
+    chainId: ChainId,
     rewardTokenAddr: string,
     referredTokenAddr: string,
     totalFarmReward: BigNumber,
@@ -152,10 +151,9 @@ export async function runCreateNativeFarm(
         onStart(true)
         let tx: any, metastate: Metastate
 
-        const chainId = getChainId
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
         const rewardTokenDefn = toNativeRewardTokenDefn(chainId)
-        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1)
+        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
         const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
         metastate = [
             {

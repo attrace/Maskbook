@@ -12,7 +12,7 @@ import { ERC20TokenList } from './shared-ui/ERC20TokenList'
 import { getAllFarms } from '../Worker/apis/farms'
 import { ChainAddress, Farm, FARM_TYPE, parseChainAddress } from '../types'
 
-import { MASK_TOKEN_ADDR, ATTR_TOKEN_ADDR } from '../constants'
+import { MASK_TOKEN_ADDR, ATTR_TOKEN_ADDR, NATIVE_TOKEN } from '../constants'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {},
@@ -56,7 +56,7 @@ export function SelectToken(props: SelectTokenProps) {
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [title, setTitle] = useState('')
     const [id, setId] = useState('')
-
+    const disableNativeToken = true
     const { open, setDialog } = useRemoteControlledDialog(PluginReferralMessages.selectTokenUpdated, (ev) => {
         if (!ev.open) return
         setId(ev.uuid)
@@ -96,6 +96,7 @@ export function SelectToken(props: SelectTokenProps) {
                     tokensGroupedByType={tokensGroupedByType}
                     FixedSizeListProps={{ height: 340, itemSize: 54 }}
                     onSelect={onSubmit}
+                    blacklist={disableNativeToken ? [NATIVE_TOKEN] : []}
                 />
             </DialogContent>
         </InjectedDialog>
