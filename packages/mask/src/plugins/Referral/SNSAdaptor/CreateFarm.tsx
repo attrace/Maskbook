@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import { Typography, Box, Tab, Tabs, Grid, TextField, CircularProgress, Chip, InputAdornment } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
@@ -207,8 +207,6 @@ export function CreateFarm(props: CreateFarmProps) {
     const account = useAccount()
     const [isTransactionConfirmed, setTransactionConfirmed] = useState(false)
     const [isTransactionProcessing, setTransactionProcessing] = useState(false)
-    const componentMounted = useRef(true)
-    // const [selectedReferralData, setSelectedReferralData] = useState<ReferralMetaData | null>(null)
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const currentIdentity = useCurrentIdentity()
     const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
@@ -329,16 +327,16 @@ export function CreateFarm(props: CreateFarmProps) {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
     }
-    useEffect(() => {
+
+    const onChangeTotalFarmReward = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const totalFarmReward = e.currentTarget.value
         const totalFarmRewardNum = new BigNumber(totalFarmReward)
-        const attraceFeeTemp = totalFarmRewardNum.multipliedBy(ATTRACE_FEE_PERCENT).dividedBy(100)
-        if (componentMounted.current) {
-            setAttraceFee(attraceFeeTemp)
-        }
-        return () => {
-            componentMounted.current = false
-        }
-    }, [clickCreateFarm])
+        const attraceFee = totalFarmRewardNum.multipliedBy(ATTRACE_FEE_PERCENT).dividedBy(100)
+
+        setTotalFarmReward(totalFarmReward)
+        setAttraceFee(attraceFee)
+    }, [])
+
     if (isTransactionProcessing) {
         return (
             <Transaction
@@ -449,7 +447,7 @@ export function CreateFarm(props: CreateFarmProps) {
                                             inputMode="numeric"
                                             type="number"
                                             placeholder="0"
-                                            onChange={(e) => setTotalFarmReward(e.currentTarget.value)}
+                                            onChange={onChangeTotalFarmReward}
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
