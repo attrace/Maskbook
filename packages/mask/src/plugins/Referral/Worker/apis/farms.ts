@@ -88,7 +88,7 @@ export async function getMyFarms(
         topic2: [expandEvmAddressToBytes32(account)],
         topic3,
         topic4,
-        chainId: chainId ? [chainId] : [],
+        chainId: [chainId],
     })
 
     return parseFarmExistsEvents(res.items)
@@ -100,6 +100,7 @@ export async function getFarmsDeposits(web3: Web3, chainId: ChainId): Promise<Ar
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
         topics: [eventIds.FarmDepositChange],
+        chainId: [chainId],
     })
 
     return parseFarmDepositChangeEvents(res.items)
@@ -184,7 +185,7 @@ export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFi
         topic1: [eventIds.FarmExists, eventIds.FarmTokenChange, eventIds.FarmDepositChange, eventIds.FarmMetastate],
         topic3,
         topic4,
-        chainId: chainId ? [chainId] : [],
+        chainId: [chainId],
     })
 
     return parseBasicFarmEvents(res.items)
@@ -208,6 +209,7 @@ export async function getFarmsForReferredToken(
         addresses: [farmsAddr],
         topic1: [eventIds.FarmExists],
         topic4: [expandBytes24ToBytes32(chaddr)],
+        chainId: [chainId],
     })
 
     return parseFarmExistsEvents(res.items)
@@ -226,6 +228,7 @@ export async function getFarmsForRewardToken(
         addresses: [farmsAddr],
         topic1: [eventIds.FarmExists],
         topic3: [expandBytes24ToBytes32(chaddr)],
+        chainId: [chainId],
     })
 
     return parseFarmExistsEvents(res.items)

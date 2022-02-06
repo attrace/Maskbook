@@ -1,20 +1,24 @@
-import { useEffect, useState } from 'react'
 import { useAsync } from 'react-use'
-import { uniqWith, isEqual } from 'lodash-unified'
 
 import { Grid, Typography, CircularProgress } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
-import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
+import {
+    useAccount,
+    useChainId,
+    useWeb3,
+    useTokenListConstants,
+    useNativeTokenDetailed,
+} from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
-import { getAllFarms } from '../Worker/apis/farms'
-import { FarmExistsEvent, parseChainAddress, Proof } from '../types'
+import { parseChainAddress, Proof } from '../types'
 import { fetchAccountProofs } from '../Worker/apis/proofs'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-import { ZERO_ADDR } from '../constants'
 import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
 import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
+import { ZERO_ADDR } from '../constants'
+import { getAllFarms } from '../Worker/apis/farms'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -71,6 +75,7 @@ export function MyFarmsBuyer() {
     const account = useAccount()
     const web3 = useWeb3({ chainId })
     const { ERC20 } = useTokenListConstants()
+    const { value: nativeToken } = useNativeTokenDetailed()
 
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
@@ -79,43 +84,20 @@ export function MyFarmsBuyer() {
     const { value: proofsData, loading: loadingProofs } = useAsync(async () => fetchAccountProofs(account), [])
     const accountProofs: Proof[] = proofsData?.items || []
 
-    const [loadingFarms, setLoadingFarms] = useState(true)
-    const [farms, setFarms] = useState<FarmExistsEvent[]>([])
+    // filter out Referrer(Promoter) proofs
+    const referProofs = accountProofs?.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
+    // select uniq referred tokens
+    const referredTokens = referProofs?.map((proof) => toChainAddress(chainId, proof.token))
+    const uniqReferredTokens = [...new Set(referredTokens)]
 
-    // const referProofs = accountProofs?.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
-    // const referredTokens = referProofs?.map((proof) => toChainAddress(chainId, proof.token))
-    // const uniqReferredTokens = [...new Set(referredTokens)]
-    // const { value: farms = [], loading: loadingFarms } = useAsync(
-    //     async () =>
-    //         !uniqReferredTokens || uniqReferredTokens.length === 0
-    //             ? []
-    //             : getAllFarms(web3, undefined, { referredTokens: uniqReferredTokens }),
-    //     [],
-    // )
-
-    // TODO:check use effect
-    useEffect(() => {
-        async function fetchFarms() {
-            if (!accountProofs.length) return
-            try {
-                setLoadingFarms(true)
-                const farms: FarmExistsEvent[] = []
-
-                // filter out promoter's proofs
-                const referProofs = accountProofs.filter((proof) => proof.referrer.toLowerCase() !== ZERO_ADDR)
-                let referredTokens = referProofs.map((proof) => toChainAddress(chainId, proof.token))
-                referredTokens = uniqWith(referredTokens, isEqual)
-
-                const response = await getAllFarms(web3, chainId, { referredTokens: referredTokens })
-                farms.push(...response)
-                setFarms(farms)
-                setLoadingFarms(false)
-            } catch (error) {
-                setLoadingFarms(false)
-            }
-        }
-        fetchFarms()
-    }, [chainId, web3, accountProofs])
+    // fetch farm for buyer's referred tokens
+    const { value: farms = [], loading: loadingFarms } = useAsync(
+        async () =>
+            !uniqReferredTokens || uniqReferredTokens.length === 0
+                ? []
+                : getAllFarms(web3, chainId, { referredTokens: uniqReferredTokens }),
+        [uniqReferredTokens?.sort().join()],
+    )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
@@ -149,7 +131,9 @@ export function MyFarmsBuyer() {
                 ) : (
                     <>
                         {uniqueFarms.length === 0 ? (
-                            <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
+                            <Typography className={classes.noFarm}>
+                                {t('plugin_referral_you_have_not_joined_farm')}
+                            </Typography>
                         ) : (
                             uniqueFarms.map((farm) => (
                                 <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
@@ -168,7 +152,7 @@ export function MyFarmsBuyer() {
                                         <Typography className={classes.total}>0</Typography>
                                         <Typography className={classes.total}>
                                             {farm.rewardTokenDefn === nativeRewardToken
-                                                ? 'ETH'
+                                                ? nativeToken?.symbol
                                                 : allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)
                                                       ?.symbol}
                                         </Typography>
