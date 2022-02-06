@@ -139,7 +139,13 @@ export function MyFarmsBuyer() {
                                 <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
                                     <Grid item xs={6}>
                                         <ReferredFarmTokenDetailed
-                                            token={allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)}
+                                            token={
+                                                farm.rewardTokenDefn === nativeRewardToken
+                                                    ? nativeToken
+                                                    : allTokensMap.get(
+                                                          parseChainAddress(farm.referredTokenDefn).address,
+                                                      )
+                                            }
                                             referredTokenDefn={farm.referredTokenDefn}
                                             rewardTokenDefn={farm.rewardTokenDefn}
                                             chainId={chainId}

@@ -2,7 +2,7 @@ import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
 import { useI18N } from '../../../../utils'
 
-import type { ChainId, ERC20TokenDetailed } from '@masknet/web3-shared-evm'
+import type { ChainId, ERC20TokenDetailed, NativeTokenDetailed } from '@masknet/web3-shared-evm'
 
 import { getFarmTypeIconByReferredToken } from '../helpers'
 
@@ -41,7 +41,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 }))
 
 export interface ReferredFarmTokenDetailedProps extends React.PropsWithChildren<{}> {
-    token?: ERC20TokenDetailed
+    token?: ERC20TokenDetailed | NativeTokenDetailed
     referredTokenDefn: string
     rewardTokenDefn: string
     chainId: ChainId
