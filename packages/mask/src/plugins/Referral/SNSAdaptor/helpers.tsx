@@ -92,8 +92,8 @@ export function getFarmsRewardData(farms?: Farm[]): RewardData {
     }
 }
 
-export function groupFarmsByType(chainId?: number, token?: string, farms?: Farm[]) {
-    if (!farms?.length || !token || !chainId) {
+export function groupReferredTokenFarmsByType(chainId?: number, referredToken?: string, farms?: Farm[]) {
+    if (!farms?.length || !referredToken || !chainId) {
         return {
             sponsoredFarms: [],
             attrFarms: [],
@@ -101,11 +101,37 @@ export function groupFarmsByType(chainId?: number, token?: string, farms?: Farm[
         }
     }
     const sponsoredFarms = farms.filter(
-        (farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, token),
+        (farm) =>
+            farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, referredToken),
     )
     const propotionalFarms = farms.filter(
-        (farm) => farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, token)),
+        (farm) =>
+            farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, referredToken)),
     )
+    const attrFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+    )
+    const maskFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+    )
+
+    return {
+        sponsoredFarms,
+        attrFarms,
+        maskFarms,
+    }
+}
+
+export function groupFarmsByType(farms: Farm[], chainId: number) {
+    if (!farms?.length) {
+        return {
+            sponsoredFarms: [],
+            attrFarms: [],
+            maskFarms: [],
+        }
+    }
+    const sponsoredFarms = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
+    const propotionalFarms = farms.filter((farm) => farm.farmType === FARM_TYPE.PROPORTIONAL)
     const attrFarms = propotionalFarms.filter(
         (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
     )

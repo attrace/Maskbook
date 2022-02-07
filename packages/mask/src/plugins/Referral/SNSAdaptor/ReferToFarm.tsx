@@ -26,7 +26,7 @@ import { MyFarmsRefer } from './MyFarmsRefer'
 import { IconURLS } from './IconURL'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsRewardData, groupFarmsByType } from './helpers'
+import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 
@@ -176,7 +176,11 @@ export function ReferToFarm(props: ReferToFarmProps) {
         )
     }
 
-    const { sponsoredFarms, attrFarms, maskFarms } = groupFarmsByType(token?.chainId, token?.address, farms)
+    const { sponsoredFarms, attrFarms, maskFarms } = groupReferredTokenFarmsByType(
+        token?.chainId,
+        token?.address,
+        farms,
+    )
     const noFarmForSelectedToken = token && !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     return (
