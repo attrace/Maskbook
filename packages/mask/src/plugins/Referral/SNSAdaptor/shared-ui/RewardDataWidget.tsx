@@ -7,8 +7,8 @@ import type { RewardData } from '../../types'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     icon: {
-        width: '20px',
-        height: '20px',
+        maxWidth: '20px',
+        maxHeight: '20px',
     },
 }))
 
@@ -27,7 +27,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
     return (
         <Grid container marginTop="24px">
             {title && (
-                <Grid item xs={12} container marginBottom="12px">
+                <Grid item xs={12} container marginBottom="12px" alignItems="center">
                     <img className={classes.icon} src={icon} />
                     <Grid item paddingX={1}>
                         <Typography fontWeight={600}>{title}</Typography>
