@@ -3,22 +3,22 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import { FARM_TYPE, ReferralMetaData, Farm } from '../types'
+import { ReferralMetaData, Farm, FARM_TYPE } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import {
-    ATTR_TOKEN_ADDR,
     ATTR_TOKEN_SYMBOL,
     MASK_REFERRER,
     MASK_SWAP_V1,
-    MASK_TOKEN_ADDR,
     MASK_TOKEN_SYMBOL,
     REFERRAL_META_KEY,
+    ATTR_TOKEN_ADDR,
+    MASK_TOKEN_ADDR,
 } from '../constants'
 
 import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, toChainAddress } from './helpers'
 import { useAsync } from 'react-use'
@@ -46,6 +46,34 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
+function groupFarmsByType(chainId: number, token: string, farms?: Farm[]) {
+    if (!farms?.length) {
+        return {
+            sponsoredFarms: [],
+            attrFarms: [],
+            maskFarms: [],
+        }
+    }
+    const sponsoredFarms = farms.filter(
+        (farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, token),
+    )
+    const propotionalFarms = farms.filter(
+        (farm) => farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, token)),
+    )
+    const attrFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+    )
+    const maskFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+    )
+
+    return {
+        sponsoredFarms,
+        attrFarms,
+        maskFarms,
+    }
+}
+
 export function FarmPost(props: FarmPostProps) {
     const { payload } = props
 
@@ -56,36 +84,8 @@ export function FarmPost(props: FarmPostProps) {
     const { t } = useI18N()
     const chainId = payload.referral_token_chain_id
 
-    const [sponsoredFarms, setSponsoredFarms] = useState<Farm[]>()
-    const [attrFarms, setAttrFarms] = useState<Farm[]>()
-    const [maskFarms, setMaskFarms] = useState<Farm[]>()
-
     const currentIdentity = useCurrentIdentity()
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
-
-    useEffect(() => {
-        const address = payload.referral_token
-
-        const sponsoredFarms = farms.filter(
-            (farm) =>
-                farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, address),
-        )
-        const propotionalFarms = farms.filter(
-            (farm) =>
-                farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, address)),
-        )
-        const attrFarms = propotionalFarms.filter(
-            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
-        )
-        const maskFarms = propotionalFarms.filter(
-            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
-        )
-
-        setSponsoredFarms(sponsoredFarms)
-        setAttrFarms(attrFarms)
-        setMaskFarms(maskFarms)
-    }, [farms])
-    const noFarmForSelectedToken = !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
@@ -144,6 +144,11 @@ export function FarmPost(props: FarmPostProps) {
             alert(error)
         }
     }
+
+    const token = payload.referral_token
+    const { sponsoredFarms, attrFarms, maskFarms } = groupFarmsByType(chainId, token, farms)
+    const noFarmForSelectedToken = !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
+
     return (
         <>
             <div>
