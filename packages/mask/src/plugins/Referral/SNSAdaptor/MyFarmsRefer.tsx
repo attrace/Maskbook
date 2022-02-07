@@ -1,9 +1,9 @@
 import { useAsync } from 'react-use'
+import { v4 as uuid } from 'uuid'
 
-import { Grid, Typography, CircularProgress } from '@mui/material'
+import { Grid, Typography, CircularProgress, Button, Box } from '@mui/material'
 
 import { useI18N } from '../../../utils'
-import { v4 as uuid } from 'uuid'
 import {
     useAccount,
     useChainId,
@@ -13,12 +13,12 @@ import {
 } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getAllFarms } from '../Worker/apis/farms'
-import { parseChainAddress, Proof } from '../types'
+import type { Proof } from '../types'
 import { fetchAccountProofs } from '../Worker/apis/proofs'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 import { ZERO_ADDR } from '../constants'
-import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
-import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
+import { toChainAddress, groupFarmsByType } from './helpers'
+import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -40,6 +40,9 @@ const useStyles = makeStyles()((theme) => ({
         color: theme.palette.text.secondary,
         fontWeight: 500,
     },
+    heading: {
+        paddingRight: '27px',
+    },
     content: {
         height: 320,
         overflowY: 'scroll',
@@ -49,8 +52,12 @@ const useStyles = makeStyles()((theme) => ({
         flexDirection: 'column',
         alignItems: 'center',
     },
-    farm: {
-        marginBottom: '20px',
+    accordion: {
+        width: '100%',
+    },
+    accordionSummary: {
+        margin: 0,
+        padding: 0,
     },
     noFarm: {
         width: '100%',
@@ -65,6 +72,9 @@ const useStyles = makeStyles()((theme) => ({
     },
     total: {
         marginRight: '5px',
+    },
+    button: {
+        marginLeft: 'auto',
     },
 }))
 
@@ -101,15 +111,15 @@ export function MyFarmsRefer() {
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
-    // TODO: check it
+    // TODO: change it to farm-positions API
     const uniqueFarms = farms.filter(
         (val, index) => index === farms.findIndex((elem) => elem.referredTokenDefn === val.referredTokenDefn),
     )
-    const nativeRewardToken = toNativeRewardTokenDefn(chainId)
+    const { sponsoredFarms, attrFarms, maskFarms } = groupFarmsByType(uniqueFarms, chainId)
 
     return (
         <div className={classes.container}>
-            <Grid container justifyContent="space-between" rowSpacing="20px">
+            <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>
                 <Grid item xs={6}>
                     <Typography fontWeight={500} className={classes.col}>
                         {t('plugin_referral_referral_farm')}
@@ -131,40 +141,25 @@ export function MyFarmsRefer() {
                     <CircularProgress size={50} />
                 ) : (
                     <>
-                        {uniqueFarms.length === 0 ? (
-                            <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
-                        ) : (
-                            uniqueFarms.map((farm) => (
-                                <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
-                                    <Grid item xs={6}>
-                                        <ReferredFarmTokenDetailed
-                                            token={
-                                                farm.rewardTokenDefn === nativeRewardToken
-                                                    ? nativeToken
-                                                    : allTokensMap.get(
-                                                          parseChainAddress(farm.referredTokenDefn).address,
-                                                      )
-                                            }
-                                            referredTokenDefn={farm.referredTokenDefn}
-                                            rewardTokenDefn={farm.rewardTokenDefn}
-                                            chainId={chainId}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={2} display="flex" alignItems="center">
-                                        <Typography className={classes.total}>-</Typography>
-                                    </Grid>
-                                    <Grid item xs={4} display="flex" alignItems="center">
-                                        <Typography className={classes.total}>0</Typography>
-                                        <Typography className={classes.total}>
-                                            {farm.rewardTokenDefn === nativeRewardToken
-                                                ? nativeToken?.symbol
-                                                : allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)
-                                                      ?.symbol}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                            ))
-                        )}
+                        {sponsoredFarms?.map((farm) => (
+                            <AccordionSponsoredFarm
+                                key={uuid()}
+                                farm={farm}
+                                allTokensMap={allTokensMap}
+                                totalValue={0}
+                                accordionDetails={
+                                    <Box display="flex" justifyContent="flex-end">
+                                        <Button
+                                            disabled
+                                            variant="contained"
+                                            size="small"
+                                            onClick={() => console.log('runHarvest')}>
+                                            {t('plugin_referral_harvest_rewards')}
+                                        </Button>
+                                    </Box>
+                                }
+                            />
+                        ))}
                     </>
                 )}
             </div>

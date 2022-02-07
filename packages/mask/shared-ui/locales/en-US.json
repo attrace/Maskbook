@@ -1054,5 +1054,6 @@
     "plugin_referral_manage_farms": "Manage Farms",
     "plugin_referral_manage_farms_desc": "incentivize referrals for the purchase of crypto tokens or NFT collection.",
     "plugin_referral_manage_farms_rewards_desc": "The <strong>rewards</strong> will be distributed to participants daily based on their share of the referred/purchased value in the referral farm.",
-    "plugin_referral_you_have_not_joined_farm": "You haven’t joined any referral farm yet"
+    "plugin_referral_you_have_not_joined_farm": "You haven’t joined any referral farm yet",
+    "plugin_referral_harvest_rewards": "Harvest Rewards"
 }

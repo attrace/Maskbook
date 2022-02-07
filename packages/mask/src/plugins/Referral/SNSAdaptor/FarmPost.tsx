@@ -3,7 +3,7 @@ import { Button, Card, CardActions, CardContent, Grid, Typography, CircularProgr
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData } from '../types'
+import type { ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { ATTR_TOKEN_SYMBOL, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
@@ -12,7 +12,7 @@ import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
 import { useCallback } from 'react'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { getFarmsRewardData, groupFarmsByType } from './helpers'
+import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
@@ -124,7 +124,7 @@ export function FarmPost(props: FarmPostProps) {
     }
 
     const token = payload.referral_token
-    const { sponsoredFarms, attrFarms, maskFarms } = groupFarmsByType(chainId, token, farms)
+    const { sponsoredFarms, attrFarms, maskFarms } = groupReferredTokenFarmsByType(chainId, token, farms)
     const noFarmForSelectedToken = !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     return (
