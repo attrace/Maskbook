@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import { useAsync } from 'react-use'
@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, PagesType, TransactionStatus, Farm, FARM_TYPE } from '../types'
+import { ReferralMetaData, TabsCreateFarm, PagesType, TransactionStatus } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -16,14 +16,7 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import {
-    ATTR_TOKEN_ADDR,
-    ATTR_TOKEN_SYMBOL,
-    MASK_SWAP_V1,
-    MASK_TOKEN_ADDR,
-    MASK_TOKEN_SYMBOL,
-    REFERRAL_META_KEY,
-} from '../constants'
+import { ATTR_TOKEN_SYMBOL, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
@@ -33,7 +26,7 @@ import { MyFarmsRefer } from './MyFarmsRefer'
 import { IconURLS } from './IconURL'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
-import { toChainAddress, getFarmsRewardData } from './helpers'
+import { getFarmsRewardData, groupFarmsByType } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 
@@ -86,9 +79,6 @@ export function ReferToFarm(props: ReferToFarmProps) {
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    const [sponsoredFarms, setSponsoredFarms] = useState<Farm[]>()
-    const [attrFarms, setAttrFarms] = useState<Farm[]>()
-    const [maskFarms, setMaskFarms] = useState<Farm[]>()
 
     // #region select token
     const [token, setToken] = useState<FungibleTokenDetailed>()
@@ -100,31 +90,6 @@ export function ReferToFarm(props: ReferToFarmProps) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-
-    useEffect(() => {
-        if (!token) return
-
-        const { chainId, address } = token
-
-        const sponsoredFarms = farms.filter(
-            (farm) =>
-                farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, address),
-        )
-        const propotionalFarms = farms.filter(
-            (farm) =>
-                farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, address)),
-        )
-        const attrFarms = propotionalFarms.filter(
-            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
-        )
-        const maskFarms = propotionalFarms.filter(
-            (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
-        )
-
-        setSponsoredFarms(sponsoredFarms)
-        setAttrFarms(attrFarms)
-        setMaskFarms(maskFarms)
-    }, [token, farms])
 
     const { attachMetadata, dropMetadata } = useCompositionContext()
 
@@ -211,6 +176,7 @@ export function ReferToFarm(props: ReferToFarmProps) {
         )
     }
 
+    const { sponsoredFarms, attrFarms, maskFarms } = groupFarmsByType(token?.chainId, token?.address, farms)
     const noFarmForSelectedToken = token && !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     return (

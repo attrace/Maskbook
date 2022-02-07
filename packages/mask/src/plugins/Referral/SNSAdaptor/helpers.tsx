@@ -6,6 +6,7 @@ import {
     ATTR_TOKEN_ADDR,
 } from '../constants'
 import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm } from '../types'
+import { FARM_TYPE } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
@@ -88,5 +89,33 @@ export function getFarmsRewardData(farms?: Farm[]): RewardData {
         dailyReward: dailyReward || 0,
         totalReward: totalReward || 0,
         apr: apr || 0,
+    }
+}
+
+export function groupFarmsByType(chainId?: number, token?: string, farms?: Farm[]) {
+    if (!farms?.length || !token || !chainId) {
+        return {
+            sponsoredFarms: [],
+            attrFarms: [],
+            maskFarms: [],
+        }
+    }
+    const sponsoredFarms = farms.filter(
+        (farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, token),
+    )
+    const propotionalFarms = farms.filter(
+        (farm) => farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, token)),
+    )
+    const attrFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+    )
+    const maskFarms = propotionalFarms.filter(
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+    )
+
+    return {
+        sponsoredFarms,
+        attrFarms,
+        maskFarms,
     }
 }

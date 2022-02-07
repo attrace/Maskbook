@@ -3,24 +3,16 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, Farm, FARM_TYPE } from '../types'
+import { ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
-import {
-    ATTR_TOKEN_SYMBOL,
-    MASK_REFERRER,
-    MASK_SWAP_V1,
-    MASK_TOKEN_SYMBOL,
-    REFERRAL_META_KEY,
-    ATTR_TOKEN_ADDR,
-    MASK_TOKEN_ADDR,
-} from '../constants'
+import { ATTR_TOKEN_SYMBOL, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
 
 import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
 import { useCallback } from 'react'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { getFarmsRewardData, toChainAddress } from './helpers'
+import { getFarmsRewardData, groupFarmsByType } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
@@ -45,34 +37,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         display: 'flex',
     },
 }))
-
-function groupFarmsByType(chainId: number, token: string, farms?: Farm[]) {
-    if (!farms?.length) {
-        return {
-            sponsoredFarms: [],
-            attrFarms: [],
-            maskFarms: [],
-        }
-    }
-    const sponsoredFarms = farms.filter(
-        (farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN && farm.referredTokenDefn === toChainAddress(chainId, token),
-    )
-    const propotionalFarms = farms.filter(
-        (farm) => farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, token)),
-    )
-    const attrFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
-    )
-    const maskFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
-    )
-
-    return {
-        sponsoredFarms,
-        attrFarms,
-        maskFarms,
-    }
-}
 
 export function FarmPost(props: FarmPostProps) {
     const { payload } = props
