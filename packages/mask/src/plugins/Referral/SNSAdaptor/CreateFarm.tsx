@@ -282,6 +282,7 @@ export function CreateFarm(props: CreateFarmProps) {
             referral_token_name: name,
             referral_token_symbol: symbol,
             referral_token_icon: logoURI,
+            referral_token_chain_id: currentChainId,
             sender: senderName ?? '',
         }
         if (selectedReferralData) {
@@ -292,7 +293,7 @@ export function CreateFarm(props: CreateFarmProps) {
 
         closeWalletStatusDialog()
         props.onClose?.()
-    }, [token])
+    }, [token, currentChainId])
 
     const onUpdateByRemote = useCallback(
         (ev: SelectTokenUpdated) => {

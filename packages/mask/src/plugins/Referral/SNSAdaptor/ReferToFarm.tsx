@@ -69,8 +69,8 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontWeight: 'bold',
     },
     icon: {
-        width: '20px',
-        height: '20px',
+        maxWidth: '20px',
+        maxHeight: '20px',
     },
 }))
 
@@ -281,7 +281,9 @@ export function ReferToFarm(props: ReferToFarmProps) {
                                     {farm_category_types.map((category) => {
                                         return (
                                             <Grid item xs={12} container columnSpacing={1} key={category.title}>
-                                                <Grid item>{category.icon}</Grid>
+                                                <Grid item display="flex" alignItems="center">
+                                                    {category.icon}
+                                                </Grid>
                                                 <Grid item display="flex">
                                                     <Typography fontWeight={600} marginRight="4px">
                                                         {category.title}
