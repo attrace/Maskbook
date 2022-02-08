@@ -152,7 +152,7 @@ export function MyFarmsRefer() {
                                         <Button
                                             disabled
                                             variant="contained"
-                                            size="small"
+                                            size="medium"
                                             onClick={() => console.log('runHarvest')}>
                                             {t('plugin_referral_harvest_rewards')}
                                         </Button>

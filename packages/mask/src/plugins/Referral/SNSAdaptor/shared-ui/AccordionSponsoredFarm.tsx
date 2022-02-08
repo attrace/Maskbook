@@ -1,11 +1,11 @@
 import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet/web3-shared-evm'
-import { parseChainAddress, Farm } from '../../types'
+import { parseChainAddress, FarmExistsEvent } from '../../types'
 import { toNativeRewardTokenDefn } from '../helpers'
 import { ReferredFarmTokenDetailed } from './ReferredFarmTokenDetailed'
 import { AccordionFarm } from './AccordionFarm'
 
 export interface AccordionSponsoredFarmProps extends React.PropsWithChildren<{}> {
-    farm: Farm
+    farm: FarmExistsEvent
     allTokensMap: Map<string, ERC20TokenDetailed>
     totalValue: number
     accordionDetails: React.ReactElement
