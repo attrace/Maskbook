@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
-import { DialogContent } from '@mui/material'
+import { Box, DialogContent, Typography } from '@mui/material'
 import { PageHistory, PagesType } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
@@ -12,6 +12,7 @@ import { CreateFarm } from './CreateFarm'
 import { ReferToFarm } from './ReferToFarm'
 import { SelectToken } from './SelectToken'
 import { BuyToFarm } from './BuyToFarm'
+import { IconURLS } from './IconURL'
 
 interface ReferralDialogProps {
     open: boolean
@@ -27,6 +28,16 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     normal: {},
     content: {
         padding: theme.spacing(0, 3, 0),
+    },
+    title: {
+        width: '378px',
+    },
+    attrText: {
+        fontSize: '12px',
+        color: theme.palette.text.secondary,
+        '& img': {
+            marginLeft: '5px',
+        },
     },
 }))
 
@@ -85,7 +96,15 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                     setPreviousPages(temp)
                 }
             }}
-            title={currentTitle}
+            title={
+                <Box display="flex" justifyContent="space-between">
+                    <div className={classes.title}>{currentTitle}</div>
+                    <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
+                        {t('plugin_powered_by')}
+                        <img src={IconURLS.attrTextLogo} />
+                    </Typography>
+                </Box>
+            }
             disableBackdropClick>
             <DialogContent className={classes.content}>{renderViews()}</DialogContent>
         </InjectedDialog>
