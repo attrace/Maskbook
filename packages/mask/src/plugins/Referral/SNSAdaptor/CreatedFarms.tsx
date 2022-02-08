@@ -1,18 +1,17 @@
 import { useAsync } from 'react-use'
 
-import { Grid, Typography, CircularProgress } from '@mui/material'
+import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
+import { getMaskColor, makeStyles } from '@masknet/theme'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
 import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
-import { makeStyles } from '@masknet/theme'
-import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { FarmDepositChange, FarmExistsEvent, parseChainAddress } from '../types'
 import { fromWei } from 'web3-utils'
+import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
+import type { FarmDepositChange, FarmExistsEvent } from '../types'
+import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-
-import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -43,8 +42,8 @@ const useStyles = makeStyles()((theme) => ({
         flexDirection: 'column',
         alignItems: 'center',
     },
-    farm: {
-        marginBottom: '20px',
+    heading: {
+        paddingRight: '27px',
     },
     noFarm: {
         width: '100%',
@@ -59,6 +58,13 @@ const useStyles = makeStyles()((theme) => ({
     },
     total: {
         marginRight: '4px',
+    },
+    buttonWithdraw: {
+        background: getMaskColor(theme).redMain,
+        marginRight: '12px',
+        ':hover': {
+            background: getMaskColor(theme).redMain,
+        },
     },
 }))
 
@@ -111,7 +117,7 @@ export function CreatedFarms() {
 
     return (
         <div className={classes.container}>
-            <Grid container justifyContent="space-between" rowSpacing="20px">
+            <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>
                 <Grid item xs={6}>
                     <Typography fontWeight={500} className={classes.col}>
                         {t('plugin_referral_referral_farm')}
@@ -137,27 +143,31 @@ export function CreatedFarms() {
                             <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
                             farms.map((farm) => (
-                                <Grid container justifyContent="space-between" key={uuid()} className={classes.farm}>
-                                    <Grid item xs={6}>
-                                        <ReferredFarmTokenDetailed
-                                            token={allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)}
-                                            referredTokenDefn={farm.referredTokenDefn}
-                                            rewardTokenDefn={farm.rewardTokenDefn}
-                                            chainId={chainId}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={2} display="flex" alignItems="center">
-                                        <Typography className={classes.total}>-</Typography>
-                                    </Grid>
-                                    <Grid item xs={4} display="flex" alignItems="center">
-                                        <Typography className={classes.total}>
-                                            {Number.parseFloat(farm.totalFarmRewards.toFixed(5))}
-                                        </Typography>
-                                        <Typography className={classes.total}>
-                                            {allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)?.symbol}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
+                                <AccordionSponsoredFarm
+                                    key={uuid()}
+                                    farm={farm}
+                                    allTokensMap={allTokensMap}
+                                    totalValue={Number.parseFloat(farm.totalFarmRewards.toFixed(5))}
+                                    accordionDetails={
+                                        <Box display="flex" justifyContent="flex-end">
+                                            <Button
+                                                // disabled
+                                                variant="contained"
+                                                size="small"
+                                                className={classes.buttonWithdraw}
+                                                onClick={() => console.log('request to withdraw')}>
+                                                {t('plugin_referral_request_to_withdraw')}
+                                            </Button>
+                                            <Button
+                                                // disabled
+                                                variant="contained"
+                                                size="small"
+                                                onClick={() => console.log('adjust_rewards')}>
+                                                {t('plugin_referral_adjust_rewards')}
+                                            </Button>
+                                        </Box>
+                                    }
+                                />
                             ))
                         )}
                     </>
