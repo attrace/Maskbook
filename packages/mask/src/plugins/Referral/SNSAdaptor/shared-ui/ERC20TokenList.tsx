@@ -1,4 +1,5 @@
 import { memo, useMemo, useState } from 'react'
+import { useAsync } from 'react-use'
 import { uniqBy } from 'lodash-unified'
 
 import { useI18N } from '../../../../utils'
@@ -24,6 +25,7 @@ import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList, makeStyles,
 import { Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
 import type { TokensGroupedByType } from '../../types'
+import { getReferredTokensAPR } from '../../Worker/apis/verifier'
 
 const DEFAULT_LIST_HEIGHT = 300
 
@@ -40,6 +42,7 @@ export interface ERC20TokenListProps extends withClasses<'list' | 'placeholder'>
     SearchTextFieldProps?: MaskTextFieldProps
     dataLoading?: boolean
     tokensGroupedByType: TokensGroupedByType
+    excludeProportionalFarms?: boolean
 }
 
 const Placeholder = memo(({ message, height }: { message: string; height?: number | string }) => (
@@ -65,6 +68,11 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     const chainId = props.targetChainId ?? currentChainId
     const trustedERC20Tokens = useTrustedERC20Tokens()
     const { value: nativeToken } = useNativeTokenDetailed(chainId)
+    const { value: referredTokensAPR, loading: loadingReferredTokensAPR } = useAsync(
+        async () => getReferredTokensAPR({ excludeProportionalFarms: props.excludeProportionalFarms }),
+        [],
+    )
+
     const [keyword, setKeyword] = useState('')
 
     const {
@@ -151,9 +159,9 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
                         : { from: 'search', inList: false }
                     : { from: 'defaultList', inList: true },
                 selectedTokens,
-                assetsLoading,
+                assetsLoading || loadingReferredTokensAPR,
                 props.tokensGroupedByType,
-                account,
+                referredTokensAPR,
             )}
             placeholder={
                 dataLoading ||
