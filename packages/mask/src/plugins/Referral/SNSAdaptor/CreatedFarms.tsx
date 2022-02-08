@@ -83,6 +83,10 @@ function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDep
 
     return farms
 }
+export function AdjustFarmRewards() {
+    //   return (
+    //   )
+}
 
 export function CreatedFarms() {
     const { t } = useI18N()

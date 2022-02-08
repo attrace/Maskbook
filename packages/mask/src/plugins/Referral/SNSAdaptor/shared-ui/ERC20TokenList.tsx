@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { uniqBy } from 'lodash-unified'
 
 import { useI18N } from '../../../../utils'
@@ -21,9 +21,9 @@ import {
     useTrustedERC20Tokens,
 } from '@masknet/web3-shared-evm'
 import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList, makeStyles, MaskColorVar } from '@masknet/theme'
-import { Stack, Typography } from '@mui/material'
+import { InputAdornment, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
-import type { TokensGroupedByType } from '../../types'
+import { SearchFarmTypes, TokensGroupedByType } from '../../types'
 
 const DEFAULT_LIST_HEIGHT = 300
 
@@ -55,6 +55,7 @@ const useStyles = makeStyles()((theme) => ({
         backgroundColor: 'transparent !important',
         border: `solid 1px ${MaskColorVar.twitterBorderLine}`,
     },
+    select: {},
 }))
 
 export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
@@ -121,6 +122,44 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
         renderTokens.filter((x) => isValidAddress(x.address)),
         chainId,
     )
+    const [searchFarmType, setSearchFarmType] = useState<SearchFarmTypes>(SearchFarmTypes.attrFarm)
+    const handleFarmFilterChange = (event: SelectChangeEvent) => {
+        setSearchFarmType(event.target.value as SearchFarmTypes)
+    }
+    const farmFilterOptions = () => {
+        return (
+            <Select
+                value={searchFarmType}
+                onChange={handleFarmFilterChange}
+                disableUnderline
+                variant="standard"
+                inputProps={{ 'aria-label': 'Without label' }}>
+                <MenuItem value={SearchFarmTypes.allFarms}>{t('plugin_referral_all_referral_farms')}</MenuItem>
+                <MenuItem value={SearchFarmTypes.sponsoredFarm}>
+                    {t('plugin_referral_sponsored_referral_farm')}
+                </MenuItem>
+                <MenuItem value={SearchFarmTypes.maskFarm}>{t('plugin_referral_mask_referral_farm')}</MenuItem>
+                <MenuItem value={SearchFarmTypes.attrFarm}>{t('plugin_referral_attrace_referral_farm')}</MenuItem>
+            </Select>
+        )
+    }
+
+    useEffect(() => {
+        switch (searchFarmType) {
+            case SearchFarmTypes.sponsoredFarm:
+                props.tokensGroupedByType.attrFarmsTokens = []
+                props.tokensGroupedByType.maskFarmsTokens = []
+                break
+            case SearchFarmTypes.maskFarm:
+                props.tokensGroupedByType.attrFarmsTokens = []
+                props.tokensGroupedByType.maskFarmsTokens = []
+                break
+            case SearchFarmTypes.attrFarm:
+                props.tokensGroupedByType.sponsoredFarmTokens = []
+                props.tokensGroupedByType.maskFarmsTokens = []
+                break
+        }
+    }, [searchFarmType])
 
     const renderAssets =
         !account || !!assetsError || assetsLoading || searchedTokenLoading
@@ -135,7 +174,10 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
         <SearchableList<Asset>
             SearchFieldProps={{
                 placeholder: t('plugin_referral_search_placeholder_token'),
-                InputProps: { classes: { root: classes.search } },
+                InputProps: {
+                    classes: { root: classes.search },
+                    endAdornment: <InputAdornment position="end">{farmFilterOptions()}</InputAdornment>,
+                },
             }}
             onSelect={(asset) => onSelect?.(asset.token)}
             disableSearch={!!props.disableSearch}

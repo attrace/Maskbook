@@ -4,7 +4,6 @@ import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
 import {
-    ChainId,
     EthereumTokenType,
     formatBalance,
     FungibleTokenDetailed,
@@ -15,7 +14,7 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { TabsCreateFarm, TokenType, PagesType, TransactionStatus } from '../types'
+import { TabsCreateFarm, TokenType, PagesType, TransactionStatus, DepositProps } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
@@ -95,15 +94,8 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 }))
 
 // Deposit
-interface DepositProps {
-    totalFarmReward: string
-    tokenSymbol?: string
-    attraceFee: BigNumber
-    requiredChainId: ChainId
-    isTransactionProcessing: boolean
-    onDeposit: () => Promise<void>
-}
-function Deposit({
+
+export function Deposit({
     totalFarmReward,
     tokenSymbol,
     attraceFee,

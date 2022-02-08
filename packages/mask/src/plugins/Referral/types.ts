@@ -66,6 +66,14 @@ export interface MetastateKeyValue {
     // Value is the output of coder.encode([...types], [...values])
     value: string
 }
+export interface DepositProps {
+    totalFarmReward: string
+    tokenSymbol?: string
+    attraceFee: BigNumber
+    requiredChainId: ChainId
+    isTransactionProcessing: boolean
+    onDeposit: () => Promise<void>
+}
 export type Metastate = Array<MetastateKeyValue>
 
 export const ReferralFarmsV1 = 'ReferralFarmsV1'
@@ -238,6 +246,12 @@ export type TokensGroupedByType = {
     sponsoredFarmTokens: string[]
     maskFarmsTokens: string[]
     attrFarmsTokens: string[]
+}
+export enum SearchFarmTypes {
+    allFarms = '0',
+    sponsoredFarm = '1',
+    maskFarm = '2',
+    attrFarm = '3',
 }
 
 export type Proof = {
