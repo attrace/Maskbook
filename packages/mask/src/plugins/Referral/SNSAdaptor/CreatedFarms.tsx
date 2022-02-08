@@ -153,7 +153,7 @@ export function CreatedFarms() {
                                             <Button
                                                 // disabled
                                                 variant="contained"
-                                                size="small"
+                                                size="medium"
                                                 className={classes.buttonWithdraw}
                                                 onClick={() => console.log('request to withdraw')}>
                                                 {t('plugin_referral_request_to_withdraw')}
@@ -161,7 +161,7 @@ export function CreatedFarms() {
                                             <Button
                                                 // disabled
                                                 variant="contained"
-                                                size="small"
+                                                size="medium"
                                                 onClick={() => console.log('adjust_rewards')}>
                                                 {t('plugin_referral_adjust_rewards')}
                                             </Button>
