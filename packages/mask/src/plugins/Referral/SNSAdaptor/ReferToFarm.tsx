@@ -154,6 +154,7 @@ export function ReferToFarm(props: PageInterface) {
                 referral_token_symbol: token?.symbol ?? '',
                 referral_token_icon: token?.logoURI ?? [''],
                 referral_token_chain_id: currentChainId,
+                promoter_address: account,
                 sender: senderName ?? '',
             })
         } catch (error) {

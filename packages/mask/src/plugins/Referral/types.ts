@@ -50,6 +50,7 @@ export interface ReferralMetaData {
     referral_token_symbol: string
     referral_token_icon: string | string[]
     referral_token_chain_id: ChainId
+    promoter_address?: string
     sender: string
 }
 export interface RewardData {

@@ -116,7 +116,12 @@ export function FarmPost(props: FarmPostProps) {
     }, [payload, openSwapDialog])
     const buyButton = async () => {
         try {
-            const sig = await singAndPostProofWithReferrer(web3, account, payload.referral_token, MASK_REFERRER)
+            const sig = await singAndPostProofWithReferrer(
+                web3,
+                account,
+                payload.referral_token,
+                payload?.promoter_address ?? MASK_REFERRER,
+            )
             swapToken()
         } catch (error) {
             alert(error)

@@ -485,3 +485,74 @@ export const FARM_ABI = [
         type: 'function',
     },
 ]
+export const erc20ABI = [
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'spender',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'approve',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        constant: true,
+        inputs: [
+            {
+                name: '_owner',
+                type: 'address',
+            },
+            {
+                name: '_spender',
+                type: 'address',
+            },
+        ],
+        name: 'allowance',
+        outputs: [
+            {
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function',
+    },
+]
+
+export const daoABI = [
+    {
+        inputs: [
+            {
+                internalType: 'string',
+                name: 'key',
+                type: 'string',
+            },
+        ],
+        name: 'addresses',
+        outputs: [
+            {
+                internalType: 'address',
+                name: 'addr',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+]
