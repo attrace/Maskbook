@@ -18,7 +18,6 @@ import { orderBy } from 'lodash-unified'
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import { FARM_ABI } from './abis'
-import { getFarmsMetaState } from '../Worker/apis/farms'
 
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
 import BigNumber from 'bignumber.js'
