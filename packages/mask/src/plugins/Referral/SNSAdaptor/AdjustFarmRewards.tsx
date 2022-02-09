@@ -2,7 +2,7 @@ import { useAsync } from 'react-use'
 
 import { FormattedBalance, TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
 import { getFarmTypeIconByReferredToken } from './helpers'
-import { AdjustFarmRewardsInterface, RewardData, TransactionStatus } from '../types'
+import { AdjustFarmRewardsInterface, TransactionStatus } from '../types'
 import { useI18N } from '../../../utils'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
@@ -259,8 +259,8 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
 
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
 
-    const rewardData: RewardData = {
-        apr: 0,
+    const rewardData = {
+        apr: farm?.apr,
         dailyReward: Number.parseFloat(farmMetaState?.dailyFarmReward?.toFixed(5) ?? '0'),
         totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
     }
@@ -389,7 +389,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                 <Box>
                                     {t('plugin_referral_estimated_apr')}
                                     <Typography fontWeight={600} marginTop="4px">
-                                        {rewardData?.apr ? `${rewardData.apr} %` : '-'}
+                                        {rewardData?.apr ? `${rewardData.apr * 100}%` : <span>&#8734;</span>}
                                     </Typography>
                                 </Box>
                             </Grid>

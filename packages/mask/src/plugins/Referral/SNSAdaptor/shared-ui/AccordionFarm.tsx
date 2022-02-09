@@ -50,7 +50,7 @@ export function AccordionFarm({
 }: AccordionFarmProps) {
     const { classes } = useStyles()
 
-    const aprFormatted = apr || apr === 0 ? <>{apr === 0 ? <span>&#8734;</span> : `${apr * 100} %`}</> : '-'
+    const aprFormatted = apr || apr === 0 ? <>{apr === 0 ? <span>&#8734;</span> : `${apr * 100}%`}</> : '-'
 
     return (
         <Accordion className={classes.accordion}>

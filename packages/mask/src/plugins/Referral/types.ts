@@ -197,6 +197,7 @@ export interface LinkParams {
 
 interface AdjustFarm extends FarmExistsEvent {
     totalFarmRewards?: number
+    apr?: number
 }
 export interface AdjustFarmRewardsInterface {
     farm?: AdjustFarm

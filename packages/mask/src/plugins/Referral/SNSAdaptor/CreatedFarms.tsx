@@ -80,6 +80,7 @@ const useStyles = makeStyles()((theme) => ({
 interface Farm extends FarmExistsEvent {
     totalFarmRewards?: number
     dailyFarmReward?: number
+    apr?: number
 }
 function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDepositChange[]) {
     const farms: Farm[] = []
@@ -172,36 +173,40 @@ export function CreatedFarms(props: PageInterface) {
                         {farms.length === 0 ? (
                             <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
-                            farms.map((farm) => (
-                                <AccordionSponsoredFarm
-                                    key={uuid()}
-                                    farm={farm}
-                                    allTokensMap={allTokensMap}
-                                    totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
-                                    apr={farmsAPR?.get(farm.farmHash)?.APR}
-                                    accordionDetails={
-                                        <Box display="flex" justifyContent="flex-end">
-                                            <Button
-                                                // disabled
-                                                variant="contained"
-                                                size="medium"
-                                                className={classes.buttonWithdraw}
-                                                onClick={() => console.log('request to withdraw')}>
-                                                {t('plugin_referral_request_to_withdraw')}
-                                            </Button>
-                                            <Button
-                                                // disabled
-                                                variant="contained"
-                                                size="medium"
-                                                onClick={() => {
-                                                    onAdjustRewardButtonClick(farm)
-                                                }}>
-                                                {t('plugin_referral_adjust_rewards')}
-                                            </Button>
-                                        </Box>
-                                    }
-                                />
-                            ))
+                            farms.map((farm) => {
+                                const apr = farmsAPR?.get(farm.farmHash)?.APR || 0
+
+                                return (
+                                    <AccordionSponsoredFarm
+                                        key={uuid()}
+                                        farm={farm}
+                                        allTokensMap={allTokensMap}
+                                        totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
+                                        apr={apr}
+                                        accordionDetails={
+                                            <Box display="flex" justifyContent="flex-end">
+                                                <Button
+                                                    // disabled
+                                                    variant="contained"
+                                                    size="medium"
+                                                    className={classes.buttonWithdraw}
+                                                    onClick={() => console.log('request to withdraw')}>
+                                                    {t('plugin_referral_request_to_withdraw')}
+                                                </Button>
+                                                <Button
+                                                    // disabled
+                                                    variant="contained"
+                                                    size="medium"
+                                                    onClick={() => {
+                                                        onAdjustRewardButtonClick({ ...farm, apr })
+                                                    }}>
+                                                    {t('plugin_referral_adjust_rewards')}
+                                                </Button>
+                                            </Box>
+                                        }
+                                    />
+                                )
+                            })
                         )}
                     </>
                 )}
