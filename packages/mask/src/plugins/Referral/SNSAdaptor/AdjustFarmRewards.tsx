@@ -108,7 +108,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
     const [onDepositPage, setOnDepositPage] = useState<boolean>(false)
 
     const {
-        value: rewardBalanceuseChainId = '0',
+        value: rewardBalance = '0',
         loading: loadingRewardBalance,
         retry: retryLoadRewardBalance,
     } = useFungibleTokenBalance(token?.type ?? EthereumTokenType.Native, token?.address ?? '')
