@@ -1,4 +1,4 @@
-import type { ChainAddress, EvmAddress } from '../../types'
+import type { ChainAddress, EvmAddress, FarmsAPR } from '../../types'
 
 import { fromWei } from 'web3-utils'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
@@ -81,4 +81,25 @@ export async function getReferredTokensAPR({
     })
 
     return referredTokensMap
+}
+
+export async function getFarmsAPR({ sponsor }: { sponsor?: EvmAddress }): Promise<FarmsAPR> {
+    const farmsMap = new Map<string, { APR?: number }>()
+    const res = await getFarmsPositions(sponsor)
+
+    if (!res?.farms) {
+        return farmsMap
+    }
+
+    res.farms.forEach((farm) => {
+        const { farmHash } = farm.state
+
+        const preFarmState = farmsMap.get(farmHash)?.APR || 0
+
+        const currentAPR = farm?.APR ? Number(fromWei(farm.APR)) : 0
+        const totalAPR = preFarmState + currentAPR
+        farmsMap.set(farmHash, { APR: totalAPR })
+    })
+
+    return farmsMap
 }

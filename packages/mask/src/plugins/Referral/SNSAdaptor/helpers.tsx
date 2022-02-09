@@ -5,7 +5,7 @@ import {
     MASK_TOKEN_ADDR,
     ATTR_TOKEN_ADDR,
 } from '../constants'
-import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm } from '../types'
+import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm, FarmsAPR } from '../types'
 import { FARM_TYPE } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
@@ -74,7 +74,7 @@ export function getFarmTypeIconByReferredToken(
     return IconURLS.underReviewLogo
 }
 
-export function getFarmsRewardData(farms?: Farm[]): RewardData {
+export function getFarmsRewardData(farms?: Farm[], farmsAPR?: FarmsAPR): RewardData {
     const dailyReward = farms?.reduce(function (previousValue, currentValue) {
         return previousValue + currentValue.dailyFarmReward
     }, 0)
@@ -82,13 +82,19 @@ export function getFarmsRewardData(farms?: Farm[]): RewardData {
         return previousValue + currentValue.totalFarmRewards
     }, 0)
 
-    // TODO: add APR logic
-    const apr = 0
+    let apr = 0
+    if (farms && farmsAPR) {
+        farms.forEach((farm) => {
+            const farmAPR = farmsAPR.get(farm.farmHash)?.APR || 0
+
+            apr = apr + farmAPR
+        })
+    }
 
     return {
         dailyReward: dailyReward || 0,
         totalReward: totalReward || 0,
-        apr: apr || 0,
+        apr: apr * 100,
     }
 }
 
