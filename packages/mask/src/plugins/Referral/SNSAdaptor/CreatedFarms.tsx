@@ -13,9 +13,11 @@ import {
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
+import { getFarmsAPR } from '../Worker/apis/verifier'
 import { getMyFarms, getFarmsDeposits, getFarmsMetaState } from '../Worker/apis/farms'
 import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
 import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
+import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 import { groupMetaStateForFarms, toNativeRewardTokenDefn } from './helpers'
@@ -120,14 +122,21 @@ export function CreatedFarms(props: PageInterface) {
         async () => getFarmsDeposits(web3, chainId),
         [web3],
     )
-
-    const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
-    let farms = groupDepositForFarms(myFarms, farmsDeposits)
-
+    // fetch farms APR
+    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(
+        async () => getFarmsAPR({ sponsor: account }),
+        [account],
+    )
     const { value: farmsDailyDeposits = [], loading: loadingFarmsDailyDeposits } = useAsync(
         async () => getFarmsMetaState(web3, chainId),
         [web3],
     )
+
+    const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
+
+    const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
+    let farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
+
     farms = groupMetaStateForFarms(farmsDailyDeposits, farms)
 
     const onAdjustRewardButtonClick = (farm: Farm) => {
@@ -175,6 +184,7 @@ export function CreatedFarms(props: PageInterface) {
                                     farm={farm}
                                     allTokensMap={allTokensMap}
                                     totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
+                                    apr={farmsAPR?.get(farm.farmHash)?.APR}
                                     accordionDetails={
                                         <Box display="flex" justifyContent="flex-end">
                                             <Button

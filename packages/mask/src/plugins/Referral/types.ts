@@ -282,3 +282,10 @@ export type Proof = {
     reqCtx: string
     reqId: string
 }
+
+export type FarmsAPR = Map<
+    string,
+    {
+        APR?: number | undefined
+    }
+>

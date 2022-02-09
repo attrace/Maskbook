@@ -26,6 +26,7 @@ import { MyFarmsRefer } from './MyFarmsRefer'
 import { IconURLS } from './IconURL'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
+import { getFarmsAPR } from '../Worker/apis/verifier'
 import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
@@ -85,6 +86,8 @@ export function ReferToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
+    // fetch farms APR
+    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
 
     const { attachMetadata, dropMetadata } = useCompositionContext()
 
@@ -176,6 +179,7 @@ export function ReferToFarm(props: PageInterface) {
         token?.address,
         farms,
     )
+
     const noFarmForSelectedToken = token && !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
 
     return (
@@ -207,7 +211,7 @@ export function ReferToFarm(props: PageInterface) {
                             </Grid>
                             <Typography>
                                 <Grid container>
-                                    {!token && <RewardDataWidget />}
+                                    {(!token || loadingAllFarms) && <RewardDataWidget />}
                                     {noFarmForSelectedToken ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_under_review')}
@@ -218,7 +222,7 @@ export function ReferToFarm(props: PageInterface) {
                                         <RewardDataWidget
                                             title={t('plugin_referral_sponsored_referral_farm')}
                                             icon={IconURLS.sponsoredFarmLogo}
-                                            rewardData={getFarmsRewardData(sponsoredFarms)}
+                                            rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
                                             tokenSymbol={token?.symbol}
                                         />
                                     ) : null}
@@ -226,7 +230,7 @@ export function ReferToFarm(props: PageInterface) {
                                         <RewardDataWidget
                                             title={t('plugin_referral_attrace_referral_farm')}
                                             icon={IconURLS.attrLogo}
-                                            rewardData={getFarmsRewardData(attrFarms)}
+                                            rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
                                             tokenSymbol={ATTR_TOKEN_SYMBOL}
                                         />
                                     ) : null}
@@ -234,7 +238,7 @@ export function ReferToFarm(props: PageInterface) {
                                         <RewardDataWidget
                                             title={t('plugin_referral_mask_referral_farm')}
                                             icon={IconURLS.maskLogo}
-                                            rewardData={getFarmsRewardData(maskFarms)}
+                                            rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
                                             tokenSymbol={MASK_TOKEN_SYMBOL}
                                         />
                                     ) : null}
