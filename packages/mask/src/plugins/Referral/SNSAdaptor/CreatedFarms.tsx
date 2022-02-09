@@ -14,13 +14,13 @@ import {
 } from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
 import { getFarmsAPR } from '../Worker/apis/verifier'
-import { getMyFarms, getFarmsDeposits, getFarmsMetaState } from '../Worker/apis/farms'
+import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
 import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-import { groupMetaStateForFarms, toNativeRewardTokenDefn } from './helpers'
+import { toNativeRewardTokenDefn } from './helpers'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -127,17 +127,11 @@ export function CreatedFarms(props: PageInterface) {
         async () => getFarmsAPR({ sponsor: account }),
         [account],
     )
-    const { value: farmsDailyDeposits = [], loading: loadingFarmsDailyDeposits } = useAsync(
-        async () => getFarmsMetaState(web3, chainId),
-        [web3],
-    )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
     const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
-    let farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
-
-    farms = groupMetaStateForFarms(farmsDailyDeposits, farms)
+    const farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
 
     const onAdjustRewardButtonClick = (farm: Farm) => {
         const nativeRewardToken = toNativeRewardTokenDefn(chainId)
@@ -171,7 +165,7 @@ export function CreatedFarms(props: PageInterface) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingMyFarms || loadingFarmsDeposits || loadingAllTokens || loadingFarmsDailyDeposits ? (
+                {loadingMyFarms || loadingFarmsDeposits || loadingAllTokens ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>

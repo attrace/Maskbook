@@ -120,8 +120,6 @@ export interface FarmExistsEvent {
     referredTokenDefn: ChainAddress
     rewardTokenDefn: ChainAddress
     sponsor: EvmAddress
-    totalFarmRewards?: number
-    dailyFarmReward?: number
 }
 export interface FarmDepositChange {
     farmHash: FarmHash
@@ -196,8 +194,12 @@ export interface LinkParams {
     token: EvmAddress
     dapp: string
 }
+
+interface AdjustFarm extends FarmExistsEvent {
+    totalFarmRewards?: number
+}
 export interface AdjustFarmRewardsInterface {
-    farm?: FarmExistsEvent
+    farm?: AdjustFarm
     token?: FungibleTokenDetailed
     onClose?: () => void
 }

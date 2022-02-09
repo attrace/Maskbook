@@ -1,3 +1,5 @@
+import { useAsync } from 'react-use'
+
 import { FormattedBalance, TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
 import { getFarmTypeIconByReferredToken } from './helpers'
 import { AdjustFarmRewardsInterface, RewardData, TransactionStatus } from '../types'
@@ -22,10 +24,12 @@ import { ATTRACE_FEE_PERCENT, REFERRAL_META_KEY } from '../constants'
 import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/createReferralFarm'
 import { Transaction } from './shared-ui/Transaction'
+import { getFarmsMetaState } from '../Worker/apis/farms'
 
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { useCompositionContext } from '@masknet/plugin-infra'
+
 const useStyles = makeStyles()((theme) => ({
     container: {
         display: 'flex',
@@ -84,11 +88,6 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
     const chainId = useChainId()
     const web3 = useWeb3({ chainId })
     const account = useAccount()
-    const rewardData: RewardData = {
-        apr: 0,
-        dailyReward: Number.parseFloat(farm?.dailyFarmReward?.toFixed(5) ?? '0'),
-        totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
-    }
 
     const farmTypeIcon = getFarmTypeIconByReferredToken(
         farm?.referredTokenDefn ?? '',
@@ -113,6 +112,11 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
         retry: retryLoadRewardBalance,
     } = useFungibleTokenBalance(token?.type ?? EthereumTokenType.Native, token?.address ?? '')
     const requiredChainId = useRequiredChainId(chainId)
+
+    const { value: farmsMetaState } = useAsync(
+        async () => (farm?.farmHash ? getFarmsMetaState(web3, chainId, [farm.farmHash]) : undefined),
+        [web3, farm, chainId],
+    )
 
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
         WalletMessages.events.walletStatusDialogUpdated,
@@ -217,7 +221,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                 }),
             )
         }
-    }, [totalFarmReward])
+    }, [totalFarmReward, dailyFarmReward])
 
     if (isTransactionProcessing) {
         return (
@@ -251,6 +255,14 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                 requiredChainId={requiredChainId}
             />
         )
+    }
+
+    const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
+
+    const rewardData: RewardData = {
+        apr: 0,
+        dailyReward: Number.parseFloat(farmMetaState?.dailyFarmReward?.toFixed(5) ?? '0'),
+        totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
     }
 
     const disableAdjustRewardsButton = !dailyFarmReward && !totalFarmReward
