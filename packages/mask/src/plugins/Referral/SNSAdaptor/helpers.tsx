@@ -5,11 +5,20 @@ import {
     MASK_TOKEN_ADDR,
     ATTR_TOKEN_ADDR,
 } from '../constants'
-import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm } from '../types'
+import type {
+    ReferralMetaData,
+    ChainAddress,
+    TokensGroupedByType,
+    RewardData,
+    Farm,
+    FarmExistsEvent,
+    FarmMetastate,
+    FarmDepositAndMetastate,
+} from '../types'
 import { FARM_TYPE } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { keccak256 } from 'web3-utils'
+import { fromWei, keccak256 } from 'web3-utils'
 import { padStart } from 'lodash-unified'
 import type { ChainId } from '@masknet/web3-shared-evm'
 
@@ -73,7 +82,51 @@ export function getFarmTypeIconByReferredToken(
     }
     return IconURLS.underReviewLogo
 }
+export function groupMetaStateForFarms(farmsMetaState: FarmMetastate[], myFarms?: FarmExistsEvent[]) {
+    const farms: FarmExistsEvent[] = []
+    const farmDailyDepositMap = new Map<string, number>()
 
+    farmsMetaState.forEach((deposit) => {
+        const { farmHash, dailyFarmReward } = deposit
+        const prevFarmState = farmDailyDepositMap.get(farmHash) || 0
+
+        const DailyFarmReward = prevFarmState + Number(fromWei(dailyFarmReward.toString()))
+        farmDailyDepositMap.set(farmHash, DailyFarmReward)
+    })
+
+    myFarms?.forEach((farm) => {
+        farms.push({ dailyFarmReward: farmDailyDepositMap.get(farm.farmHash) || 0, ...farm })
+    })
+
+    return farms
+}
+export function groupDepositAndMetaStateForFarms(
+    farmsMetaState: FarmDepositAndMetastate[],
+    myFarms?: FarmExistsEvent[],
+) {
+    const farms: FarmExistsEvent[] = []
+    const farmTotalAndDailyDepositMap = new Map<string, number[]>()
+
+    farmsMetaState.forEach((deposit) => {
+        const { farmHash, dailyFarmReward, delta } = deposit
+        const prevFarmState = farmTotalAndDailyDepositMap.get(farmHash) || [0]
+
+        const totalFarmRewards = prevFarmState[0] + Number(fromWei(delta.toString()))
+        const DailyFarmReward = prevFarmState[1] + Number(fromWei(dailyFarmReward.toString()))
+
+        farmTotalAndDailyDepositMap.set(farmHash, [totalFarmRewards, DailyFarmReward])
+    })
+
+    myFarms?.forEach((farm) => {
+        farms.push({
+            totalFarmRewards: (farmTotalAndDailyDepositMap.get(farm.farmHash) || [0])[0],
+            dailyFarmReward: (farmTotalAndDailyDepositMap.get(farm.farmHash) || [0])[1],
+            ...farm,
+        })
+    })
+
+    return farms
+}
 export function getFarmsRewardData(farms?: Farm[]): RewardData {
     const dailyReward = farms?.reduce(function (previousValue, currentValue) {
         return previousValue + currentValue.dailyFarmReward
@@ -91,7 +144,6 @@ export function getFarmsRewardData(farms?: Farm[]): RewardData {
         apr: apr || 0,
     }
 }
-
 export function groupReferredTokenFarmsByType(chainId?: number, referredToken?: string, farms?: Farm[]) {
     if (!farms?.length || !referredToken || !chainId) {
         return {

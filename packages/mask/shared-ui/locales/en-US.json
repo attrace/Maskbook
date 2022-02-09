@@ -1056,6 +1056,15 @@
     "plugin_referral_manage_farms_rewards_desc": "The <strong>rewards</strong> will be distributed to participants daily based on their share of the referred/purchased value in the referral farm.",
     "plugin_referral_you_have_not_joined_farm": "You haven’t joined any referral farm yet",
     "plugin_referral_harvest_rewards": "Harvest Rewards",
+    "plugin_referral_all_referral_farms": "All referral farms",
     "plugin_referral_request_to_withdraw": "Request to Withdraw",
-    "plugin_referral_adjust_rewards": "Adjust Rewards"
+    "plugin_referral_adjust_rewards": "Adjust Rewards",
+    "plugin_referral_adjust_rewards_desc": "Increase/decrease the Daily Farm Reward or top up the Total Farm Rewards",
+    "plugin_referral_additional_farm_rewards": "Additional Farm Rewards",
+    "plugin_referral_confirm_deposit": "Confirm Deposit",
+    "plugin_referral_confirm_deposit_desc": "Confirm deposit of {{reward}} {{symbol}} to top up referral farm",
+    "plugin_referral_adjust_daily_reward": "Adjust Daily Farm Reward",
+    "plugin_referral_adjust_daily_reward_desc": "Confirm to adjust daily farm reward to {{reward}} {{symbol}} ",
+    "plugin_referral_adjust_daily_and_total_reward": "Adjust Daily and Total Farm Rewards",
+    "plugin_referral_adjust_daily_and_total_reward_desc": "Confirm deposit of {{totalReward}} {{symbol}} to top up referral farm and adjust daily farm reward to {{dailyReward}} {{symbol}}"
 }

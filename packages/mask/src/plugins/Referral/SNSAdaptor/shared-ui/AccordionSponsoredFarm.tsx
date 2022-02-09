@@ -23,20 +23,17 @@ export function AccordionSponsoredFarm({
     const { value: nativeToken } = useNativeTokenDetailed()
 
     const nativeRewardToken = toNativeRewardTokenDefn(chainId)
-    const rewardTokenSymbol =
+    const rewardToken =
         farm.rewardTokenDefn === nativeRewardToken
-            ? nativeToken?.symbol
-            : allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)?.symbol
+            ? nativeToken
+            : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+    const rewardTokenSymbol = rewardToken?.symbol
 
     return (
         <AccordionFarm
             farmDetails={
                 <ReferredFarmTokenDetailed
-                    token={
-                        farm.rewardTokenDefn === nativeRewardToken
-                            ? nativeToken
-                            : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
-                    }
+                    token={rewardToken}
                     referredTokenDefn={farm.referredTokenDefn}
                     rewardTokenDefn={farm.rewardTokenDefn}
                     chainId={chainId}
