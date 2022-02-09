@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, PagesType, TransactionStatus } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -68,12 +68,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
-export interface ReferToFarmProps extends React.PropsWithChildren<{}> {
-    onClose?: () => void
-    continue: (currentPage: PagesType, nextPage: PagesType) => void
-}
-
-export function ReferToFarm(props: ReferToFarmProps) {
+export function ReferToFarm(props: PageInterface) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)

@@ -1,4 +1,4 @@
-import type { ChainId as ChainIdMain } from '@masknet/web3-shared-evm'
+import type { ChainId as ChainIdMain, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import type BigNumber from 'bignumber.js'
 import { padStart } from 'lodash-unified'
 
@@ -27,6 +27,7 @@ export enum PagesType {
     REFER_TO_FARM = 'Refer to Farm',
     BUY_TO_FARM = 'Buy to Farm',
     SELECT_TOKEN = 'Select a Token to Refer',
+    ADJUST_REWARDS = 'Adjust Rewards',
     TRANSACTION = 'Transaction',
 }
 export enum TabsReferralFarms {
@@ -65,6 +66,14 @@ export interface MetastateKeyValue {
 
     // Value is the output of coder.encode([...types], [...values])
     value: string
+}
+export interface DepositProps {
+    totalFarmReward: string
+    tokenSymbol?: string
+    attraceFee: BigNumber
+    requiredChainId: ChainId
+    isTransactionProcessing: boolean
+    onDeposit: () => Promise<void>
 }
 export type Metastate = Array<MetastateKeyValue>
 
@@ -111,6 +120,8 @@ export interface FarmExistsEvent {
     referredTokenDefn: ChainAddress
     rewardTokenDefn: ChainAddress
     sponsor: EvmAddress
+    totalFarmRewards?: number
+    dailyFarmReward?: number
 }
 export interface FarmDepositChange {
     farmHash: FarmHash
@@ -118,6 +129,11 @@ export interface FarmDepositChange {
 }
 export interface FarmMetastate {
     farmHash: FarmHash
+    dailyFarmReward: number
+}
+export interface FarmDepositAndMetastate {
+    farmHash: FarmHash
+    delta: BigNumber
     dailyFarmReward: BigNumber
 }
 export interface FarmTokenChange {
@@ -180,7 +196,15 @@ export interface LinkParams {
     token: EvmAddress
     dapp: string
 }
-
+export interface AdjustFarmRewardsInterface {
+    farm?: FarmExistsEvent
+    token?: FungibleTokenDetailed
+    onClose?: () => void
+}
+export interface PageInterface {
+    onClose?: () => void
+    continue: (currentPage: PagesType, nextPage: PagesType, title?: string, props?: AdjustFarmRewardsInterface) => void
+}
 // This assumes a link in style of https://app.attrace.com/l/011f9840a85d5af5bf1d1762f925bdaddc4201f9849a24fe8179a0aa7347f6f9b664f0e3f573212a6d?d=maskswapv1
 export function parseLinkUrlPath(fullUrlPath: string) {
     // const { pathname, query } = urlParse(fullUrlPath, true);
@@ -238,6 +262,12 @@ export type TokensGroupedByType = {
     sponsoredFarmTokens: string[]
     maskFarmsTokens: string[]
     attrFarmsTokens: string[]
+}
+export enum SearchFarmTypes {
+    allFarms = '0',
+    sponsoredFarm = 'sponsoredFarmTokens',
+    maskFarm = 'maskFarmsTokens',
+    attrFarm = 'attrFarmsTokens',
 }
 
 export type Proof = {

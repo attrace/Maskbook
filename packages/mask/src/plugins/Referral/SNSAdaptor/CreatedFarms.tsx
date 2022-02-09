@@ -5,15 +5,22 @@ import { getMaskColor, makeStyles } from '@masknet/theme'
 
 import { useI18N } from '../../../utils'
 import { v4 as uuid } from 'uuid'
-import { useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
+import {
+    useAccount,
+    useChainId,
+    useWeb3,
+    useTokenListConstants,
+    useNativeTokenDetailed,
+} from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
-import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
-import type { FarmDepositChange, FarmExistsEvent } from '../types'
+import { getMyFarms, getFarmsDeposits, getFarmsMetaState } from '../Worker/apis/farms'
+import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
 import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
+import { groupMetaStateForFarms, toNativeRewardTokenDefn } from './helpers'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -71,7 +78,8 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Farm extends FarmExistsEvent {
-    totalFarmRewards: number
+    totalFarmRewards?: number
+    dailyFarmReward?: number
 }
 function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDepositChange[]) {
     const farms: Farm[] = []
@@ -92,7 +100,7 @@ function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDep
     return farms
 }
 
-export function CreatedFarms() {
+export function CreatedFarms(props: PageInterface) {
     const { t } = useI18N()
     const { classes } = useStyles()
     const chainId = useChainId()
@@ -108,6 +116,7 @@ export function CreatedFarms() {
         async () => getMyFarms(web3, account, chainId),
         [web3, account],
     )
+    const { value: nativeToken } = useNativeTokenDetailed()
     // fetch all deposits
     const { value: farmsDeposits = [], loading: loadingFarmsDeposits } = useAsync(
         async () => getFarmsDeposits(web3, chainId),
@@ -118,14 +127,30 @@ export function CreatedFarms() {
         async () => getFarmsAPR({ sponsor: account }),
         [account],
     )
+    const { value: farmsDailyDeposits = [], loading: loadingFarmsDailyDeposits } = useAsync(
+        async () => getFarmsMetaState(web3, chainId),
+        [web3],
+    )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
-    // filter out all PROPORTIONAL farms, Project UI should have only sponsored
     const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
+    let farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
 
-    const farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
+    farms = groupMetaStateForFarms(farmsDailyDeposits, farms)
 
+    const onAdjustRewardButtonClick = (farm: Farm) => {
+        const nativeRewardToken = toNativeRewardTokenDefn(chainId)
+
+        const rewardToken =
+            farm.rewardTokenDefn === nativeRewardToken
+                ? nativeToken
+                : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+        props.continue(PagesType.CREATE_FARM, PagesType.ADJUST_REWARDS, t('plugin_referral_adjust_rewards'), {
+            farm: farm,
+            token: rewardToken,
+        })
+    }
     return (
         <div className={classes.container}>
             <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>
@@ -146,7 +171,7 @@ export function CreatedFarms() {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingMyFarms || loadingFarmsDeposits || loadingAllTokens ? (
+                {loadingMyFarms || loadingFarmsDeposits || loadingAllTokens || loadingFarmsDailyDeposits ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
@@ -158,7 +183,7 @@ export function CreatedFarms() {
                                     key={uuid()}
                                     farm={farm}
                                     allTokensMap={allTokensMap}
-                                    totalValue={Number.parseFloat(farm.totalFarmRewards.toFixed(5))}
+                                    totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
                                     apr={farmsAPR?.get(farm.farmHash)?.APR}
                                     accordionDetails={
                                         <Box display="flex" justifyContent="flex-end">
@@ -174,7 +199,9 @@ export function CreatedFarms() {
                                                 // disabled
                                                 variant="contained"
                                                 size="medium"
-                                                onClick={() => console.log('adjust_rewards')}>
+                                                onClick={() => {
+                                                    onAdjustRewardButtonClick(farm)
+                                                }}>
                                                 {t('plugin_referral_adjust_rewards')}
                                             </Button>
                                         </Box>

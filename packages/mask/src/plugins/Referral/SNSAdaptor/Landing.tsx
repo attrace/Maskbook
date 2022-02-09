@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { PagesType } from '../types'
+import { PageInterface, PagesType } from '../types'
 import { IconURLS } from './IconURL'
 
 interface ReferralDialogProps {
@@ -52,11 +52,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
-export interface LandingProps {
-    continue: (currentPage: PagesType, nextPage: PagesType) => void
-}
-
-export function Landing(props: LandingProps) {
+export function Landing(props: PageInterface) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
