@@ -1,5 +1,5 @@
 import { isDashboardPage, makeTypedMessageText } from '@masknet/shared-base'
-import { Button, Card, CardActions, CardContent, Grid, Typography, CircularProgress } from '@mui/material'
+import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
@@ -182,44 +182,38 @@ export function FarmPost(props: FarmPostProps) {
                                         </Grid>
                                     </Grid>
                                     {t('plugin_referral_join_receive_rewards')}
-                                    {loadingFarms ? (
-                                        <Grid container display="flex" justifyContent="center" marginTop="22px">
-                                            <CircularProgress classes={{ root: classes.circularProgress }} size={50} />
-                                        </Grid>
-                                    ) : (
-                                        <Grid container>
-                                            {noFarmForSelectedToken ? (
-                                                <RewardDataWidget
-                                                    title={t('plugin_referral_under_review')}
-                                                    icon={IconURLS.underReviewLogo}
-                                                />
-                                            ) : null}
-                                            {sponsoredFarms?.length ? (
-                                                <RewardDataWidget
-                                                    title={t('plugin_referral_sponsored_referral_farm')}
-                                                    icon={IconURLS.sponsoredFarmLogo}
-                                                    rewardData={getFarmsRewardData(sponsoredFarms)}
-                                                    tokenSymbol={payload.referral_token_symbol}
-                                                />
-                                            ) : null}
-                                            {attrFarms?.length ? (
-                                                <RewardDataWidget
-                                                    title={t('plugin_referral_attrace_referral_farm')}
-                                                    icon={IconURLS.attrLightLogo}
-                                                    rewardData={getFarmsRewardData(attrFarms)}
-                                                    tokenSymbol={ATTR_TOKEN_SYMBOL}
-                                                />
-                                            ) : null}
-                                            {maskFarms?.length ? (
-                                                <RewardDataWidget
-                                                    title={t('plugin_referral_mask_referral_farm')}
-                                                    icon={IconURLS.maskLogo}
-                                                    rewardData={getFarmsRewardData(maskFarms)}
-                                                    tokenSymbol={MASK_TOKEN_SYMBOL}
-                                                />
-                                            ) : null}
-                                        </Grid>
-                                    )}
+                                    <Grid container>
+                                        {noFarmForSelectedToken ? (
+                                            <RewardDataWidget
+                                                title={t('plugin_referral_under_review')}
+                                                icon={IconURLS.underReviewLogo}
+                                            />
+                                        ) : null}
+                                        {sponsoredFarms?.length ? (
+                                            <RewardDataWidget
+                                                title={t('plugin_referral_sponsored_referral_farm')}
+                                                icon={IconURLS.sponsoredFarmLogo}
+                                                rewardData={getFarmsRewardData(sponsoredFarms)}
+                                                tokenSymbol={payload.referral_token_symbol}
+                                            />
+                                        ) : null}
+                                        {attrFarms?.length ? (
+                                            <RewardDataWidget
+                                                title={t('plugin_referral_attrace_referral_farm')}
+                                                icon={IconURLS.attrLightLogo}
+                                                rewardData={getFarmsRewardData(attrFarms)}
+                                                tokenSymbol={ATTR_TOKEN_SYMBOL}
+                                            />
+                                        ) : null}
+                                        {maskFarms?.length ? (
+                                            <RewardDataWidget
+                                                title={t('plugin_referral_mask_referral_farm')}
+                                                icon={IconURLS.maskLogo}
+                                                rewardData={getFarmsRewardData(maskFarms)}
+                                                tokenSymbol={MASK_TOKEN_SYMBOL}
+                                            />
+                                        ) : null}
+                                    </Grid>
                                 </Card>
                             </Box>
                         </CardContent>

@@ -8,6 +8,8 @@ import {
     ChainId,
     Farm,
     FARM_TYPE,
+    FarmMetastate,
+    FarmDepositAndMetastate,
 } from '../../types'
 import type Web3 from 'web3'
 import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
@@ -18,6 +20,7 @@ import { queryIndexersWithNearestQuorum } from './indexers'
 import { FARM_ABI } from './abis'
 
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
+import BigNumber from 'bignumber.js'
 
 const iface = new Interface(FARM_ABI)
 
@@ -61,7 +64,60 @@ function parseFarmDepositChangeEvents(unparsed: any) {
 
     return farms
 }
+function parseFarmDepositAndMetaStateChangeEvents(unparsed: any) {
+    const parsed = parseEvents(unparsed)
 
+    const farms: Array<FarmDepositAndMetastate> = []
+    const farmMap = new Map<string, { totalFarmRewards?: number; dailyFarmReward?: number }>()
+    parsed.forEach((e) => {
+        const { farmHash } = e.args
+        const prevFarmState = farmMap.get(farmHash)
+
+        if (e.topic === eventIds.FarmDepositChange) {
+            const { delta: totalFarmRewards } = e.args
+            farmMap.set(farmHash, { ...prevFarmState, totalFarmRewards })
+        }
+        if (e.topic === eventIds.FarmMetastate) {
+            const { key, value } = e.args
+
+            const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
+            if (key === dailyRewardRateKey) {
+                const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
+
+                farmMap.set(farmHash, {
+                    ...prevFarmState,
+                    dailyFarmReward: Number(fromWei(dailyRewardRate.toString())),
+                })
+            }
+        }
+    })
+    farmMap.forEach((value: { totalFarmRewards?: number; dailyFarmReward?: number }, key: string) => {
+        farms.push({
+            farmHash: key,
+            delta: new BigNumber(value.totalFarmRewards ?? 0),
+            dailyFarmReward: new BigNumber(value.dailyFarmReward ?? 0),
+        })
+    })
+    return farms
+}
+function parseFarmMetaStateChangeEvents(unparsed: any) {
+    const parsed = parseEvents(unparsed)
+
+    const farms: Array<FarmMetastate> = parsed.map((e) => {
+        // const { dailyFarmReward, farmHash } = e.args
+        const { farmHash, key, value } = e.args
+
+        const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
+        let dailyFarmReward = 0
+        if (key === dailyRewardRateKey) {
+            const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
+            dailyFarmReward = Number(dailyRewardRate)
+        }
+        return { farmHash, dailyFarmReward }
+    })
+
+    return farms
+}
 export async function getMyFarms(
     web3: Web3,
     account: string,
@@ -105,7 +161,31 @@ export async function getFarmsDeposits(web3: Web3, chainId: ChainId): Promise<Ar
 
     return parseFarmDepositChangeEvents(res.items)
 }
+export async function getFarmsMetaState(web3: Web3, chainId: ChainId): Promise<Array<FarmMetastate>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
+    const res = await queryIndexersWithNearestQuorum({
+        addresses: [farmsAddr],
+        topics: [eventIds.FarmMetastate],
+        chainId: [chainId],
+    })
+
+    return parseFarmMetaStateChangeEvents(res.items)
+}
+export async function getFarmsDepositAndMetaState(
+    web3: Web3,
+    chainId: ChainId,
+): Promise<Array<FarmDepositAndMetastate>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
+
+    const res = await queryIndexersWithNearestQuorum({
+        addresses: [farmsAddr],
+        topics: [eventIds.FarmDepositChange, eventIds.FarmMetastate],
+        chainId: [chainId],
+    })
+
+    return parseFarmDepositAndMetaStateChangeEvents(res.items)
+}
 function parseBasicFarmEvents(unparsed: any) {
     const parsed = parseEvents(unparsed)
     const farms: Array<Farm> = []

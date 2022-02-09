@@ -6,7 +6,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { PagesType, TabsReferralFarms } from '../types'
+import { PageInterface, PagesType, TabsReferralFarms } from '../types'
 import { IconURLS } from './IconURL'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -81,10 +81,7 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
     )
 }
 
-export interface ReferralFarmsProps {
-    continue: (currentPage: PagesType, nextPage: PagesType, title: string) => void
-}
-export function ReferralFarms(props: ReferralFarmsProps) {
+export function ReferralFarms(props: PageInterface) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
