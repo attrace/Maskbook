@@ -13,7 +13,7 @@ import { MASK_REFERRER } from '../constants'
 import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { getAllFarms } from '../Worker/apis/farms'
 
-import { TabsCreateFarm, PagesType, TransactionStatus, FARM_TYPE, Farm, ChainAddress } from '../types'
+import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface } from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -60,12 +60,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
-export interface BuyToFarmProps extends React.PropsWithChildren<{}> {
-    onClose?: () => void
-    continue: (currentPage: PagesType, nextPage: PagesType) => void
-}
-
-export function BuyToFarm(props: BuyToFarmProps) {
+export function BuyToFarm(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })

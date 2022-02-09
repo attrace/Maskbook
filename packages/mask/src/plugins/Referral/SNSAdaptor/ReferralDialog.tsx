@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { DialogContent } from '@mui/material'
-import { PageHistory, PagesType } from '../types'
+import { AdjustFarmRewardsInterface, PageHistory, PagesType } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
@@ -12,6 +12,7 @@ import { CreateFarm } from './CreateFarm'
 import { ReferToFarm } from './ReferToFarm'
 import { SelectToken } from './SelectToken'
 import { BuyToFarm } from './BuyToFarm'
+import { AdjustFarmRewards } from './AdjustFarmRewards'
 
 interface ReferralDialogProps {
     open: boolean
@@ -42,13 +43,20 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
     })
     const [previousPages, setPreviousPages] = useState<PageHistory[]>([])
     const [currentTitle, setCurrentTitle] = useState(t('plugin_referral'))
+    const [propsData, setPropsData] = useState<AdjustFarmRewardsInterface>()
+
     // let previousPages: PagesType[] = []
-    const nextPage = (currentPage: PagesType, nextPage: PagesType, title: string = t('plugin_referral')) => {
+    const nextPage = (
+        currentPage: PagesType,
+        nextPage: PagesType,
+        title: string = t('plugin_referral'),
+        props?: AdjustFarmRewardsInterface,
+    ) => {
         setPreviousPages([...previousPages, { page: currentPage, title: currentTitle }])
         setCurrentPage({ page: nextPage, title: title })
         setCurrentTitle(title)
+        setPropsData(props)
     }
-    // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
     const renderViews = () => {
         const { page } = currentPage
         switch (page) {
@@ -62,6 +70,8 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 return <ReferToFarm continue={nextPage} onClose={onClose} />
             case PagesType.BUY_TO_FARM:
                 return <BuyToFarm continue={nextPage} onClose={onClose} />
+            case PagesType.ADJUST_REWARDS:
+                return <AdjustFarmRewards onClose={onClose} {...propsData} />
             case PagesType.SELECT_TOKEN:
                 return <SelectToken />
             default:

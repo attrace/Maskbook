@@ -14,7 +14,7 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { TabsCreateFarm, TokenType, PagesType, TransactionStatus, DepositProps } from '../types'
+import { TabsCreateFarm, TokenType, TransactionStatus, DepositProps, PageInterface } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
@@ -114,7 +114,6 @@ export function Deposit({
     return (
         <div className={classes.depositRoot}>
             <Typography>
-                <br />
                 <Grid container justifyContent="space-between" rowSpacing="20px">
                     <Grid xs={12}>
                         <b>{t('plugin_referral_deposit_total_rewards')}</b>
@@ -163,12 +162,7 @@ export function Deposit({
     )
 }
 
-interface CreateFarmProps {
-    onClose?: () => void
-    continue: (currentPage: PagesType, nextPage: PagesType) => void
-}
-
-export function CreateFarm(props: CreateFarmProps) {
+export function CreateFarm(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
@@ -365,7 +359,103 @@ export function CreateFarm(props: CreateFarmProps) {
             />
         )
     }
-
+    const rewardDataFields = () => {
+        return (
+            <>
+                <Grid item xs={6} display="flex" paddingLeft={3}>
+                    <Box>
+                        <TextField
+                            label={t('plugin_referral_daily_farm_reward')}
+                            value={dailyFarmReward}
+                            placeholder="0"
+                            onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
+                            inputMode="numeric"
+                            type="number"
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            variant="standard"
+                            className={classes.textField}
+                            InputProps={{
+                                disableUnderline: true,
+                                endAdornment: <InputAdornment position="end">{token?.symbol}</InputAdornment>,
+                            }}
+                        />
+                    </Box>
+                </Grid>
+                <Grid item xs={6} display="flex" alignItems="end">
+                    <Box justifyContent="center">
+                        <TextField
+                            label={t('plugin_referral_total_farm_rewards')}
+                            value={totalFarmReward}
+                            inputMode="numeric"
+                            type="number"
+                            placeholder="0"
+                            onChange={onChangeTotalFarmReward}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            variant="standard"
+                            className={classes.textField}
+                            InputProps={{
+                                disableUnderline: true,
+                                endAdornment: (
+                                    <InputAdornment position="start">
+                                        {token && rewardBalance ? (
+                                            <>
+                                                <Grid container>
+                                                    <Grid item container>
+                                                        <Box>
+                                                            <Typography
+                                                                className={classes.balance}
+                                                                color="textSecondary"
+                                                                variant="body2"
+                                                                component="span">
+                                                                {t('wallet_balance')}:
+                                                                <FormattedBalance
+                                                                    value={rewardBalance ?? '0'}
+                                                                    decimals={token?.decimals}
+                                                                    significant={6}
+                                                                    formatter={formatBalance}
+                                                                />
+                                                            </Typography>
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item container columnSpacing={1}>
+                                                        <Grid item xs={6}>
+                                                            {token?.symbol}
+                                                        </Grid>
+                                                        <Grid item xs={6}>
+                                                            <Chip
+                                                                size="small"
+                                                                label="MAX"
+                                                                clickable
+                                                                color="primary"
+                                                                variant="outlined"
+                                                                onClick={() => {
+                                                                    setTotalFarmReward(
+                                                                        formatBalance(
+                                                                            rewardBalance ?? '',
+                                                                            token?.decimals,
+                                                                            6,
+                                                                        ),
+                                                                    )
+                                                                }}
+                                                            />
+                                                        </Grid>
+                                                    </Grid>
+                                                </Grid>
+                                            </>
+                                        ) : null}
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Box>
+                </Grid>
+            </>
+        )
+    }
     const createFarmBtnDisabled = !token?.address || !token?.address || !totalFarmReward || !dailyFarmReward
 
     return (
@@ -382,145 +472,55 @@ export function CreateFarm(props: CreateFarmProps) {
                         <Tab value={TabsCreateFarm.CREATED} label="Created" />
                     </Tabs>
                     <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
-                        <Grid container />
                         <Typography>
-                            <b>{t('plugin_referral_create_referral_farm_desc')}</b>
-                            <br />
-                            <br />
-                            {t('plugin_referral_select_a_token_desc')}
-                            <br />
-                            <br />
-                            <Grid
-                                container
-                                justifyContent="space-around"
-                                display="flex"
-                                alignItems="flex-start"
-                                rowSpacing="20px">
-                                <Grid item xs={6} justifyContent="center" display="flex">
-                                    <TokenSelectField
-                                        label={t('plugin_referral_token_to_refer')}
-                                        token={token}
-                                        onClick={() => {
-                                            onTokenSelectClick(
-                                                TokenType.REFER,
-                                                t('plugin_referral_select_a_token_to_refer'),
-                                            )
-                                        }}
-                                    />
+                            <Grid container rowSpacing={2}>
+                                <Grid item>
+                                    <b>{t('plugin_referral_create_referral_farm_desc')}</b>
                                 </Grid>
-                                <Grid item xs={6} display="flex" />
-                                <Grid item xs={6} display="flex" paddingLeft={3}>
-                                    <Box>
-                                        <TextField
-                                            label={t('plugin_referral_daily_farm_reward')}
-                                            value={dailyFarmReward}
-                                            placeholder="0"
-                                            onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
-                                            inputMode="numeric"
-                                            type="number"
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            variant="standard"
-                                            className={classes.textField}
-                                            InputProps={{
-                                                disableUnderline: true,
-                                                endAdornment: (
-                                                    <InputAdornment position="end">{token?.symbol}</InputAdornment>
-                                                ),
+                                <Grid item>{t('plugin_referral_select_a_token_desc')}</Grid>
+
+                                <Grid
+                                    item
+                                    container
+                                    justifyContent="space-around"
+                                    display="flex"
+                                    alignItems="flex-start"
+                                    rowSpacing="20px">
+                                    <Grid item xs={6} justifyContent="center" display="flex">
+                                        <TokenSelectField
+                                            label={t('plugin_referral_token_to_refer')}
+                                            token={token}
+                                            onClick={() => {
+                                                onTokenSelectClick(
+                                                    TokenType.REFER,
+                                                    t('plugin_referral_select_a_token_to_refer'),
+                                                )
                                             }}
                                         />
-                                    </Box>
+                                    </Grid>
+                                    <Grid item xs={6} display="flex" />
+                                    {rewardDataFields()}
                                 </Grid>
-                                <Grid item xs={6} display="flex" alignItems="end">
-                                    <Box justifyContent="center">
-                                        <TextField
-                                            label={t('plugin_referral_total_farm_rewards')}
-                                            value={totalFarmReward}
-                                            inputMode="numeric"
-                                            type="number"
-                                            placeholder="0"
-                                            onChange={onChangeTotalFarmReward}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            variant="standard"
-                                            className={classes.textField}
-                                            InputProps={{
-                                                disableUnderline: true,
-                                                endAdornment: (
-                                                    <InputAdornment position="start">
-                                                        {token && rewardBalance ? (
-                                                            <>
-                                                                <Grid container>
-                                                                    <Grid item container>
-                                                                        <Box>
-                                                                            <Typography
-                                                                                className={classes.balance}
-                                                                                color="textSecondary"
-                                                                                variant="body2"
-                                                                                component="span">
-                                                                                {t('wallet_balance')}:
-                                                                                <FormattedBalance
-                                                                                    value={rewardBalance ?? '0'}
-                                                                                    decimals={token?.decimals}
-                                                                                    significant={6}
-                                                                                    formatter={formatBalance}
-                                                                                />
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    </Grid>
-                                                                    <Grid item container columnSpacing={1}>
-                                                                        <Grid item xs={6}>
-                                                                            {token?.symbol}
-                                                                        </Grid>
-                                                                        <Grid item xs={6}>
-                                                                            <Chip
-                                                                                size="small"
-                                                                                label="MAX"
-                                                                                clickable
-                                                                                color="primary"
-                                                                                variant="outlined"
-                                                                                onClick={() => {
-                                                                                    setTotalFarmReward(
-                                                                                        formatBalance(
-                                                                                            rewardBalance ?? '',
-                                                                                            token?.decimals,
-                                                                                            6,
-                                                                                        ),
-                                                                                    )
-                                                                                }}
-                                                                            />
-                                                                        </Grid>
-                                                                    </Grid>
-                                                                </Grid>
-                                                            </>
-                                                        ) : null}
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Box>
+
+                                <Grid item xs={12}>
+                                    <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                                        <ActionButton
+                                            fullWidth
+                                            variant="contained"
+                                            size="large"
+                                            disabled={createFarmBtnDisabled}
+                                            onClick={() => {
+                                                clickCreateFarm()
+                                            }}>
+                                            {t('plugin_referral_create_referral_farm')}
+                                        </ActionButton>
+                                    </EthereumChainBoundary>
                                 </Grid>
                             </Grid>
-
-                            <br />
-                            <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                                <ActionButton
-                                    fullWidth
-                                    variant="contained"
-                                    size="large"
-                                    disabled={createFarmBtnDisabled}
-                                    onClick={() => {
-                                        clickCreateFarm()
-                                    }}>
-                                    {t('plugin_referral_create_referral_farm')}
-                                </ActionButton>
-                            </EthereumChainBoundary>
                         </Typography>
                     </TabPanel>
                     <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                        <CreatedFarms />
+                        <CreatedFarms continue={props.continue} />
                     </TabPanel>
                 </TabContext>
             </Box>
