@@ -273,22 +273,28 @@ export enum SearchFarmTypes {
     attrFarm = 'attrFarmsTokens',
 }
 
-export type Proof = {
-    id: string
-    signer: EvmAddress
-    token: EvmAddress
-    referrer: EvmAddress
-    router: string
-    dapp: string
-    t: number
-    data: string
-    reqCtx: string
-    reqId: string
-}
-
 export type FarmsAPR = Map<
     string,
     {
         APR?: number | undefined
     }
 >
+
+export type RewardProof = {
+    sender: EvmAddress
+    effect: {
+        nonce: 1
+        proof: string[]
+    }
+    req: {
+        rewardTokenDefn: ChainAddress
+        rewards: {
+            farmHash: FarmHash
+            value: {
+                type: 'BigNumber'
+                hex: string
+            }
+        }[]
+    }
+    leafHash: string
+}

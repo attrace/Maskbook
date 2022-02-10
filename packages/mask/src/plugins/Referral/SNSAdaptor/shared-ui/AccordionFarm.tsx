@@ -50,7 +50,12 @@ export function AccordionFarm({
 }: AccordionFarmProps) {
     const { classes } = useStyles()
 
-    const aprFormatted = apr || apr === 0 ? <>{apr === 0 ? <span>&#8734;</span> : `${apr * 100}%`}</> : '-'
+    const aprFormatted =
+        apr || apr === 0 ? (
+            <>{apr === 0 ? <span>&#8734;</span> : `${Number.parseFloat((apr * 100).toFixed(5))}%`}</>
+        ) : (
+            '-'
+        )
 
     return (
         <Accordion className={classes.accordion}>
@@ -69,7 +74,7 @@ export function AccordionFarm({
                     <Typography className={classes.total}>{aprFormatted}</Typography>
                 </Grid>
                 <Grid item xs={4} display="flex" alignItems="center">
-                    <Typography className={classes.total}>{totalValue}</Typography>
+                    <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>
                     <Typography className={classes.total}>{rewardTokenSymbol || '-'}</Typography>
                 </Grid>
             </AccordionSummary>

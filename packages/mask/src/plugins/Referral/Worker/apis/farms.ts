@@ -9,6 +9,7 @@ import {
     Farm,
     FARM_TYPE,
     FarmDepositAndMetastate,
+    FarmHash,
 } from '../../types'
 import type Web3 from 'web3'
 import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
@@ -171,7 +172,7 @@ type FarmsMetaStateMap = Map<string, { dailyFarmReward: number }>
 export async function getFarmsMetaState(
     web3: Web3,
     chainId: ChainId,
-    farmHashes?: string[],
+    farmHashes?: FarmHash[],
 ): Promise<FarmsMetaStateMap | undefined> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
@@ -290,7 +291,7 @@ export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFi
 }
 
 interface TokenFilter {
-    rewardTokens?: [ChainAddress]
+    rewardTokens?: ChainAddress[]
     referredTokens?: ChainAddress[]
 }
 

@@ -16,7 +16,13 @@ export const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000
 
 export const PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN = padRight(asciiToHex('prorate'), 64).substring(0, 2 + 24 * 2)
 
-export const MASK_TOKEN_SYMBOL = 'MASK'
-export const ATTR_TOKEN_SYMBOL = 'ATTR'
-export const MASK_TOKEN_ADDR = '0xFD9Eb54f6aC885079e7bB3E207922Bb7256E3fcb'
-export const ATTR_TOKEN_ADDR = '0x926362b451a012f72b34240f36c3bdc163d462e0'
+export const ATTR_TOKEN = {
+    address: '0x926362b451a012f72b34240f36c3bdc163d462e0',
+    symbol: 'ATTR',
+    name: 'Attrace',
+}
+export const MASK_TOKEN = {
+    address: '0xFD9Eb54f6aC885079e7bB3E207922Bb7256E3fcb',
+    symbol: 'MASK',
+    name: 'Mask',
+}
