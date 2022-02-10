@@ -52,7 +52,7 @@ export function AccordionFarm({
 
     const aprFormatted =
         apr || apr === 0 ? (
-            <>{apr === 0 ? <span>&#8734;</span> : `${Number.parseFloat((apr * 100).toFixed(5))}%`}</>
+            <>{apr === 0 ? <span>&#8734;</span> : `${Number.parseFloat((apr * 100).toFixed(2))}%`}</>
         ) : (
             '-'
         )
