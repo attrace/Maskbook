@@ -67,6 +67,7 @@ export function SelectTokenToBuy() {
                         maskFarmsTokens: [],
                         attrFarmsTokens: [],
                     }}
+                    excludeProportionalFarms
                     FixedSizeListProps={{ height: 340, itemSize: 54 }}
                     onSelect={onSubmit}
                 />

@@ -15,6 +15,7 @@ import { useCurrentIdentity } from '../../../components/DataSource/useActivatedU
 import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
+import { getFarmsAPR } from '../Worker/apis/verifier'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import type { Coin } from '../../Trader/types'
 import { PluginTraderMessages } from '../../Trader/messages'
@@ -63,6 +64,8 @@ export function FarmPost(props: FarmPostProps) {
         async () => (chainId ? getAllFarms(web3, chainId) : []),
         [chainId],
     )
+    // fetch farms APR
+    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
 
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
@@ -198,7 +201,7 @@ export function FarmPost(props: FarmPostProps) {
                                             <RewardDataWidget
                                                 title={t('plugin_referral_sponsored_referral_farm')}
                                                 icon={Icons.SponsoredFarmIcon}
-                                                rewardData={getFarmsRewardData(sponsoredFarms)}
+                                                rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
                                                 tokenSymbol={payload.referral_token_symbol}
                                             />
                                         ) : null}
@@ -206,7 +209,7 @@ export function FarmPost(props: FarmPostProps) {
                                             <RewardDataWidget
                                                 title={t('plugin_referral_attrace_referral_farm')}
                                                 icon={Icons.AttrIcon}
-                                                rewardData={getFarmsRewardData(attrFarms)}
+                                                rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
                                                 tokenSymbol={ATTR_TOKEN_SYMBOL}
                                             />
                                         ) : null}
@@ -214,7 +217,7 @@ export function FarmPost(props: FarmPostProps) {
                                             <RewardDataWidget
                                                 title={t('plugin_referral_mask_referral_farm')}
                                                 icon={Icons.MaskIcon}
-                                                rewardData={getFarmsRewardData(maskFarms)}
+                                                rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
                                                 tokenSymbol={MASK_TOKEN_SYMBOL}
                                             />
                                         ) : null}

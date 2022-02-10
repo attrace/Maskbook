@@ -8,7 +8,7 @@ import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import { Icons, TokensGroupedByType } from '../../types'
+import { Icons, TokensGroupedByType, ChainAddress } from '../../types'
 import { toChainAddress, getTokenTypeIcons } from '../helpers'
 import { SvgIcons } from '../Icons'
 
@@ -84,7 +84,7 @@ export const getERC20TokenListItem =
         selectedTokens: string[],
         loadingAsset: boolean,
         tokensGroupedByType: TokensGroupedByType,
-        account?: string,
+        referredTokensAPR?: Map<ChainAddress, { APR?: number }>,
     ) =>
     ({ data, onSelect }: MaskSearchableListItemProps<Asset>) => {
         const { classes } = useStyles()
@@ -104,13 +104,15 @@ export const getERC20TokenListItem =
         const tokenChainAddr = toChainAddress(chainId, address)
         const tokenTypeIcons = getTokenTypeIcons(tokenChainAddr, tokensGroupedByType)
         const noFarmForToken = tokenTypeIcons.length === 0
+        const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
+        const referredTokenAPR = referredTokenAPRValue ? `${referredTokenAPRValue * 100}%` : <span>&#8734;</span>
+
         const action = useMemo(() => {
-            // TODO: add APR
             return !isNotAdded || isAdded || (info.inList && info.from === 'search') ? (
                 noFarmForToken ? (
                     '-'
                 ) : (
-                    <span>{loadingAsset ? <LoadingAnimation /> : '-'}</span>
+                    <span>{loadingAsset ? <LoadingAnimation /> : referredTokenAPR}</span>
                 )
             ) : null
         }, [info, isNotAdded, isAdded, data.balance])

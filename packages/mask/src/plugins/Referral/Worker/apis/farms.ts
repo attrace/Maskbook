@@ -8,12 +8,12 @@ import {
     ChainId,
     Farm,
     FARM_TYPE,
-    FarmMetastate,
     FarmDepositAndMetastate,
 } from '../../types'
 import type Web3 from 'web3'
 import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
 import { defaultAbiCoder, Interface } from '@ethersproject/abi'
+import { orderBy } from 'lodash-unified'
 
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
@@ -29,7 +29,8 @@ const eventIds: any = {}
 Object.entries(iface.events).forEach(([k, v]) => (eventIds[v.name] = keccak256(k)))
 
 function parseEvents(items: Array<any>): Array<any> {
-    const parsed = items.map((row) => {
+    const itemsSorted = orderBy(items, ['chainId', 'blockNumber', 'logIndex'], ['asc', 'asc', 'asc'])
+    const parsed = itemsSorted.map((row) => {
         return iface.parseLog({
             data: row.data,
             topics: JSON.parse(row.topics),
@@ -100,23 +101,27 @@ function parseFarmDepositAndMetaStateChangeEvents(unparsed: any) {
     })
     return farms
 }
+
 function parseFarmMetaStateChangeEvents(unparsed: any) {
     const parsed = parseEvents(unparsed)
 
-    const farms: Array<FarmMetastate> = parsed.map((e) => {
-        // const { dailyFarmReward, farmHash } = e.args
+    const farmMetastateMap = new Map<string, { dailyFarmReward: number }>()
+
+    parsed.forEach((e) => {
         const { farmHash, key, value } = e.args
 
         const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
+
         let dailyFarmReward = 0
         if (key === dailyRewardRateKey) {
             const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
-            dailyFarmReward = Number(dailyRewardRate)
+            dailyFarmReward = Number(fromWei(dailyRewardRate.toString()))
         }
-        return { farmHash, dailyFarmReward }
+        // set the last value(newest) of dailyFarmReward
+        farmMetastateMap.set(farmHash, { dailyFarmReward })
     })
 
-    return farms
+    return farmMetastateMap
 }
 export async function getMyFarms(
     web3: Web3,
@@ -161,12 +166,25 @@ export async function getFarmsDeposits(web3: Web3, chainId: ChainId): Promise<Ar
 
     return parseFarmDepositChangeEvents(res.items)
 }
-export async function getFarmsMetaState(web3: Web3, chainId: ChainId): Promise<Array<FarmMetastate>> {
+
+type FarmsMetaStateMap = Map<string, { dailyFarmReward: number }>
+export async function getFarmsMetaState(
+    web3: Web3,
+    chainId: ChainId,
+    farmHashes?: string[],
+): Promise<FarmsMetaStateMap | undefined> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
+
+    // Allow filter by farmHash
+    let topic2
+    if (farmHashes?.length) {
+        topic2 = farmHashes.map((farmHash) => farmHash)
+    }
 
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
-        topics: [eventIds.FarmMetastate],
+        topic1: [eventIds.FarmMetastate],
+        topic2,
         chainId: [chainId],
     })
 

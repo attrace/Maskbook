@@ -12,6 +12,7 @@ import { useRemoteControlledDialog } from '@masknet/shared'
 import { MASK_REFERRER } from '../constants'
 import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { getAllFarms } from '../Worker/apis/farms'
+import { getFarmsAPR } from '../Worker/apis/verifier'
 
 import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface, Icons } from '../types'
 
@@ -77,6 +78,9 @@ export function BuyToFarm(props: PageInterface) {
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
     const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
+
+    // fetch farms APR
+    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
 
     const [token, setToken] = useState<FungibleTokenDetailed>()
 
@@ -144,7 +148,7 @@ export function BuyToFarm(props: PageInterface) {
     const referredTokenFarms = token
         ? pairTokenFarms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
         : []
-    const rewardData = getFarmsRewardData(referredTokenFarms)
+    const rewardData = getFarmsRewardData(referredTokenFarms, farmsAPR)
 
     return (
         <Box className={classes.container}>
