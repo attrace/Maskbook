@@ -43,7 +43,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
                                 {rewardData.apr === 0 ? (
                                     <span>&#8734;</span>
                                 ) : (
-                                    `${Number.parseFloat((rewardData.apr * 100).toFixed(2))}%`
+                                    `${Number.parseFloat(rewardData.apr.toFixed(2))}%`
                                 )}
                             </>
                         ) : (
