@@ -16,13 +16,13 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import { ATTR_TOKEN_SYMBOL, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
+import { ATTR_TOKEN, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-import { MyFarmsRefer } from './MyFarmsRefer'
+import { MyFarms } from './MyFarms'
 import { IconURLS } from './IconURL'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
@@ -231,7 +231,7 @@ export function ReferToFarm(props: PageInterface) {
                                             title={t('plugin_referral_attrace_referral_farm')}
                                             icon={IconURLS.attrLogo}
                                             rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
-                                            tokenSymbol={ATTR_TOKEN_SYMBOL}
+                                            tokenSymbol={ATTR_TOKEN.symbol}
                                         />
                                     ) : null}
                                     {maskFarms?.length ? (
@@ -239,7 +239,7 @@ export function ReferToFarm(props: PageInterface) {
                                             title={t('plugin_referral_mask_referral_farm')}
                                             icon={IconURLS.maskLogo}
                                             rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
-                                            tokenSymbol={MASK_TOKEN_SYMBOL}
+                                            tokenSymbol={MASK_TOKEN.symbol}
                                         />
                                     ) : null}
                                 </Grid>
@@ -277,7 +277,7 @@ export function ReferToFarm(props: PageInterface) {
                             </EthereumChainBoundary>
                         </TabPanel>
                         <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                            <MyFarmsRefer />
+                            <MyFarms />
                         </TabPanel>
                     </TabContext>
                 </Box>

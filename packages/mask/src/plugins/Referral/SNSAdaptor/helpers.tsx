@@ -1,10 +1,5 @@
 import { createRenderWithMetadata, createTypedMessageMetadataReader } from '@masknet/shared-base'
-import {
-    PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN,
-    REFERRAL_META_KEY,
-    MASK_TOKEN_ADDR,
-    ATTR_TOKEN_ADDR,
-} from '../constants'
+import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN, REFERRAL_META_KEY, MASK_TOKEN, ATTR_TOKEN } from '../constants'
 import type { ReferralMetaData, ChainAddress, TokensGroupedByType, RewardData, Farm, FarmsAPR } from '../types'
 import { FARM_TYPE } from '../types'
 import schema from '../schema.json'
@@ -64,11 +59,11 @@ export function getFarmTypeIconByReferredToken(
         return IconURLS.sponsoredFarmLogo
     }
 
-    if (rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR)) {
+    if (rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN.address)) {
         return IconURLS.attrLogo
     }
 
-    if (rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR)) {
+    if (rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN.address)) {
         return IconURLS.maskLogo
     }
     return IconURLS.underReviewLogo
@@ -115,10 +110,10 @@ export function groupReferredTokenFarmsByType(chainId?: number, referredToken?: 
             farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.includes(toChainAddress(chainId, referredToken)),
     )
     const attrFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN.address),
     )
     const maskFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN.address),
     )
 
     return {
@@ -139,10 +134,10 @@ export function groupFarmsByType(farms: Farm[], chainId: number) {
     const sponsoredFarms = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
     const propotionalFarms = farms.filter((farm) => farm.farmType === FARM_TYPE.PROPORTIONAL)
     const attrFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR),
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN.address),
     )
     const maskFarms = propotionalFarms.filter(
-        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR),
+        (farm) => farm.rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN.address),
     )
 
     return {

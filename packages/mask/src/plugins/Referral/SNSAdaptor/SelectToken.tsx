@@ -12,7 +12,7 @@ import { ERC20TokenList } from './shared-ui/ERC20TokenList'
 import { getAllFarms } from '../Worker/apis/farms'
 import { ChainAddress, Farm, FARM_TYPE, parseChainAddress } from '../types'
 
-import { MASK_TOKEN_ADDR, ATTR_TOKEN_ADDR, NATIVE_TOKEN } from '../constants'
+import { MASK_TOKEN, ATTR_TOKEN, NATIVE_TOKEN } from '../constants'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {},
@@ -28,10 +28,10 @@ function groupFarmTokensByType(farms: Farm[]) {
         }
         if (farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.length) {
             const rewardTokenAddr = parseChainAddress(farm.rewardTokenDefn).address
-            if (rewardTokenAddr === MASK_TOKEN_ADDR.toLowerCase()) {
+            if (rewardTokenAddr === MASK_TOKEN.address.toLowerCase()) {
                 maskFarmsTokens.push(...farm.tokens)
             }
-            if (rewardTokenAddr === ATTR_TOKEN_ADDR.toLowerCase()) {
+            if (rewardTokenAddr === ATTR_TOKEN.address.toLowerCase()) {
                 attrFarmsTokens.push(...farm.tokens)
             }
         }
