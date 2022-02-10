@@ -8,6 +8,7 @@ import { getFarmTypeIconByReferredToken } from '../helpers'
 
 import { Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
+import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -65,7 +66,7 @@ export function ReferredFarmTokenDetailed({
                     <TokenIcon {...token} />
                     <Typography className={classes.details} display="flex" flexDirection="column">
                         <div className={classes.nameFarm}>
-                            {token.symbol} {t('plugin_referral_referral_farm')} <img src={farmTypeIcon} />
+                            {token.symbol} {t('plugin_referral_referral_farm')} <SvgIcons icon={farmTypeIcon} />
                         </div>
                         <span className={classes.name}>{token.name}</span>
                     </Typography>

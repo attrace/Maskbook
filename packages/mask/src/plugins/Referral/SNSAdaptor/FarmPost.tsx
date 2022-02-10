@@ -3,7 +3,7 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import type { ReferralMetaData } from '../types'
+import { Icons, ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { ATTR_TOKEN_SYMBOL, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
@@ -16,7 +16,6 @@ import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
-import { IconURLS } from './IconURL'
 import type { Coin } from '../../Trader/types'
 import { PluginTraderMessages } from '../../Trader/messages'
 
@@ -86,6 +85,7 @@ export function FarmPost(props: FarmPostProps) {
                 referral_token_symbol: payload.referral_token_symbol,
                 referral_token_icon: payload.referral_token_icon,
                 referral_token_chain_id: chainId,
+                promoter_address: account,
                 sender: senderName,
             })
 
@@ -191,13 +191,13 @@ export function FarmPost(props: FarmPostProps) {
                                         {noFarmForSelectedToken ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_under_review')}
-                                                icon={IconURLS.underReviewLogo}
+                                                icon={Icons.UnderReviewIcon}
                                             />
                                         ) : null}
                                         {sponsoredFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_sponsored_referral_farm')}
-                                                icon={IconURLS.sponsoredFarmLogo}
+                                                icon={Icons.SponsoredFarmIcon}
                                                 rewardData={getFarmsRewardData(sponsoredFarms)}
                                                 tokenSymbol={payload.referral_token_symbol}
                                             />
@@ -205,7 +205,7 @@ export function FarmPost(props: FarmPostProps) {
                                         {attrFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_attrace_referral_farm')}
-                                                icon={IconURLS.attrLightLogo}
+                                                icon={Icons.AttrIcon}
                                                 rewardData={getFarmsRewardData(attrFarms)}
                                                 tokenSymbol={ATTR_TOKEN_SYMBOL}
                                             />
@@ -213,7 +213,7 @@ export function FarmPost(props: FarmPostProps) {
                                         {maskFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_mask_referral_farm')}
-                                                icon={IconURLS.maskLogo}
+                                                icon={Icons.MaskIcon}
                                                 rewardData={getFarmsRewardData(maskFarms)}
                                                 tokenSymbol={MASK_TOKEN_SYMBOL}
                                             />

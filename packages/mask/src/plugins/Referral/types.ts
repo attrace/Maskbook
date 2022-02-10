@@ -53,6 +53,17 @@ export interface ReferralMetaData {
     promoter_address?: string
     sender: string
 }
+export enum Icons {
+    ReferralIcon = 0,
+    AttrIcon = 1,
+    SponsoredFarmIcon = 2,
+    UnderReviewIcon = 3,
+    MaskIcon = 4,
+    ReferToFarm = 5,
+    CreateFarm = 6,
+    BuyToFarm = 7,
+    RewardIcon = 8,
+}
 export interface RewardData {
     apr: number
     dailyReward: number

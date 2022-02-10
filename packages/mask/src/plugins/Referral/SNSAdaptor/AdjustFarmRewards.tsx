@@ -26,6 +26,7 @@ import { Transaction } from './shared-ui/Transaction'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { useCompositionContext } from '@masknet/plugin-infra'
+import { SvgIcons } from './Icons'
 const useStyles = makeStyles()((theme) => ({
     container: {
         display: 'flex',
@@ -365,7 +366,10 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                 <TokenIcon {...token} />
                                 <div className={classes.details}>
                                     <div className={classes.nameFarm}>
-                                        {token.symbol} {t('plugin_referral_referral_farm')} <img src={farmTypeIcon} />
+                                        {token.symbol} {t('plugin_referral_referral_farm')}{' '}
+                                        <Box paddingLeft={1}>
+                                            <SvgIcons icon={farmTypeIcon} />
+                                        </Box>
                                     </div>
                                     <span className={classes.name}>{token.name}</span>
                                 </div>

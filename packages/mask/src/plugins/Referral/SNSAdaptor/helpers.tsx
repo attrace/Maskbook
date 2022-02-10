@@ -15,14 +15,12 @@ import type {
     FarmMetastate,
     FarmDepositAndMetastate,
 } from '../types'
-import { FARM_TYPE } from '../types'
+import { FARM_TYPE, Icons } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { fromWei, keccak256 } from 'web3-utils'
 import { padStart } from 'lodash-unified'
 import type { ChainId } from '@masknet/web3-shared-evm'
-
-import { IconURLS } from './IconURL'
 
 export const ReferralMetadataReader = createTypedMessageMetadataReader<ReferralMetaData>(REFERRAL_META_KEY, schema)
 export const renderWithReferralMetadata = createRenderWithMetadata(ReferralMetadataReader)
@@ -53,13 +51,13 @@ export function toNativeRewardTokenDefn(chainId: ChainId): string {
 export function getTokenTypeIcons(tokenChainAddr: ChainAddress, tokensGroupedByType: TokensGroupedByType) {
     const icons = []
     if (tokensGroupedByType.sponsoredFarmTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.sponsoredFarmLogo)
+        icons.push(Icons.SponsoredFarmIcon)
     }
     if (tokensGroupedByType.attrFarmsTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.attrLogo)
+        icons.push(Icons.AttrIcon)
     }
     if (tokensGroupedByType.maskFarmsTokens.includes(tokenChainAddr)) {
-        icons.push(IconURLS.maskLogo)
+        icons.push(Icons.MaskIcon)
     }
     return icons
 }
@@ -70,17 +68,17 @@ export function getFarmTypeIconByReferredToken(
     chainId: ChainId,
 ) {
     if (referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN) {
-        return IconURLS.sponsoredFarmLogo
+        return Icons.SponsoredFarmIcon
     }
 
     if (rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN_ADDR)) {
-        return IconURLS.attrLogo
+        return Icons.AttrIcon
     }
 
     if (rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN_ADDR)) {
-        return IconURLS.maskLogo
+        return Icons.MaskIcon
     }
-    return IconURLS.underReviewLogo
+    return Icons.UnderReviewIcon
 }
 export function groupMetaStateForFarms(farmsMetaState: FarmMetastate[], myFarms?: FarmExistsEvent[]) {
     const farms: FarmExistsEvent[] = []
