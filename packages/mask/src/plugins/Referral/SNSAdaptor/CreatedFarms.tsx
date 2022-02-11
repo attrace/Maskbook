@@ -142,10 +142,13 @@ export function CreatedFarms(props: PageInterface) {
                 ? nativeToken
                 : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
         props.continue(PagesType.CREATE_FARM, PagesType.ADJUST_REWARDS, t('plugin_referral_adjust_rewards'), {
-            farm: farm,
-            token: rewardToken,
+            adjustFarmDialog: {
+                farm: farm,
+                token: rewardToken,
+            },
         })
     }
+
     return (
         <div className={classes.container}>
             <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>

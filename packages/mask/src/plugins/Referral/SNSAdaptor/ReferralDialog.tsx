@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { Box, Typography, DialogContent } from '@mui/material'
-import { AdjustFarmRewardsInterface, PageHistory, PagesType } from '../types'
+import { PageHistory, PagesType, DialogInterface } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
@@ -14,54 +14,70 @@ import { SelectToken } from './SelectToken'
 import { BuyToFarm } from './BuyToFarm'
 import { IconURLS } from './IconURL'
 import { AdjustFarmRewards } from './AdjustFarmRewards'
+import { Transaction } from './Transaction'
 
 interface ReferralDialogProps {
     open: boolean
     onClose?: () => void
     onSwapDialogOpen?: () => void
 }
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    walletStatusBox: {
-        width: 535,
-        margin: '24px auto',
-    },
-    bold: {},
-    normal: {},
-    content: {
-        padding: theme.spacing(0, 3, 0),
-    },
-    title: {
-        width: '378px',
-    },
-    attrText: {
-        fontSize: '12px',
-        color: theme.palette.text.secondary,
-        '& img': {
-            marginLeft: '5px',
+const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
+    (theme, { isDashboard, hideBackBtn = false }) => ({
+        walletStatusBox: {
+            width: 535,
+            margin: '24px auto',
         },
-    },
-}))
+        bold: {},
+        normal: {},
+        content: {
+            padding: theme.spacing(0, 3, 0),
+        },
+        title: {
+            width: '100%',
+        },
+        attrText: {
+            fontSize: '12px',
+            color: theme.palette.text.secondary,
+            '& img': {
+                marginLeft: '5px',
+            },
+        },
+        dialogTitleTypography: {
+            flex: '1',
+        },
+        dialogTitle: {
+            minHeight: '53px',
+        },
+        dialogPaper: {
+            maxWidth: '600px!important',
+        },
+        dialogCloseButton: {
+            display: hideBackBtn ? 'none' : 'inline-flex',
+        },
+    }),
+)
 
 export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDialogProps) {
+    const [propsData, setPropsData] = useState<DialogInterface>()
+
     const { t } = useI18N()
     const currentChainId = useChainId()
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles({ isDashboard, hideBackBtn: propsData?.hideBackBtn })
     const [currentPage, setCurrentPage] = useState<PageHistory>({
         page: PagesType.LANDING,
         title: t('plugin_referral'),
     })
     const [previousPages, setPreviousPages] = useState<PageHistory[]>([])
     const [currentTitle, setCurrentTitle] = useState(t('plugin_referral'))
-    const [propsData, setPropsData] = useState<AdjustFarmRewardsInterface>()
 
     // let previousPages: PagesType[] = []
     const nextPage = (
         currentPage: PagesType,
         nextPage: PagesType,
         title: string = t('plugin_referral'),
-        props?: AdjustFarmRewardsInterface,
+        props?: DialogInterface,
     ) => {
         setPreviousPages([...previousPages, { page: currentPage, title: currentTitle }])
         setCurrentPage({ page: nextPage, title: title })
@@ -82,13 +98,16 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             case PagesType.BUY_TO_FARM:
                 return <BuyToFarm continue={nextPage} onClose={onClose} />
             case PagesType.ADJUST_REWARDS:
-                return <AdjustFarmRewards onClose={onClose} {...propsData} />
+                return <AdjustFarmRewards onClose={onClose} {...propsData?.adjustFarmDialog} />
             case PagesType.SELECT_TOKEN:
                 return <SelectToken />
+            case PagesType.TRANSACTION:
+                return <Transaction onClose={onClose} {...propsData?.transactionDialog} />
             default:
                 return <Landing continue={nextPage} />
         }
     }
+
     return (
         <InjectedDialog
             open={open}
@@ -107,15 +126,25 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 }
             }}
             title={
-                <Box display="flex" justifyContent="space-between">
-                    <div className={classes.title}>{currentTitle}</div>
-                    <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
-                        {t('plugin_powered_by')}
-                        <img src={IconURLS.attrTextLogo} />
-                    </Typography>
-                </Box>
+                propsData?.hideAttrLogo ? (
+                    currentTitle
+                ) : (
+                    <Box display="flex" justifyContent="space-between" className={classes.title}>
+                        <div>{currentTitle}</div>
+                        <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
+                            {t('plugin_powered_by')}
+                            <img src={IconURLS.attrTextLogo} />
+                        </Typography>
+                    </Box>
+                )
             }
-            disableBackdropClick>
+            disableBackdropClick
+            classes={{
+                paper: classes.dialogPaper,
+                dialogCloseButton: classes.dialogCloseButton,
+                dialogTitle: classes.dialogTitle,
+                dialogTitleTypography: classes.dialogTitleTypography,
+            }}>
             <DialogContent className={classes.content}>{renderViews()}</DialogContent>
         </InjectedDialog>
     )

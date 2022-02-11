@@ -1066,5 +1066,8 @@
     "plugin_referral_adjust_daily_reward": "Adjust Daily Farm Reward",
     "plugin_referral_adjust_daily_reward_desc": "Confirm to adjust daily farm reward to {{reward}} {{symbol}} ",
     "plugin_referral_adjust_daily_and_total_reward": "Adjust Daily and Total Farm Rewards",
-    "plugin_referral_adjust_daily_and_total_reward_desc": "Confirm deposit of {{totalReward}} {{symbol}} to top up referral farm and adjust daily farm reward to {{dailyReward}} {{symbol}}"
+    "plugin_referral_adjust_daily_and_total_reward_desc": "Confirm deposit of {{totalReward}} {{symbol}} to top up referral farm and adjust daily farm reward to {{dailyReward}} {{symbol}}",
+    "plugin_referral_transaction": "Transaction",
+    "plugin_referral_confirm_transaction": "Confirm transaction",
+    "plugin_referral_confirm_transaction_harvesting": "Harvesting your rewards of  {{reward}} {{symbol}}"
 }

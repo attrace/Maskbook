@@ -14,7 +14,7 @@ import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
 
-import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface } from '../types'
+import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface, PagesType } from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -216,7 +216,7 @@ export function BuyToFarm(props: PageInterface) {
                     </EthereumChainBoundary>
                 </TabPanel>
                 <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                    <MyFarms />
+                    <MyFarms pageType={PagesType.REFER_TO_FARM} {...props} />
                 </TabPanel>
             </TabContext>
         </Box>
