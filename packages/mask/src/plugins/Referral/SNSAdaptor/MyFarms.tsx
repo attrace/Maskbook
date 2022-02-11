@@ -14,7 +14,7 @@ import {
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
-import { getAllFarms } from '../Worker/apis/farms'
+import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountRewardsProofs, getFarmsAPR } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
@@ -30,12 +30,14 @@ import {
     PagesType,
     TransactionStatus,
     parseChainAddress,
+    RewardsHarvestedEvent,
 } from '../types'
 
 import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { fromWei } from 'web3-utils'
 import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
+import { TokenDetailed } from './shared-ui/TokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -98,11 +100,20 @@ const useStyles = makeStyles()((theme) => ({
 interface FarmsListProps extends PageInterface {
     pageType: PagesType
     rewardsProofs: RewardProof[]
+    rewardsHarvested: RewardsHarvestedEvent[]
     allTokens: ERC20TokenDetailed[]
     farms: Farm[]
     farmsAPR?: FarmsAPR
 }
-function FarmsList({ rewardsProofs, allTokens, farms, farmsAPR, pageType, ...props }: FarmsListProps) {
+function FarmsList({
+    rewardsProofs,
+    allTokens,
+    farms,
+    farmsAPR,
+    pageType,
+    rewardsHarvested,
+    ...props
+}: FarmsListProps) {
     const { t } = useI18N()
     const chainId = useChainId()
     const account = useAccount()
@@ -111,6 +122,9 @@ function FarmsList({ rewardsProofs, allTokens, farms, farmsAPR, pageType, ...pro
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
     const farmsMap = new Map(farms.map((farm) => [farm.farmHash, farm]))
+    const rewardsHarvestedMap = new Map(
+        rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
+    )
 
     const rewardTokenDefnATTR = toChainAddress(chainId, ATTR_TOKEN.address)
     const rewardTokenDefnMASK = toChainAddress(chainId, MASK_TOKEN.address)
@@ -179,6 +193,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, farmsAPR, pageType, ...pro
                 let totalRewards = 0
                 let totalAPR = 0
                 let farm: Farm | undefined
+                const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
 
                 proof.req.rewards.forEach((reward) => {
                     const farmDetails = farmsMap.get(reward.farmHash)
@@ -214,21 +229,39 @@ function FarmsList({ rewardsProofs, allTokens, farms, farmsAPR, pageType, ...pro
                             apr={totalAPR}
                             rewardTokenSymbol={rewardToken.symbol}
                             accordionDetails={
-                                <Box display="flex" justifyContent="flex-end">
-                                    <Button
-                                        // disabled
-                                        variant="contained"
-                                        size="medium"
-                                        onClick={() =>
-                                            onHarvestRewardsClickButton(
-                                                proof.effect,
-                                                proof.req,
-                                                totalRewards,
-                                                rewardToken.symbol,
-                                            )
-                                        }>
-                                        {t('plugin_referral_harvest_rewards')}
-                                    </Button>
+                                <Box display="flex" flexDirection="column">
+                                    <Box>
+                                        {farm.tokens?.map((token) => (
+                                            <Box marginBottom="8px" key={uuid()}>
+                                                <TokenDetailed
+                                                    token={allTokensMap.get(parseChainAddress(token).address)}
+                                                />
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                    <Box display="flex" justifyContent="flex-end">
+                                        {claimed ? (
+                                            <Typography display="flex" alignItems="center" marginRight="8px">
+                                                <span style={{ fontWeight: 600, marginRight: '4px' }}>Claimed: </span>{' '}
+                                                {claimed} {rewardToken.symbol}
+                                            </Typography>
+                                        ) : (
+                                            <Button
+                                                disabled={!!claimed}
+                                                variant="contained"
+                                                size="medium"
+                                                onClick={() =>
+                                                    onHarvestRewardsClickButton(
+                                                        proof.effect,
+                                                        proof.req,
+                                                        totalRewards,
+                                                        rewardToken.symbol,
+                                                    )
+                                                }>
+                                                {t('plugin_referral_harvest_rewards')}
+                                            </Button>
+                                        )}
+                                    </Box>
                                 </Box>
                             }
                         />
@@ -250,20 +283,27 @@ function FarmsList({ rewardsProofs, allTokens, farms, farmsAPR, pageType, ...pro
                         apr={totalAPR}
                         accordionDetails={
                             <Box display="flex" justifyContent="flex-end">
-                                <Button
-                                    // disabled
-                                    variant="contained"
-                                    size="medium"
-                                    onClick={() =>
-                                        onHarvestRewardsClickButton(
-                                            proof.effect,
-                                            proof.req,
-                                            totalRewards,
-                                            rewardToken?.symbol,
-                                        )
-                                    }>
-                                    {t('plugin_referral_harvest_rewards')}
-                                </Button>
+                                {claimed ? (
+                                    <Typography display="flex" alignItems="center" marginRight="8px">
+                                        <span style={{ fontWeight: 600, marginRight: '4px' }}>Claimed: </span> {claimed}{' '}
+                                        {rewardToken?.symbol}
+                                    </Typography>
+                                ) : (
+                                    <Button
+                                        disabled={!!claimed}
+                                        variant="contained"
+                                        size="medium"
+                                        onClick={() =>
+                                            onHarvestRewardsClickButton(
+                                                proof.effect,
+                                                proof.req,
+                                                totalRewards,
+                                                rewardToken?.symbol,
+                                            )
+                                        }>
+                                        {t('plugin_referral_harvest_rewards')}
+                                    </Button>
+                                )}
                             </Box>
                         }
                     />
@@ -285,15 +325,13 @@ export function MyFarms(props: PageInterface) {
         async () => (account ? getAccountRewardsProofs(account) : []),
         [account],
     )
-    const rewardTokensDefn = rewardsProofs.map((proof) => proof.req.rewardTokenDefn)
-    const uniqRewardTokensDefn = [...new Set(rewardTokensDefn)]
+    const { value: rewardsHarvested = [], loading: loadingRewardsHarvested } = useAsync(
+        async () => (account ? getMyRewardsHarvested(web3, account, chainId) : []),
+        [account, chainId],
+    )
 
     // fetch farm for referred tokens
-    const { value: farms = [], loading: loadingFarms } = useAsync(
-        async () =>
-            uniqRewardTokensDefn?.length ? getAllFarms(web3, chainId, { rewardTokens: uniqRewardTokensDefn }) : [],
-        [uniqRewardTokensDefn?.join()],
-    )
+    const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
     // fetch farms APR
     const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
     // fetch tokens data
@@ -322,7 +360,7 @@ export function MyFarms(props: PageInterface) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingProofs || loadingAllTokens || loadingFarms || loadingFarmsAPR ? (
+                {loadingProofs || loadingAllTokens || loadingFarms || loadingFarmsAPR || loadingRewardsHarvested ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
@@ -334,6 +372,7 @@ export function MyFarms(props: PageInterface) {
                             <FarmsList
                                 pageType={props.pageType || PagesType.REFERRAL_FARMS}
                                 rewardsProofs={rewardsProofs}
+                                rewardsHarvested={rewardsHarvested}
                                 allTokens={allTokens}
                                 farms={farms}
                                 farmsAPR={farmsAPR}
