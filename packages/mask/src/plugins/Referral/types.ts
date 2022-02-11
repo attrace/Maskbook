@@ -63,6 +63,7 @@ export enum Icons {
     CreateFarm = 6,
     BuyToFarm = 7,
     RewardIcon = 8,
+    AttrTextIcon = 9,
 }
 export interface RewardData {
     apr: number

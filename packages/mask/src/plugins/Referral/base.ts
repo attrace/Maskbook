@@ -1,5 +1,4 @@
-import { NetworkPluginID, Plugin } from '@masknet/plugin-infra'
-import { ChainId } from '@masknet/web3-shared-evm'
+import type { Plugin } from '@masknet/plugin-infra'
 import { REFERRAL_META_KEY, REFERRAL_PLUGIN_ID } from './constants'
 
 export const base: Plugin.Shared.Definition = {
@@ -14,11 +13,6 @@ export const base: Plugin.Shared.Definition = {
         architecture: { app: true, web: true },
         networks: { type: 'opt-out', networks: {} },
         target: 'stable',
-        web3: {
-            [NetworkPluginID.PLUGIN_EVM]: {
-                supportedChainIds: [ChainId.Rinkeby],
-            },
-        },
     },
 
     contribution: { metadataKeys: new Set([REFERRAL_META_KEY]) },

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { Box, Typography, DialogContent } from '@mui/material'
-import { AdjustFarmRewardsInterface, PageHistory, PagesType } from '../types'
+import { AdjustFarmRewardsInterface, Icons, PageHistory, PagesType } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
@@ -12,8 +12,8 @@ import { CreateFarm } from './CreateFarm'
 import { ReferToFarm } from './ReferToFarm'
 import { SelectToken } from './SelectToken'
 import { BuyToFarm } from './BuyToFarm'
-import { IconURLS } from './IconURL'
 import { AdjustFarmRewards } from './AdjustFarmRewards'
+import { SvgIcons } from './Icons'
 
 interface ReferralDialogProps {
     open: boolean
@@ -33,12 +33,12 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     title: {
         width: '378px',
     },
+    icon: {
+        marginLeft: '5px',
+    },
     attrText: {
         fontSize: '12px',
         color: theme.palette.text.secondary,
-        '& img': {
-            marginLeft: '5px',
-        },
     },
 }))
 
@@ -111,7 +111,9 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                     <div className={classes.title}>{currentTitle}</div>
                     <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
                         {t('plugin_powered_by')}
-                        <img src={IconURLS.attrTextLogo} />
+                        <Box className={classes.icon}>
+                            <SvgIcons icon={Icons.AttrTextIcon} />
+                        </Box>
                     </Typography>
                 </Box>
             }

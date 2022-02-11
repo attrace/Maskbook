@@ -129,7 +129,7 @@ export function ReferToFarm(props: PageInterface) {
         {
             title: t('plugin_referral_sponsored_referral_farm'),
             desc: t('plugin_referral_sponsored_referral_farm_desc'),
-            icon: <SvgIcons size={20} icon={Icons.SponsoredFarmIcon} />,
+            icon: <SvgIcons size={16} icon={Icons.SponsoredFarmIcon} />,
         },
         {
             title: t('plugin_referral_under_review'),

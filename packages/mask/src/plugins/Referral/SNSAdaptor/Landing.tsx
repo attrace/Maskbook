@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Typography, Button, Grid } from '@mui/material'
+import { Typography, Button, Grid, Box } from '@mui/material'
 import { Trans } from 'react-i18next'
 // import { ProtocolType } from '../types'
 import { useI18N } from '../../../utils'
@@ -39,14 +39,14 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     smallText: {
         fontSize: '15px',
     },
+    icon: {
+        width: '36px',
+        height: '36px',
+        marginRight: '12px',
+    },
     dataItem: {
         '& b': {
             fontWeight: 600,
-        },
-        '& img': {
-            width: '36px',
-            height: '36px',
-            marginRight: '12px',
         },
     },
 }))
@@ -113,7 +113,9 @@ export function Landing(props: PageInterface) {
                             alignContent="center"
                             justifyItems="flex-start"
                             className={classes.dataItem}>
-                            <SvgIcons icon={e.iconUrl} />
+                            <Box className={classes.icon}>
+                                <SvgIcons icon={e.iconUrl} />
+                            </Box>
                             <Typography>
                                 <b>{e.name}</b> {e.name && '-'} {e.desc}
                             </Typography>

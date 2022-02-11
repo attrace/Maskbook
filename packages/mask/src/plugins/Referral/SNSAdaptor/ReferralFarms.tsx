@@ -22,8 +22,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         width: 535,
         margin: '24px auto',
     },
-    bold: {},
-    normal: {},
     container: {
         flex: 1,
         height: '100%',
@@ -63,7 +61,6 @@ interface TypeProps {
 }
 export function Type({ name, onClick, iconUrl }: TypeProps) {
     const { classes } = useStylesType()
-
     return (
         <Grid item xs={4} key={name}>
             <Button
@@ -73,9 +70,7 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
                 }}
                 className={classes.root}>
                 <Grid>
-                    <Box className={classes.img}>
-                        <SvgIcons icon={iconUrl} size={40} />
-                    </Box>
+                    <SvgIcons icon={iconUrl} size={40} />
                     <div>{name}</div>
                 </Grid>
             </Button>
