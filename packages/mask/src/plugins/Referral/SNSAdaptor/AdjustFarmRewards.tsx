@@ -20,7 +20,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { Deposit } from './CreateFarm'
-import { ATTRACE_FEE_PERCENT, REFERRAL_META_KEY } from '../constants'
+import { ATTRACE_FEE_PERCENT } from '../constants'
 import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { Transaction } from './shared-ui/Transaction'
@@ -135,29 +135,13 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
         setAttraceFee(attraceFee)
     }, [])
 
-    const onInsertData = useCallback(() => {
-        if (!token?.address) {
-            return alert('REFERRED TOKEN DID NOT SELECT')
+    const onCloseTransactionDialog = useCallback(() => {
+        if (onClose) {
+            return onClose()
         }
-
-        const { address, name = '', symbol = '', logoURI = [''] } = token
-        const selectedReferralData = {
-            referral_token: address,
-            referral_token_name: name,
-            referral_token_symbol: symbol,
-            referral_token_icon: logoURI,
-            referral_token_chain_id: chainId,
-            sender: senderName ?? '',
-        }
-        if (selectedReferralData) {
-            attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
-        } else {
-            dropMetadata(REFERRAL_META_KEY)
-        }
-
-        closeWalletStatusDialog()
-        onClose?.()
-    }, [token, chainId])
+        setTransactionConfirmed(false)
+        setOnDepositPage(false)
+    }, [onClose])
 
     const adjustFarmReward = useCallback(
         async (deposit: boolean) => {
@@ -237,7 +221,10 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
         return (
             <Transaction
                 status={TransactionStatus.CONFIRMED}
-                actionButton={{ label: t('plugin_referral_publish_farm'), onClick: onInsertData }}
+                actionButton={{
+                    label: t('dismiss'),
+                    onClick: onCloseTransactionDialog,
+                }}
                 transactionHash={transactionHash ?? ''}
             />
         )

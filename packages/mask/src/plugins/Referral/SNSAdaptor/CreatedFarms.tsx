@@ -189,7 +189,7 @@ export function CreatedFarms(props: PageInterface) {
                                         accordionDetails={
                                             <Box display="flex" justifyContent="flex-end">
                                                 <Button
-                                                    // disabled
+                                                    disabled
                                                     variant="contained"
                                                     size="medium"
                                                     className={classes.buttonWithdraw}
@@ -197,7 +197,6 @@ export function CreatedFarms(props: PageInterface) {
                                                     {t('plugin_referral_request_to_withdraw')}
                                                 </Button>
                                                 <Button
-                                                    // disabled
                                                     variant="contained"
                                                     size="medium"
                                                     onClick={() => {
