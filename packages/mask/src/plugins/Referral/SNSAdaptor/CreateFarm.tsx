@@ -30,7 +30,7 @@ import { ATTRACE_FEE_PERCENT, NATIVE_TOKEN, REFERRAL_META_KEY } from '../constan
 import { useCompositionContext } from '@masknet/plugin-infra'
 
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/createReferralFarm'
+import { runCreateERC20PairFarm, runCreateNativeFarm } from '../Worker/apis/referralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import BigNumber from 'bignumber.js'
 import { useRequiredChainId } from './hooks/useRequiredChainId'

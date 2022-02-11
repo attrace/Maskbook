@@ -6,7 +6,7 @@ import { makeStyles } from '@masknet/theme'
 import { Icons, ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
-import { ATTR_TOKEN_SYMBOL, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
+import { ATTR_TOKEN, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
 
 import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
@@ -210,7 +210,7 @@ export function FarmPost(props: FarmPostProps) {
                                                 title={t('plugin_referral_attrace_referral_farm')}
                                                 icon={Icons.AttrIcon}
                                                 rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
-                                                tokenSymbol={ATTR_TOKEN_SYMBOL}
+                                                tokenSymbol={ATTR_TOKEN.symbol}
                                             />
                                         ) : null}
                                         {maskFarms?.length ? (
@@ -218,7 +218,7 @@ export function FarmPost(props: FarmPostProps) {
                                                 title={t('plugin_referral_mask_referral_farm')}
                                                 icon={Icons.MaskIcon}
                                                 rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
-                                                tokenSymbol={MASK_TOKEN_SYMBOL}
+                                                tokenSymbol={MASK_TOKEN.symbol}
                                             />
                                         ) : null}
                                     </Grid>

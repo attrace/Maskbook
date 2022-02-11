@@ -217,9 +217,20 @@ export interface AdjustFarmRewardsInterface {
     token?: FungibleTokenDetailed
     onClose?: () => void
 }
-export interface PageInterface {
+export interface TransactionDialogInterface {
     onClose?: () => void
-    continue: (currentPage: PagesType, nextPage: PagesType, title?: string, props?: AdjustFarmRewardsInterface) => void
+    transaction?: TransactionProps
+}
+export interface DialogInterface {
+    hideBackBtn?: boolean
+    hideAttrLogo?: boolean
+    adjustFarmDialog?: AdjustFarmRewardsInterface
+    transactionDialog?: TransactionDialogInterface
+}
+export interface PageInterface {
+    pageType?: PagesType
+    onClose?: () => void
+    continue: (currentPage: PagesType, nextPage: PagesType, title?: string, props?: DialogInterface) => void
 }
 // This assumes a link in style of https://app.attrace.com/l/011f9840a85d5af5bf1d1762f925bdaddc4201f9849a24fe8179a0aa7347f6f9b664f0e3f573212a6d?d=maskswapv1
 export function parseLinkUrlPath(fullUrlPath: string) {
@@ -286,22 +297,44 @@ export enum SearchFarmTypes {
     attrFarm = 'attrFarmsTokens',
 }
 
-export type Proof = {
-    id: string
-    signer: EvmAddress
-    token: EvmAddress
-    referrer: EvmAddress
-    router: string
-    dapp: string
-    t: number
-    data: string
-    reqCtx: string
-    reqId: string
-}
-
 export type FarmsAPR = Map<
     string,
     {
         APR?: number | undefined
     }
 >
+
+// effects
+export type VerifierEffect = { nonce: number; proof: string[] }
+export type FarmRewardStruct = {
+    farmHash: FarmHash
+    value: {
+        type: 'string'
+        hex: string
+    }
+}
+export type HarvestRequest = {
+    rewardTokenDefn: ChainAddress
+    rewards: FarmRewardStruct[]
+}
+export type RewardProof = {
+    sender: EvmAddress
+    effect: VerifierEffect
+    req: HarvestRequest
+    leafHash: string
+}
+
+type TransactionProps =
+    | {
+          status: TransactionStatus.CONFIRMATION
+          title: string
+          subtitle?: string
+      }
+    | {
+          status: TransactionStatus.CONFIRMED
+          actionButton: {
+              label: string
+              onClick: () => void
+          }
+          transactionHash: string
+      }

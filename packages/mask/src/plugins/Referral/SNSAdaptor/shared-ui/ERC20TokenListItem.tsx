@@ -105,7 +105,11 @@ export const getERC20TokenListItem =
         const tokenTypeIcons = getTokenTypeIcons(tokenChainAddr, tokensGroupedByType)
         const noFarmForToken = tokenTypeIcons.length === 0
         const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
-        const referredTokenAPR = referredTokenAPRValue ? `${referredTokenAPRValue * 100}%` : <span>&#8734;</span>
+        const referredTokenAPR = referredTokenAPRValue ? (
+            `${Number.parseFloat((referredTokenAPRValue * 100).toFixed(2))}%`
+        ) : (
+            <span>&#8734;</span>
+        )
 
         const action = useMemo(() => {
             return !isNotAdded || isAdded || (info.inList && info.from === 'search') ? (

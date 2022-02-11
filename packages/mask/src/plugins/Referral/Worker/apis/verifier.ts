@@ -1,4 +1,4 @@
-import type { ChainAddress, EvmAddress, FarmsAPR } from '../../types'
+import type { ChainAddress, EvmAddress, FarmsAPR, RewardProof } from '../../types'
 
 import { fromWei } from 'web3-utils'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
@@ -102,4 +102,13 @@ export async function getFarmsAPR({ sponsor }: { sponsor?: EvmAddress }): Promis
     })
 
     return farmsMap
+}
+
+// fetch user rewards
+export async function getAccountRewardsProofs(account: EvmAddress): Promise<RewardProof[] | undefined> {
+    const urlPath = `v1/proofs?sender=${account}`
+
+    const res = await getFromVerifier(urlPath)
+
+    return res?.proofs
 }

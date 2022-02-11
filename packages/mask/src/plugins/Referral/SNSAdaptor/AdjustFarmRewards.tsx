@@ -22,7 +22,7 @@ import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { Deposit } from './CreateFarm'
 import { ATTRACE_FEE_PERCENT, REFERRAL_META_KEY } from '../constants'
 import BigNumber from 'bignumber.js'
-import { adjustFarmRewards } from '../Worker/apis/createReferralFarm'
+import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { Transaction } from './shared-ui/Transaction'
 import { getFarmsMetaState } from '../Worker/apis/farms'
 

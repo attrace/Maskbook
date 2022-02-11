@@ -1,9 +1,10 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
+import type { TransactionReceipt } from 'web3-core'
 import { ChainId, createContract, TransactionEventType } from '@masknet/web3-shared-evm'
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helpers'
-import { Metastate, ReferralFarmsV1 } from '../../types'
+import { Metastate, ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
 import { getDaoAddress } from './discovery'
 import { erc20ABI, FARM_ABI } from './abis'
 import BigNumber from 'bignumber.js'
@@ -247,6 +248,49 @@ export async function runCreateNativeFarm(
     } catch (error) {
         onConfirm(false)
         onStart(false)
+        alert(error)
+    }
+}
+
+export async function harvestRewards(
+    onConfirm: (txHash: string) => void,
+    onStart: () => void,
+    onError: () => void,
+    web3: Web3,
+    account: string,
+    chainId: ChainId,
+    effect: VerifierEffect,
+    req: HarvestRequest,
+) {
+    try {
+        onStart()
+
+        const config = {
+            from: account,
+        }
+
+        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
+        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
+
+        const estimatedGas = await farms?.methods.harvestRewards([req], [effect], []).estimateGas(config)
+
+        const tx = await farms?.methods
+            .harvestRewards([req], [effect], [])
+            .send({
+                ...config,
+                gas: estimatedGas,
+            })
+            .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
+                onStart()
+            })
+            .on(TransactionEventType.CONFIRMATION, (no: number, receipt: TransactionReceipt) => {
+                onConfirm(receipt.transactionHash)
+            })
+            .on(TransactionEventType.ERROR, (error: Error) => {
+                onError()
+            })
+    } catch (error) {
+        onError()
         alert(error)
     }
 }

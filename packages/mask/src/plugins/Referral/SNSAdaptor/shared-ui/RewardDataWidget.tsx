@@ -40,7 +40,13 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
                     {t('plugin_referral_estimated_apr')}
                     <Typography fontWeight={600} marginTop="4px">
                         {rewardData?.apr || rewardData?.apr === 0 ? (
-                            <>{rewardData.apr === 0 ? <span>&#8734;</span> : `${rewardData.apr} %`}</>
+                            <>
+                                {rewardData.apr === 0 ? (
+                                    <span>&#8734;</span>
+                                ) : (
+                                    `${Number.parseFloat(rewardData.apr.toFixed(2))}%`
+                                )}
+                            </>
                         ) : (
                             '-'
                         )}

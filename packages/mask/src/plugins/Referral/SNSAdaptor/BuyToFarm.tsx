@@ -14,7 +14,16 @@ import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
 
-import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface, Icons } from '../types'
+import {
+    TabsCreateFarm,
+    TransactionStatus,
+    FARM_TYPE,
+    Farm,
+    ChainAddress,
+    PageInterface,
+    PagesType,
+    Icons,
+} from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -22,7 +31,7 @@ import ActionButton from '../../../extension/options-page/DashboardComponents/Ac
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
-import { MyFarmsBuyer } from './MyFarmsBuyer'
+import { MyFarms } from './MyFarms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 
 import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
@@ -216,7 +225,7 @@ export function BuyToFarm(props: PageInterface) {
                     </EthereumChainBoundary>
                 </TabPanel>
                 <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                    <MyFarmsBuyer />
+                    <MyFarms pageType={PagesType.REFER_TO_FARM} {...props} />
                 </TabPanel>
             </TabContext>
         </Box>

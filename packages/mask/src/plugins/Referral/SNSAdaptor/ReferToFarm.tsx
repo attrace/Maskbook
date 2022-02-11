@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, Icons } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -16,13 +16,13 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import { ATTR_TOKEN_SYMBOL, MASK_SWAP_V1, MASK_TOKEN_SYMBOL, REFERRAL_META_KEY } from '../constants'
+import { ATTR_TOKEN, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-import { MyFarmsRefer } from './MyFarmsRefer'
+import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
@@ -232,7 +232,7 @@ export function ReferToFarm(props: PageInterface) {
                                             title={t('plugin_referral_attrace_referral_farm')}
                                             icon={Icons.AttrIcon}
                                             rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
-                                            tokenSymbol={ATTR_TOKEN_SYMBOL}
+                                            tokenSymbol={ATTR_TOKEN.symbol}
                                         />
                                     ) : null}
                                     {maskFarms?.length ? (
@@ -240,7 +240,7 @@ export function ReferToFarm(props: PageInterface) {
                                             title={t('plugin_referral_mask_referral_farm')}
                                             icon={Icons.MaskIcon}
                                             rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
-                                            tokenSymbol={MASK_TOKEN_SYMBOL}
+                                            tokenSymbol={MASK_TOKEN.symbol}
                                         />
                                     ) : null}
                                 </Grid>
@@ -278,7 +278,7 @@ export function ReferToFarm(props: PageInterface) {
                             </EthereumChainBoundary>
                         </TabPanel>
                         <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                            <MyFarmsRefer />
+                            <MyFarms pageType={PagesType.REFER_TO_FARM} {...props} />
                         </TabPanel>
                     </TabContext>
                 </Box>

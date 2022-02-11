@@ -2,7 +2,7 @@ import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
 import { useI18N } from '../../../../utils'
 
-import type { ChainId, ERC20TokenDetailed, NativeTokenDetailed } from '@masknet/web3-shared-evm'
+import type { ChainId } from '@masknet/web3-shared-evm'
 
 import { getFarmTypeIconByReferredToken } from '../helpers'
 
@@ -41,11 +41,20 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
+export interface TokenProps {
+    address: string
+    symbol?: string
+    name?: string
+    logoURI?: string | string[]
+    chainId?: ChainId
+}
+
 export interface ReferredFarmTokenDetailedProps extends React.PropsWithChildren<{}> {
-    token?: ERC20TokenDetailed | NativeTokenDetailed
+    token?: TokenProps
     referredTokenDefn: string
     rewardTokenDefn: string
     chainId: ChainId
+    hideFarmTypeIcon?: boolean
 }
 
 export function ReferredFarmTokenDetailed({
@@ -53,6 +62,7 @@ export function ReferredFarmTokenDetailed({
     referredTokenDefn,
     rewardTokenDefn,
     chainId,
+    hideFarmTypeIcon = false,
 }: ReferredFarmTokenDetailedProps) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
@@ -67,9 +77,11 @@ export function ReferredFarmTokenDetailed({
                     <Typography className={classes.details} display="flex" flexDirection="column">
                         <div className={classes.nameFarm}>
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
-                            <Box className={classes.icon}>
-                                <SvgIcons icon={farmTypeIcon} />
-                            </Box>
+                            {!hideFarmTypeIcon && (
+                                <Box className={classes.icon}>
+                                    <SvgIcons icon={farmTypeIcon} />
+                                </Box>
+                            )}
                         </div>
                         <span className={classes.name}>{token.name}</span>
                     </Typography>
