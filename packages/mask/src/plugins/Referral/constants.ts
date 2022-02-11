@@ -1,4 +1,5 @@
 import { PluginId } from '@masknet/plugin-infra'
+import { ChainId } from '@masknet/web3-shared-evm'
 import { asciiToHex, padRight } from 'web3-utils'
 
 export const REFERRAL_PLUGIN_NAME = 'Referral'
@@ -26,3 +27,4 @@ export const MASK_TOKEN = {
     symbol: 'MASK',
     name: 'Mask',
 }
+export const supportedChainIds = [ChainId.Rinkeby]

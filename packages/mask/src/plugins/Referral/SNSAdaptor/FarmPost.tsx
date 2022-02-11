@@ -3,7 +3,7 @@ import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/m
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { makeStyles } from '@masknet/theme'
-import type { ReferralMetaData } from '../types'
+import { Icons, ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { ATTR_TOKEN, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
@@ -17,7 +17,6 @@ import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
-import { IconURLS } from './IconURL'
 import type { Coin } from '../../Trader/types'
 import { PluginTraderMessages } from '../../Trader/messages'
 
@@ -89,6 +88,7 @@ export function FarmPost(props: FarmPostProps) {
                 referral_token_symbol: payload.referral_token_symbol,
                 referral_token_icon: payload.referral_token_icon,
                 referral_token_chain_id: chainId,
+                promoter_address: account,
                 sender: senderName,
             })
 
@@ -119,7 +119,12 @@ export function FarmPost(props: FarmPostProps) {
     }, [payload, openSwapDialog])
     const buyButton = async () => {
         try {
-            const sig = await singAndPostProofWithReferrer(web3, account, payload.referral_token, MASK_REFERRER)
+            const sig = await singAndPostProofWithReferrer(
+                web3,
+                account,
+                payload.referral_token,
+                payload?.promoter_address ?? MASK_REFERRER,
+            )
             swapToken()
         } catch (error) {
             alert(error)
@@ -189,13 +194,13 @@ export function FarmPost(props: FarmPostProps) {
                                         {noFarmForSelectedToken ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_under_review')}
-                                                icon={IconURLS.underReviewLogo}
+                                                icon={Icons.UnderReviewIcon}
                                             />
                                         ) : null}
                                         {sponsoredFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_sponsored_referral_farm')}
-                                                icon={IconURLS.sponsoredFarmLogo}
+                                                icon={Icons.SponsoredFarmIcon}
                                                 rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
                                                 tokenSymbol={payload.referral_token_symbol}
                                             />
@@ -203,7 +208,7 @@ export function FarmPost(props: FarmPostProps) {
                                         {attrFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_attrace_referral_farm')}
-                                                icon={IconURLS.attrLightLogo}
+                                                icon={Icons.AttrIcon}
                                                 rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
                                                 tokenSymbol={ATTR_TOKEN.symbol}
                                             />
@@ -211,7 +216,7 @@ export function FarmPost(props: FarmPostProps) {
                                         {maskFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_mask_referral_farm')}
-                                                icon={IconURLS.maskLogo}
+                                                icon={Icons.MaskIcon}
                                                 rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
                                                 tokenSymbol={MASK_TOKEN.symbol}
                                             />

@@ -6,59 +6,10 @@ import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helpers'
 import { Metastate, ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
 import { getDaoAddress } from './discovery'
-import { FARM_ABI } from './abis'
+import { erc20ABI, FARM_ABI } from './abis'
 import BigNumber from 'bignumber.js'
 import { NATIVE_TOKEN } from '../../constants'
 
-export const erc20ABI = [
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'spender',
-                type: 'address',
-            },
-            {
-                internalType: 'uint256',
-                name: 'amount',
-                type: 'uint256',
-            },
-        ],
-        name: 'approve',
-        outputs: [
-            {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
-            },
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        constant: true,
-        inputs: [
-            {
-                name: '_owner',
-                type: 'address',
-            },
-            {
-                name: '_spender',
-                type: 'address',
-            },
-        ],
-        name: 'allowance',
-        outputs: [
-            {
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        payable: false,
-        stateMutability: 'view',
-        type: 'function',
-    },
-]
 export async function runCreateERC20PairFarm(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,

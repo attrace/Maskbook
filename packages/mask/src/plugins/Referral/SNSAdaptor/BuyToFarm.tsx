@@ -14,7 +14,16 @@ import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
 
-import { TabsCreateFarm, TransactionStatus, FARM_TYPE, Farm, ChainAddress, PageInterface, PagesType } from '../types'
+import {
+    TabsCreateFarm,
+    TransactionStatus,
+    FARM_TYPE,
+    Farm,
+    ChainAddress,
+    PageInterface,
+    PagesType,
+    Icons,
+} from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -22,7 +31,6 @@ import ActionButton from '../../../extension/options-page/DashboardComponents/Ac
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
-import { IconURLS } from './IconURL'
 import { MyFarms } from './MyFarms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 
@@ -31,6 +39,7 @@ import { toChainAddress, getFarmsRewardData } from './helpers'
 import { PluginTraderMessages } from '../../Trader/messages'
 import type { Coin } from '../../Trader/types'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -190,7 +199,7 @@ export function BuyToFarm(props: PageInterface) {
                             ) : (
                                 <RewardDataWidget
                                     title={t('plugin_referral_sponsored_farm')}
-                                    icon={IconURLS.sponsoredFarmLogo}
+                                    icon={Icons.SponsoredFarmIcon}
                                     rewardData={rewardData}
                                     tokenSymbol={token?.symbol}
                                 />
@@ -201,7 +210,7 @@ export function BuyToFarm(props: PageInterface) {
                                 </Box>
                             </Grid>
                             <Grid item xs={12} display="flex" alignItems="center" className={classes.typeNote}>
-                                <img src={IconURLS.sponsoredFarmLogo} />
+                                <SvgIcons icon={Icons.SponsoredFarmIcon} />
                                 <Typography>
                                     <b>{t('plugin_referral_sponsored_farm')}</b>
                                     {t('plugin_referral_sponsored_farm_detail')}

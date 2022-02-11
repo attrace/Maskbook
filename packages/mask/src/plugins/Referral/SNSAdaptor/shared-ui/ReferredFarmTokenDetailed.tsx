@@ -6,8 +6,9 @@ import type { ChainId } from '@masknet/web3-shared-evm'
 
 import { getFarmTypeIconByReferredToken } from '../helpers'
 
-import { Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
+import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -25,14 +26,14 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         marginLeft: '16px',
         fontWeight: 500,
     },
+    icon: {
+        marginLeft: '7px',
+        height: '16px',
+        width: '16px',
+    },
     nameFarm: {
         display: 'flex',
         alignItems: 'center',
-        '& img': {
-            marginLeft: '7px',
-            height: '16px',
-            width: '16px',
-        },
     },
     name: {
         color: theme.palette.text.secondary,
@@ -76,7 +77,11 @@ export function ReferredFarmTokenDetailed({
                     <Typography className={classes.details} display="flex" flexDirection="column">
                         <div className={classes.nameFarm}>
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
-                            {!hideFarmTypeIcon && <img src={farmTypeIcon} />}
+                            {!hideFarmTypeIcon && (
+                                <Box className={classes.icon}>
+                                    <SvgIcons icon={farmTypeIcon} />
+                                </Box>
+                            )}
                         </div>
                         <span className={classes.name}>{token.name}</span>
                     </Typography>

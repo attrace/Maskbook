@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, PagesType } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -23,13 +23,13 @@ import { singAndPostProofOrigin } from '../Worker/apis/proofs'
 import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { MyFarms } from './MyFarms'
-import { IconURLS } from './IconURL'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
 import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -119,22 +119,22 @@ export function ReferToFarm(props: PageInterface) {
         {
             title: t('plugin_referral_attrace_referral_farm'),
             desc: t('plugin_referral_attrace_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.attrLogo} />,
+            icon: <SvgIcons size={20} icon={Icons.AttrIcon} />,
         },
         {
             title: t('plugin_referral_mask_referral_farm'),
             desc: t('plugin_referral_mask_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.maskLogo} />,
+            icon: <SvgIcons size={20} icon={Icons.MaskIcon} />,
         },
         {
             title: t('plugin_referral_sponsored_referral_farm'),
             desc: t('plugin_referral_sponsored_referral_farm_desc'),
-            icon: <img className={classes.icon} src={IconURLS.sponsoredFarmLogo} />,
+            icon: <SvgIcons size={16} icon={Icons.SponsoredFarmIcon} />,
         },
         {
             title: t('plugin_referral_under_review'),
             desc: t('plugin_referral_under_review_desc'),
-            icon: <img className={classes.icon} src={IconURLS.underReviewLogo} />,
+            icon: <SvgIcons size={20} icon={Icons.UnderReviewIcon} />,
         },
     ]
     const insertData = (selectedReferralData: ReferralMetaData) => {
@@ -157,6 +157,7 @@ export function ReferToFarm(props: PageInterface) {
                 referral_token_symbol: token?.symbol ?? '',
                 referral_token_icon: token?.logoURI ?? [''],
                 referral_token_chain_id: currentChainId,
+                promoter_address: account,
                 sender: senderName ?? '',
             })
         } catch (error) {
@@ -215,13 +216,13 @@ export function ReferToFarm(props: PageInterface) {
                                     {noFarmForSelectedToken ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_under_review')}
-                                            icon={IconURLS.underReviewLogo}
+                                            icon={Icons.UnderReviewIcon}
                                         />
                                     ) : null}
                                     {sponsoredFarms?.length ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_sponsored_referral_farm')}
-                                            icon={IconURLS.sponsoredFarmLogo}
+                                            icon={Icons.SponsoredFarmIcon}
                                             rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
                                             tokenSymbol={token?.symbol}
                                         />
@@ -229,7 +230,7 @@ export function ReferToFarm(props: PageInterface) {
                                     {attrFarms?.length ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_attrace_referral_farm')}
-                                            icon={IconURLS.attrLogo}
+                                            icon={Icons.AttrIcon}
                                             rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
                                             tokenSymbol={ATTR_TOKEN.symbol}
                                         />
@@ -237,7 +238,7 @@ export function ReferToFarm(props: PageInterface) {
                                     {maskFarms?.length ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_mask_referral_farm')}
-                                            icon={IconURLS.maskLogo}
+                                            icon={Icons.MaskIcon}
                                             rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
                                             tokenSymbol={MASK_TOKEN.symbol}
                                         />

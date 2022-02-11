@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import { Typography, Button, Grid } from '@mui/material'
+import { Typography, Button, Grid, Box } from '@mui/material'
 import { Trans } from 'react-i18next'
 // import { ProtocolType } from '../types'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { PageInterface, PagesType } from '../types'
-import { IconURLS } from './IconURL'
-
+import { Icons, PageInterface, PagesType } from '../types'
+import { SvgIcons } from './Icons'
 interface ReferralDialogProps {
     open: boolean
     onClose?: () => void
@@ -40,14 +39,14 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     smallText: {
         fontSize: '15px',
     },
+    icon: {
+        width: '36px',
+        height: '36px',
+        marginRight: '12px',
+    },
     dataItem: {
         '& b': {
             fontWeight: 600,
-        },
-        '& img': {
-            width: '36px',
-            height: '36px',
-            marginRight: '12px',
         },
     },
 }))
@@ -64,17 +63,17 @@ export function Landing(props: PageInterface) {
         {
             name: t('plugin_referral_refer_to_farm'),
             desc: t('plugin_referral_refer_to_farm_desc'),
-            iconUrl: IconURLS.referToFarm,
+            iconUrl: Icons.ReferToFarm,
         },
         {
             name: t('plugin_referral_buy_to_farm'),
             desc: t('plugin_referral_buy_to_farm_desc'),
-            iconUrl: IconURLS.buyToFarm,
+            iconUrl: Icons.BuyToFarm,
         },
         {
             name: t('plugin_referral_manage_farms'),
             desc: t('plugin_referral_manage_farms_desc'),
-            iconUrl: IconURLS.createFarm,
+            iconUrl: Icons.CreateFarm,
         },
         {
             desc: (
@@ -85,7 +84,7 @@ export function Landing(props: PageInterface) {
                     }}
                 />
             ),
-            iconUrl: IconURLS.rewards,
+            iconUrl: Icons.RewardIcon,
         },
     ]
 
@@ -93,7 +92,7 @@ export function Landing(props: PageInterface) {
         <div className={classes.wrapper}>
             <Grid container className={classes.heading} display="flex" justifyContent="center">
                 <Grid item xs={12} display="flex" justifyContent="center">
-                    <img className={classes.img} src={IconURLS.referral} />
+                    <SvgIcons icon={Icons.ReferralIcon} size={60} />
                 </Grid>
                 <Typography variant="h6" textAlign="center" fontWeight={400}>
                     <b>{t('plugin_referral_referral_farming')}</b>
@@ -114,7 +113,9 @@ export function Landing(props: PageInterface) {
                             alignContent="center"
                             justifyItems="flex-start"
                             className={classes.dataItem}>
-                            <img src={e.iconUrl} />
+                            <Box className={classes.icon}>
+                                <SvgIcons icon={e.iconUrl} />
+                            </Box>
                             <Typography>
                                 <b>{e.name}</b> {e.name && '-'} {e.desc}
                             </Typography>

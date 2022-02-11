@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
+import { Box, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { v4 as uuid } from 'uuid'
 import { Asset, currySameAddress, FungibleTokenDetailed, isSameAddress } from '@masknet/web3-shared-evm'
@@ -8,9 +8,9 @@ import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import type { ChainAddress, TokensGroupedByType } from '../../types'
-import { IconURLS } from '../IconURL'
+import { Icons, TokensGroupedByType, ChainAddress } from '../../types'
 import { toChainAddress, getTokenTypeIcons } from '../helpers'
+import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles()((theme) => ({
     icon: {
@@ -137,9 +137,15 @@ export const getERC20TokenListItem =
                         component="span">
                         <div className={classes.metaInfo}>
                             <span className={classes.symbol}>{symbol}</span>{' '}
-                            {noFarmForToken && <img src={IconURLS.underReviewLogo} className={classes.typeIcon} />}
+                            {noFarmForToken && (
+                                <Box className={classes.typeIcon}>
+                                    <SvgIcons icon={Icons.UnderReviewIcon} size={16} />
+                                </Box>
+                            )}
                             {tokenTypeIcons.map((icon) => (
-                                <img key={uuid()} src={icon} className={classes.typeIcon} />
+                                <Box className={classes.typeIcon} key={uuid()}>
+                                    <SvgIcons icon={icon} size={16} />
+                                </Box>
                             ))}
                         </div>
                         <span className={`${classes.name} dashboard token-list-symbol`}>

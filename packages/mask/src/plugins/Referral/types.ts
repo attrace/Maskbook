@@ -50,7 +50,20 @@ export interface ReferralMetaData {
     referral_token_symbol: string
     referral_token_icon: string | string[]
     referral_token_chain_id: ChainId
+    promoter_address?: string
     sender: string
+}
+export enum Icons {
+    ReferralIcon = 0,
+    AttrIcon = 1,
+    SponsoredFarmIcon = 2,
+    UnderReviewIcon = 3,
+    MaskIcon = 4,
+    ReferToFarm = 5,
+    CreateFarm = 6,
+    BuyToFarm = 7,
+    RewardIcon = 8,
+    AttrTextIcon = 9,
 }
 export interface RewardData {
     apr: number

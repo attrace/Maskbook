@@ -6,8 +6,8 @@ import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { PageInterface, PagesType, TabsReferralFarms } from '../types'
-import { IconURLS } from './IconURL'
+import { Icons, PageInterface, PagesType, TabsReferralFarms } from '../types'
+import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     root: {
@@ -22,8 +22,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         width: 535,
         margin: '24px auto',
     },
-    bold: {},
-    normal: {},
     container: {
         flex: 1,
         height: '100%',
@@ -59,11 +57,10 @@ const useStylesType = makeStyles()((theme) => ({
 interface TypeProps {
     name: string
     onClick?: () => void
-    iconUrl: string
+    iconUrl: Icons
 }
 export function Type({ name, onClick, iconUrl }: TypeProps) {
     const { classes } = useStylesType()
-
     return (
         <Grid item xs={4} key={name}>
             <Button
@@ -73,7 +70,7 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
                 }}
                 className={classes.root}>
                 <Grid>
-                    <img className={classes.img} src={iconUrl} />
+                    <SvgIcons icon={iconUrl} size={40} />
                     <div>{name}</div>
                 </Grid>
             </Button>
@@ -96,21 +93,21 @@ export function ReferralFarms(props: PageInterface) {
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM, tab + ': ' + PagesType.REFER_TO_FARM)
             },
-            iconUrl: IconURLS.referToFarm,
+            iconUrl: Icons.ReferToFarm,
         },
         {
             name: 'Buy to Farm',
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM, tab + ': ' + PagesType.BUY_TO_FARM)
             },
-            iconUrl: IconURLS.buyToFarm,
+            iconUrl: Icons.BuyToFarm,
         },
         {
             name: 'Create Farm',
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM, tab + ': ' + PagesType.CREATE_FARM)
             },
-            iconUrl: IconURLS.createFarm,
+            iconUrl: Icons.CreateFarm,
         },
     ]
 
