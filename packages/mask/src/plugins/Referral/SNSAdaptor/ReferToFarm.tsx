@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface } from '../types'
+import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, PagesType } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -277,7 +277,7 @@ export function ReferToFarm(props: PageInterface) {
                             </EthereumChainBoundary>
                         </TabPanel>
                         <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                            <MyFarms />
+                            <MyFarms pageType={PagesType.REFER_TO_FARM} {...props} />
                         </TabPanel>
                     </TabContext>
                 </Box>
