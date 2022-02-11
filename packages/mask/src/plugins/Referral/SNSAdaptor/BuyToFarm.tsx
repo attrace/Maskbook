@@ -60,9 +60,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
     typeNote: {
         marginBottom: '20px',
-        '& img': {
-            marginRight: '7px',
-        },
         '& b': {
             marginRight: '4px',
             fontWeight: 600,
@@ -210,7 +207,9 @@ export function BuyToFarm(props: PageInterface) {
                                 </Box>
                             </Grid>
                             <Grid item xs={12} display="flex" alignItems="center" className={classes.typeNote}>
-                                <SvgIcons icon={Icons.SponsoredFarmIcon} />
+                                <Box marginRight="7px">
+                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
+                                </Box>
                                 <Typography>
                                     <b>{t('plugin_referral_sponsored_farm')}</b>
                                     {t('plugin_referral_sponsored_farm_detail')}
