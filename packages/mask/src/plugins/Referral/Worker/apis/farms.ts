@@ -10,6 +10,7 @@ import {
     FARM_TYPE,
     FarmDepositAndMetastate,
     FarmHash,
+    RewardsHarvestedEvent,
 } from '../../types'
 import type Web3 from 'web3'
 import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
@@ -237,7 +238,6 @@ function parseBasicFarmEvents(unparsed: any) {
             }
         }
     })
-
     // select unique farms
     const uniqueFarms = allEventsFarmExists.filter(
         (val, index) => index === allEventsFarmExists.findIndex((event) => event.args.farmHash === val.args.farmHash),
@@ -266,24 +266,14 @@ function parseBasicFarmEvents(unparsed: any) {
 
     return farms
 }
-export async function getAllFarms(web3: Web3, chainId: ChainId, filter?: TokenFilter): Promise<Array<Farm>> {
-    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
-    // Allow filtering by tokens
-    let topic3, topic4
-    if (filter?.rewardTokens) {
-        topic3 = filter.rewardTokens.map((t) => expandBytes24ToBytes32(t))
-    }
-    if (filter?.referredTokens) {
-        topic4 = filter.referredTokens.map((t) => expandBytes24ToBytes32(t))
-    }
+export async function getAllFarms(web3: Web3, chainId: ChainId): Promise<Array<Farm>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
     // Query indexers
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
         topic1: [eventIds.FarmExists, eventIds.FarmTokenChange, eventIds.FarmDepositChange, eventIds.FarmMetastate],
-        topic3,
-        topic4,
         chainId: [chainId],
     })
 
@@ -331,4 +321,41 @@ export async function getFarmsForRewardToken(
     })
 
     return parseFarmExistsEvents(res.items)
+}
+
+function parseRewardsHarvestedEvents(unparsed: any) {
+    const parsed = parseEvents(unparsed)
+
+    const rewards: Array<RewardsHarvestedEvent> = parsed.map((e) => {
+        const { farmHash, caller, rewardTokenDefn, leafHash, value } = e.args
+        return { farmHash, caller, rewardTokenDefn, leafHash, value: Number(fromWei(value.toString())) }
+    })
+
+    return rewards
+}
+
+export async function getMyRewardsHarvested(
+    web3: Web3,
+    account: string,
+    chainId: ChainId,
+    filter?: { rewardTokens?: ChainAddress[] },
+): Promise<Array<RewardsHarvestedEvent>> {
+    const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
+
+    // Allow filtering by reward tokens
+    let topic3
+    if (filter?.rewardTokens) {
+        topic3 = filter.rewardTokens.map((t) => expandBytes24ToBytes32(t))
+    }
+
+    // Query indexers
+    const res = await queryIndexersWithNearestQuorum({
+        addresses: [farmsAddr],
+        topic1: [eventIds.RewardsHarvested],
+        topic2: [expandEvmAddressToBytes32(account)],
+        topic3,
+        chainId: [chainId],
+    })
+
+    return parseRewardsHarvestedEvents(res.items)
 }

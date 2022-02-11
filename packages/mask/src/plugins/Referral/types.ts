@@ -138,6 +138,13 @@ export interface FarmTokenChange {
     farmHash: FarmHash
     token: ChainAddress
 }
+export interface RewardsHarvestedEvent {
+    farmHash: FarmHash
+    caller: EvmAddress
+    rewardTokenDefn: ChainAddress
+    value: number
+    leafHash: string
+}
 export interface FarmEvent extends FarmExistsEvent, FarmDepositChange {}
 
 export enum FARM_TYPE {
