@@ -70,7 +70,9 @@ export function Transaction(props: TransactionProps) {
                         {t('plugin_wallet_transaction_confirmed')}
                     </Grid>
                     <Grid item xs={12}>
-                        <Link href={resolveTransactionLinkOnExplorer(currentChainId, props.transactionHash)}>
+                        <Link
+                            href={resolveTransactionLinkOnExplorer(currentChainId, props.transactionHash)}
+                            target="_blank">
                             {t('plugin_wallet_view_on_explorer')}
                         </Link>
                     </Grid>
