@@ -284,7 +284,10 @@ export async function harvestRewards(
                 onStart()
             })
             .on(TransactionEventType.CONFIRMATION, (no: number, receipt: TransactionReceipt) => {
-                onConfirm(receipt.transactionHash)
+                // show Confirm dialog only at the first time
+                if (no === 1) {
+                    onConfirm(receipt.transactionHash)
+                }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
                 onError()

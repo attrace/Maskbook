@@ -73,8 +73,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
     const [previousPages, setPreviousPages] = useState<PageHistory[]>([])
     const [currentTitle, setCurrentTitle] = useState(t('plugin_referral'))
 
-    // let previousPages: PagesType[] = []
-    const nextPage = (
+    const onContinue = (
         currentPage: PagesType,
         nextPage: PagesType,
         title: string = t('plugin_referral'),
@@ -85,19 +84,26 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
         setCurrentTitle(title)
         setPropsData(props)
     }
+
+    const onChangePage = (page: PagesType, title: string = t('plugin_referral'), props?: DialogInterface) => {
+        setCurrentPage({ page, title: title })
+        setCurrentTitle(title)
+        setPropsData(props)
+    }
+
     const renderViews = () => {
         const { page } = currentPage
         switch (page) {
             case PagesType.LANDING:
-                return <Landing continue={nextPage} />
+                return <Landing continue={onContinue} />
             case PagesType.REFERRAL_FARMS:
-                return <ReferralFarms continue={nextPage} />
+                return <ReferralFarms continue={onContinue} />
             case PagesType.CREATE_FARM:
-                return <CreateFarm continue={nextPage} onClose={onClose} />
+                return <CreateFarm continue={onContinue} onClose={onClose} />
             case PagesType.REFER_TO_FARM:
-                return <ReferToFarm continue={nextPage} onClose={onClose} />
+                return <ReferToFarm continue={onContinue} onClose={onClose} onChangePage={onChangePage} />
             case PagesType.BUY_TO_FARM:
-                return <BuyToFarm continue={nextPage} onClose={onClose} />
+                return <BuyToFarm continue={onContinue} onClose={onClose} onChangePage={onChangePage} />
             case PagesType.ADJUST_REWARDS:
                 return <AdjustFarmRewards onClose={onClose} {...propsData?.adjustFarmDialog} />
             case PagesType.SELECT_TOKEN:
@@ -105,7 +111,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             case PagesType.TRANSACTION:
                 return <Transaction onClose={onClose} {...propsData?.transactionDialog} />
             default:
-                return <Landing continue={nextPage} />
+                return <Landing continue={onContinue} />
         }
     }
 

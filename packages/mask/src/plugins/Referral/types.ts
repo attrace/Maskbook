@@ -238,6 +238,7 @@ export interface PageInterface {
     pageType?: PagesType
     onClose?: () => void
     continue: (currentPage: PagesType, nextPage: PagesType, title?: string, props?: DialogInterface) => void
+    onChangePage?: (page: PagesType, title?: string, props?: DialogInterface) => void
 }
 // This assumes a link in style of https://app.attrace.com/l/011f9840a85d5af5bf1d1762f925bdaddc4201f9849a24fe8179a0aa7347f6f9b664f0e3f573212a6d?d=maskswapv1
 export function parseLinkUrlPath(fullUrlPath: string) {

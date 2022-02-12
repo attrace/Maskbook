@@ -31,6 +31,7 @@ import {
     TransactionStatus,
     parseChainAddress,
     RewardsHarvestedEvent,
+    TabsReferralFarms,
 } from '../types'
 
 import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
@@ -130,7 +131,7 @@ function FarmsList({
     const rewardTokenDefnMASK = toChainAddress(chainId, MASK_TOKEN.address)
 
     const onStartHarvestRewards = useCallback((totalRewards: number, rewardTokenSymbol?: string) => {
-        props.continue(PagesType.REFER_TO_FARM, PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+        props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
             hideBackBtn: true,
             hideAttrLogo: true,
             transactionDialog: {
@@ -148,14 +149,18 @@ function FarmsList({
 
     const onConfirmHarvestRewards = useCallback(
         (txHash) => {
-            props.continue(PagesType.REFER_TO_FARM, PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+            props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
                 hideAttrLogo: true,
                 transactionDialog: {
                     transaction: {
                         status: TransactionStatus.CONFIRMED,
                         actionButton: {
                             label: t('dismiss'),
-                            onClick: () => props.continue(PagesType.TRANSACTION, PagesType.REFER_TO_FARM),
+                            onClick: () =>
+                                props?.onChangePage?.(
+                                    PagesType.REFER_TO_FARM,
+                                    TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM,
+                                ),
                         },
                         transactionHash: txHash,
                     },
@@ -175,7 +180,10 @@ function FarmsList({
                     onStartHarvestRewards(totalRewards, rewardTokenSymbol)
                 },
                 () => {
-                    props.continue(PagesType.REFER_TO_FARM, PagesType.REFER_TO_FARM)
+                    props?.onChangePage?.(
+                        PagesType.REFER_TO_FARM,
+                        TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM,
+                    )
                 },
                 web3,
                 account,
