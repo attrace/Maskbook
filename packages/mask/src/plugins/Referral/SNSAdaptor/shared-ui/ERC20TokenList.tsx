@@ -21,19 +21,11 @@ import {
     useNativeTokenDetailed,
     useTrustedERC20Tokens,
 } from '@masknet/web3-shared-evm'
-import {
-    MaskFixedSizeListProps,
-    MaskTextFieldProps,
-    SearchableList,
-    makeStyles,
-    MaskColorVar,
-    usePortalShadowRoot,
-} from '@masknet/theme'
-import { InputAdornment, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material'
+import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList, makeStyles, MaskColorVar } from '@masknet/theme'
+import { Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
 import { getReferredTokensAPR } from '../../Worker/apis/verifier'
-import { SearchFarmTypes, ChainAddress } from '../../types'
-import { toChainAddress } from '../helpers'
+import type { ChainAddress } from '../../types'
 
 const DEFAULT_LIST_HEIGHT = 300
 
@@ -83,7 +75,6 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     )
 
     const [keyword, setKeyword] = useState('')
-    const [tokensList, setTokensList] = useState<string[]>([])
     const {
         whitelist: includeTokens,
         blacklist: excludeTokens = [],
@@ -96,30 +87,6 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     } = props
 
     const { ERC20 } = useTokenListConstants(chainId)
-
-    const [searchFarmType, setSearchFarmType] = useState<SearchFarmTypes>(SearchFarmTypes.allFarms)
-    const handleFarmFilterChange = (event: SelectChangeEvent) => {
-        // addTokenListFilter(event.target.value as SearchFarmTypes)
-        setSearchFarmType(event.target.value as SearchFarmTypes)
-    }
-    // const addTokenListFilter = useCallback(
-    //     (type: SearchFarmTypes) => {
-    //         let tempTokenList: string[] = []
-    //         switch (type) {
-    //             case SearchFarmTypes.attrFarm:
-    //                 tempTokenList = props.tokensGroupedByType.attrFarmsTokens
-    //                 break
-    //             case SearchFarmTypes.maskFarm:
-    //                 tempTokenList = props.tokensGroupedByType.maskFarmsTokens
-    //                 break
-    //             case SearchFarmTypes.sponsoredFarm:
-    //                 tempTokenList = props.tokensGroupedByType.sponsoredFarmTokens
-    //                 break
-    //         }
-    //         setTokensList(tempTokenList)
-    //     },
-    //     [searchFarmType],
-    // )
 
     const { value: erc20TokensDetailed = [], loading: erc20TokensDetailedLoading } =
         useERC20TokensDetailedFromTokenLists(
@@ -150,13 +117,6 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
             (!excludeTokens.length || !excludeTokens.some(currySameAddress(token.address))),
     )
 
-    // filter by Farm Type
-    filteredTokens = filteredTokens.filter(
-        (token) =>
-            searchFarmType === SearchFarmTypes.allFarms ||
-            tokensList.some(currySameAddress(toChainAddress(token.chainId, token.address))),
-    )
-
     const renderTokens = uniqBy([...tokens, ...filteredTokens, ...(searchedToken ? [searchedToken] : [])], (x) =>
         x.address.toLowerCase(),
     )
@@ -170,27 +130,6 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
         renderTokens.filter((x) => isValidAddress(x.address)),
         chainId,
     )
-
-    const FarmFilterSelect = () => {
-        return usePortalShadowRoot((container) => (
-            <Select
-                value={searchFarmType}
-                MenuProps={{
-                    container,
-                }}
-                onChange={handleFarmFilterChange}
-                disableUnderline
-                variant="standard"
-                inputProps={{ 'aria-label': 'Without label' }}>
-                <MenuItem value={SearchFarmTypes.allFarms}>{t('plugin_referral_all_referral_farms')}</MenuItem>
-                <MenuItem value={SearchFarmTypes.sponsoredFarm}>
-                    {t('plugin_referral_sponsored_referral_farm')}
-                </MenuItem>
-                <MenuItem value={SearchFarmTypes.maskFarm}>{t('plugin_referral_mask_referral_farm')}</MenuItem>
-                <MenuItem value={SearchFarmTypes.attrFarm}>{t('plugin_referral_attrace_referral_farm')}</MenuItem>
-            </Select>
-        ))
-    }
 
     const renderAssets =
         !account || !!assetsError || assetsLoading || searchedTokenLoading
@@ -207,7 +146,6 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
                 placeholder: t('plugin_referral_search_placeholder_token'),
                 InputProps: {
                     classes: { root: classes.search },
-                    endAdornment: <InputAdornment position="end">{FarmFilterSelect()}</InputAdornment>,
                 },
             }}
             onSelect={(asset) => onSelect?.(asset.token)}
