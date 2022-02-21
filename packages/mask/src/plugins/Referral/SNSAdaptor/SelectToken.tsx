@@ -10,39 +10,12 @@ import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { DialogContent } from '@mui/material'
 import { ERC20TokenList } from './shared-ui/ERC20TokenList'
 import { getAllFarms } from '../Worker/apis/farms'
-import { ChainAddress, Farm, FARM_TYPE, parseChainAddress } from '../types'
 
-import { MASK_TOKEN, ATTR_TOKEN, NATIVE_TOKEN } from '../constants'
+import { NATIVE_TOKEN } from '../constants'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {},
 }))
-
-function groupFarmTokensByType(farms: Farm[]) {
-    const sponsoredFarmTokens: ChainAddress[] = []
-    const maskFarmsTokens: ChainAddress[] = []
-    const attrFarmsTokens: ChainAddress[] = []
-    farms.forEach((farm) => {
-        if (farm.farmType === FARM_TYPE.PAIR_TOKEN) {
-            sponsoredFarmTokens.push(farm.referredTokenDefn)
-        }
-        if (farm.farmType === FARM_TYPE.PROPORTIONAL && farm.tokens?.length) {
-            const rewardTokenAddr = parseChainAddress(farm.rewardTokenDefn).address
-            if (rewardTokenAddr === MASK_TOKEN.address.toLowerCase()) {
-                maskFarmsTokens.push(...farm.tokens)
-            }
-            if (rewardTokenAddr === ATTR_TOKEN.address.toLowerCase()) {
-                attrFarmsTokens.push(...farm.tokens)
-            }
-        }
-    })
-
-    return {
-        sponsoredFarmTokens: [...new Set(sponsoredFarmTokens)],
-        maskFarmsTokens: [...new Set(maskFarmsTokens)],
-        attrFarmsTokens: [...new Set(attrFarmsTokens)],
-    }
-}
 
 export interface SelectTokenProps {}
 
@@ -56,11 +29,15 @@ export function SelectToken(props: SelectTokenProps) {
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [title, setTitle] = useState('')
     const [id, setId] = useState('')
+    const [tokenList, setTokenList] = useState<undefined | string[]>(undefined)
+
     const disableNativeToken = true
+
     const { open, setDialog } = useRemoteControlledDialog(PluginReferralMessages.selectTokenUpdated, (ev) => {
         if (!ev.open) return
         setId(ev.uuid)
         setTitle(ev.title)
+        setTokenList(ev.tokenList)
     })
     const { value: farms = [], loading: loadingAllFarms } = useAsync(
         async () => getAllFarms(web3, currentChainId),
@@ -86,14 +63,16 @@ export function SelectToken(props: SelectTokenProps) {
         },
         [id, setDialog],
     )
-    const tokensGroupedByType = groupFarmTokensByType(farms)
+
+    const referredTokensDefn = farms.map((farm) => farm.referredTokenDefn)
 
     return (
         <InjectedDialog titleBarIconStyle="back" open={open} onClose={onClose} title={title} maxWidth="xs">
             <DialogContent>
                 <ERC20TokenList
+                    renderList={tokenList}
                     dataLoading={loadingAllFarms}
-                    tokensGroupedByType={tokensGroupedByType}
+                    referredTokensDefn={referredTokensDefn}
                     FixedSizeListProps={{ height: 340, itemSize: 54 }}
                     onSelect={onSubmit}
                     blacklist={disableNativeToken ? [NATIVE_TOKEN] : []}

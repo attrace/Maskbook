@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useAsync } from 'react-use'
 import { uniqBy } from 'lodash-unified'
 
@@ -32,7 +32,7 @@ import {
 import { InputAdornment, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
 import { getReferredTokensAPR } from '../../Worker/apis/verifier'
-import { SearchFarmTypes, TokensGroupedByType } from '../../types'
+import { SearchFarmTypes, ChainAddress } from '../../types'
 import { toChainAddress } from '../helpers'
 
 const DEFAULT_LIST_HEIGHT = 300
@@ -41,7 +41,7 @@ export interface ERC20TokenListProps extends withClasses<'list' | 'placeholder'>
     targetChainId?: ChainId
     whitelist?: string[]
     blacklist?: string[]
-    renderTokensList?: string[]
+    renderList?: string[]
     tokens?: FungibleTokenDetailed[]
     selectedTokens?: string[]
     disableSearch?: boolean
@@ -49,7 +49,7 @@ export interface ERC20TokenListProps extends withClasses<'list' | 'placeholder'>
     FixedSizeListProps?: Partial<MaskFixedSizeListProps>
     SearchTextFieldProps?: MaskTextFieldProps
     dataLoading?: boolean
-    tokensGroupedByType: TokensGroupedByType
+    referredTokensDefn: ChainAddress[]
     excludeProportionalFarms?: boolean
 }
 
@@ -87,39 +87,39 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     const {
         whitelist: includeTokens,
         blacklist: excludeTokens = [],
+        renderList = [],
         tokens = [],
         onSelect,
         FixedSizeListProps,
         selectedTokens = [],
         dataLoading,
-        renderTokensList = [],
     } = props
 
     const { ERC20 } = useTokenListConstants(chainId)
 
     const [searchFarmType, setSearchFarmType] = useState<SearchFarmTypes>(SearchFarmTypes.allFarms)
     const handleFarmFilterChange = (event: SelectChangeEvent) => {
-        addTokenListFilter(event.target.value as SearchFarmTypes)
+        // addTokenListFilter(event.target.value as SearchFarmTypes)
         setSearchFarmType(event.target.value as SearchFarmTypes)
     }
-    const addTokenListFilter = useCallback(
-        (type: SearchFarmTypes) => {
-            let tempTokenList: string[] = []
-            switch (type) {
-                case SearchFarmTypes.attrFarm:
-                    tempTokenList = props.tokensGroupedByType.attrFarmsTokens
-                    break
-                case SearchFarmTypes.maskFarm:
-                    tempTokenList = props.tokensGroupedByType.maskFarmsTokens
-                    break
-                case SearchFarmTypes.sponsoredFarm:
-                    tempTokenList = props.tokensGroupedByType.sponsoredFarmTokens
-                    break
-            }
-            setTokensList(tempTokenList)
-        },
-        [searchFarmType],
-    )
+    // const addTokenListFilter = useCallback(
+    //     (type: SearchFarmTypes) => {
+    //         let tempTokenList: string[] = []
+    //         switch (type) {
+    //             case SearchFarmTypes.attrFarm:
+    //                 tempTokenList = props.tokensGroupedByType.attrFarmsTokens
+    //                 break
+    //             case SearchFarmTypes.maskFarm:
+    //                 tempTokenList = props.tokensGroupedByType.maskFarmsTokens
+    //                 break
+    //             case SearchFarmTypes.sponsoredFarm:
+    //                 tempTokenList = props.tokensGroupedByType.sponsoredFarmTokens
+    //                 break
+    //         }
+    //         setTokensList(tempTokenList)
+    //     },
+    //     [searchFarmType],
+    // )
 
     const { value: erc20TokensDetailed = [], loading: erc20TokensDetailedLoading } =
         useERC20TokensDetailedFromTokenLists(
@@ -138,9 +138,9 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
     const { value: searchedToken, loading: searchedTokenLoading } = useERC20TokenDetailed(matchedTokenAddress ?? '')
     // #endregion
 
-    // filter by renderTokensList
-    let filteredTokens = renderTokensList.length
-        ? erc20TokensDetailed.filter((token) => renderTokensList.some(currySameAddress(token.address)))
+    // filter by renderList
+    let filteredTokens = renderList.length
+        ? erc20TokensDetailed.filter((token) => renderList.some(currySameAddress(token.address)))
         : erc20TokensDetailed
 
     // filter by includeTokens and excludeTokens
@@ -225,7 +225,7 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
                     : { from: 'defaultList', inList: true },
                 selectedTokens,
                 assetsLoading || loadingReferredTokensAPR,
-                props.tokensGroupedByType,
+                props.referredTokensDefn,
                 referredTokensAPR,
             )}
             placeholder={

@@ -1,17 +1,8 @@
 import { Typography, Box, Grid } from '@mui/material'
 
 import { useI18N } from '../../../../utils'
-import { isDashboardPage } from '@masknet/shared-base'
-import { makeStyles } from '@masknet/theme'
 import type { Icons, RewardData } from '../../types'
 import { SvgIcons } from '../Icons'
-
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    icon: {
-        maxWidth: '20px',
-        maxHeight: '20px',
-    },
-}))
 
 export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}> {
     title?: string
@@ -22,14 +13,12 @@ export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}>
 
 export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: RewardDataWidgetWidgetProps) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
 
     return (
         <Grid container marginTop="24px">
             {title && (
                 <Grid item xs={12} container marginBottom="12px" alignItems="center">
-                    <SvgIcons icon={icon} size={20} />
+                    <SvgIcons icon={icon} />
                     <Grid item paddingX={1}>
                         <Typography fontWeight={600}>{title}</Typography>
                     </Grid>

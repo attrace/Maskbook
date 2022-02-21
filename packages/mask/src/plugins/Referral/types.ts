@@ -293,11 +293,6 @@ export enum TransactionStatus {
     FAILED = 'FAILED',
 }
 
-export type TokensGroupedByType = {
-    sponsoredFarmTokens: string[]
-    maskFarmsTokens: string[]
-    attrFarmsTokens: string[]
-}
 export enum SearchFarmTypes {
     allFarms = '0',
     sponsoredFarm = 'sponsoredFarmTokens',

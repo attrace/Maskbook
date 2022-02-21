@@ -23,6 +23,7 @@ import {
     PageInterface,
     PagesType,
     Icons,
+    parseChainAddress,
 } from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
@@ -34,7 +35,7 @@ import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { MyFarms } from './MyFarms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 
-import { PluginReferralMessages, SelectTokenToBuy } from '../messages'
+import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { toChainAddress, getFarmsRewardData } from './helpers'
 import { PluginTraderMessages } from '../../Trader/messages'
 import type { Coin } from '../../Trader/types'
@@ -83,7 +84,11 @@ export function BuyToFarm(props: PageInterface) {
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
     const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
+
     const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
+    // select uniq tokens
+    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
+    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
 
     // fetch farms APR
     const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
@@ -92,9 +97,9 @@ export function BuyToFarm(props: PageInterface) {
 
     const [id] = useState(uuid())
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
-        PluginReferralMessages.selectTokenToBuy,
+        PluginReferralMessages.selectTokenUpdated,
         useCallback(
-            (ev: SelectTokenToBuy) => {
+            (ev: SelectTokenUpdated) => {
                 if (ev.open || !ev.token || ev.uuid !== id) return
                 setToken(ev.token)
             },
@@ -106,9 +111,9 @@ export function BuyToFarm(props: PageInterface) {
             open: true,
             uuid: id,
             title: t('plugin_referral_select_a_token_to_buy_and_hold'),
-            tokensChainAddrs: referredTokensDefn,
+            tokenList,
         })
-    }, [id, setToken, referredTokensDefn])
+    }, [id, setToken, tokenList])
     // #endregion
 
     const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)

@@ -3,35 +3,40 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import { makeStyles } from '@masknet/theme'
 
-const useStyles = makeStyles()((theme) => ({
-    accordion: {
-        marginBottom: '20px',
-        width: '100%',
-        ':first-of-type': {
-            borderRadius: 0,
+const useStyles = makeStyles()((theme) => {
+    const isDarkMode = theme.palette.mode === 'dark'
+
+    return {
+        accordion: {
+            marginBottom: '20px',
+            width: '100%',
+            background: isDarkMode ? '#15171A' : theme.palette.background.default,
+            ':first-of-type': {
+                borderRadius: 0,
+            },
+            ':before': {
+                height: 0,
+                opacity: 0,
+            },
         },
-        ':before': {
-            height: 0,
-            opacity: 0,
+        accordionSummary: {
+            margin: 0,
+            padding: 0,
         },
-    },
-    accordionSummary: {
-        margin: 0,
-        padding: 0,
-    },
-    accordionSummaryContent: {
-        margin: '0px!important',
-    },
-    accordionDetails: {
-        marginTop: '8px',
-        padding: '8px',
-        background: theme.palette.background.default,
-        borderRadius: '4px',
-    },
-    total: {
-        marginRight: '5px',
-    },
-}))
+        accordionSummaryContent: {
+            margin: '0px!important',
+        },
+        accordionDetails: {
+            marginTop: '8px',
+            padding: '8px',
+            background: isDarkMode ? '#15171A' : theme.palette.background.default,
+            borderRadius: '4px',
+        },
+        total: {
+            marginRight: '5px',
+        },
+    }
+})
 
 export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
     farmDetails: React.ReactElement

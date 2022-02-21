@@ -6,13 +6,13 @@ import { makeStyles } from '@masknet/theme'
 import { Icons, ReferralMetaData } from '../types'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/apis/proofs'
-import { ATTR_TOKEN, MASK_REFERRER, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
+import { MASK_REFERRER, MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 
 import { MaskMessages, useI18N } from '../../../utils'
 import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
 import { useCallback } from 'react'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsAPR } from '../Worker/apis/verifier'
@@ -132,8 +132,7 @@ export function FarmPost(props: FarmPostProps) {
     }
 
     const token = payload.referral_token
-    const { sponsoredFarms, attrFarms, maskFarms } = groupReferredTokenFarmsByType(chainId, token, farms)
-    const noFarmForSelectedToken = !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
+    const sponsoredFarms = getSponsoredFarmsForReferredToken(chainId, token, farms)
 
     return (
         <>
@@ -191,34 +190,12 @@ export function FarmPost(props: FarmPostProps) {
                                     </Grid>
                                     {t('plugin_referral_join_receive_rewards')}
                                     <Grid container>
-                                        {noFarmForSelectedToken ? (
-                                            <RewardDataWidget
-                                                title={t('plugin_referral_under_review')}
-                                                icon={Icons.UnderReviewIcon}
-                                            />
-                                        ) : null}
                                         {sponsoredFarms?.length ? (
                                             <RewardDataWidget
                                                 title={t('plugin_referral_sponsored_referral_farm')}
                                                 icon={Icons.SponsoredFarmIcon}
                                                 rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
                                                 tokenSymbol={payload.referral_token_symbol}
-                                            />
-                                        ) : null}
-                                        {attrFarms?.length ? (
-                                            <RewardDataWidget
-                                                title={t('plugin_referral_attrace_referral_farm')}
-                                                icon={Icons.AttrIcon}
-                                                rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
-                                                tokenSymbol={ATTR_TOKEN.symbol}
-                                            />
-                                        ) : null}
-                                        {maskFarms?.length ? (
-                                            <RewardDataWidget
-                                                title={t('plugin_referral_mask_referral_farm')}
-                                                icon={Icons.MaskIcon}
-                                                rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
-                                                tokenSymbol={MASK_TOKEN.symbol}
                                             />
                                         ) : null}
                                     </Grid>

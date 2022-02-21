@@ -1,15 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { Box, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
 import classNames from 'classnames'
-import { v4 as uuid } from 'uuid'
 import { Asset, currySameAddress, FungibleTokenDetailed, isSameAddress } from '@masknet/web3-shared-evm'
 import { TokenIcon, LoadingAnimation } from '@masknet/shared'
 import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import { Icons, TokensGroupedByType, ChainAddress } from '../../types'
-import { toChainAddress, getTokenTypeIcons } from '../helpers'
+import { Icons, ChainAddress } from '../../types'
+import { toChainAddress } from '../helpers'
 import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles()((theme) => ({
@@ -83,7 +82,7 @@ export const getERC20TokenListItem =
         },
         selectedTokens: string[],
         loadingAsset: boolean,
-        tokensGroupedByType: TokensGroupedByType,
+        referredTokensDefn: ChainAddress[],
         referredTokensAPR?: Map<ChainAddress, { APR?: number }>,
     ) =>
     ({ data, onSelect }: MaskSearchableListItemProps<Asset>) => {
@@ -102,23 +101,24 @@ export const getERC20TokenListItem =
         }
 
         const tokenChainAddr = toChainAddress(chainId, address)
-        const tokenTypeIcons = getTokenTypeIcons(tokenChainAddr, tokensGroupedByType)
-        const noFarmForToken = tokenTypeIcons.length === 0
-        const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
-        const referredTokenAPR = referredTokenAPRValue ? (
-            `${Number.parseFloat((referredTokenAPRValue * 100).toFixed(2))}%`
-        ) : (
-            <span>&#8734;</span>
-        )
+        const tokenHasSponsoredFarm = referredTokensDefn.includes(tokenChainAddr)
 
-        const action = useMemo(() => {
-            return !isNotAdded || isAdded || (info.inList && info.from === 'search') ? (
-                noFarmForToken ? (
-                    '-'
+        const aprColumn = useMemo(() => {
+            if (loadingAsset) return <LoadingAnimation />
+
+            if (tokenHasSponsoredFarm) {
+                const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
+                const referredTokenAPR = referredTokenAPRValue ? (
+                    `${Number.parseFloat((referredTokenAPRValue * 100).toFixed(2))}%`
                 ) : (
-                    <span>{loadingAsset ? <LoadingAnimation /> : referredTokenAPR}</span>
+                    <span>&#8734;</span>
                 )
-            ) : null
+                return referredTokenAPR
+            }
+
+            if (!isNotAdded || isAdded || (info.inList && info.from === 'search')) return '-'
+
+            return '-'
         }, [info, isNotAdded, isAdded, data.balance])
 
         return (
@@ -137,16 +137,11 @@ export const getERC20TokenListItem =
                         component="span">
                         <div className={classes.metaInfo}>
                             <span className={classes.symbol}>{symbol}</span>{' '}
-                            {noFarmForToken && (
+                            {tokenHasSponsoredFarm && (
                                 <Box className={classes.typeIcon}>
-                                    <SvgIcons icon={Icons.UnderReviewIcon} size={16} />
+                                    <SvgIcons icon={Icons.SponsoredFarmIcon} size={16} />
                                 </Box>
                             )}
-                            {tokenTypeIcons.map((icon) => (
-                                <Box className={classes.typeIcon} key={uuid()}>
-                                    <SvgIcons icon={icon} size={16} />
-                                </Box>
-                            ))}
                         </div>
                         <span className={`${classes.name} dashboard token-list-symbol`}>
                             {name}
@@ -154,7 +149,7 @@ export const getERC20TokenListItem =
                         </span>
                     </Typography>
                     <Typography sx={{ fontSize: 16 }} color="textSecondary" component="span">
-                        {action}
+                        {aprColumn}
                     </Typography>
                 </ListItemText>
             </ListItem>
