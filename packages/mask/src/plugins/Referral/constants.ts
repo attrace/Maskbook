@@ -28,3 +28,6 @@ export const MASK_TOKEN = {
     name: 'Mask',
 }
 export const supportedChainIds = [ChainId.Rinkeby]
+
+// APR = N/A in the first itaration
+export const APR = 'N/A'

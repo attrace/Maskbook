@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import { Icons, ChainAddress } from '../../types'
 import { toChainAddress } from '../helpers'
 import { SvgIcons } from '../Icons'
+import { APR } from '../../constants'
 
 const useStyles = makeStyles()((theme) => ({
     icon: {
@@ -83,7 +84,6 @@ export const getERC20TokenListItem =
         selectedTokens: string[],
         loadingAsset: boolean,
         referredTokensDefn: ChainAddress[],
-        referredTokensAPR?: Map<ChainAddress, { APR?: number }>,
     ) =>
     ({ data, onSelect }: MaskSearchableListItemProps<Asset>) => {
         const { classes } = useStyles()
@@ -107,13 +107,7 @@ export const getERC20TokenListItem =
             if (loadingAsset) return <LoadingAnimation />
 
             if (tokenHasSponsoredFarm) {
-                const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
-                const referredTokenAPR = referredTokenAPRValue ? (
-                    `${Number.parseFloat((referredTokenAPRValue * 100).toFixed(2))}%`
-                ) : (
-                    <span>&#8734;</span>
-                )
-                return referredTokenAPR
+                return APR
             }
 
             if (!isNotAdded || isAdded || (info.inList && info.from === 'search')) return '-'

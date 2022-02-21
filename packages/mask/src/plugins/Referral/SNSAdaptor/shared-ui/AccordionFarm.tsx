@@ -2,6 +2,7 @@ import { Grid, Typography, Accordion, AccordionDetails, AccordionSummary } from 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import { makeStyles } from '@masknet/theme'
+import { APR } from '../../constants'
 
 const useStyles = makeStyles()((theme) => {
     const isDarkMode = theme.palette.mode === 'dark'
@@ -46,21 +47,8 @@ export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
     apr?: number
 }
 
-export function AccordionFarm({
-    farmDetails,
-    accordionDetails,
-    rewardTokenSymbol,
-    totalValue,
-    apr,
-}: AccordionFarmProps) {
+export function AccordionFarm({ farmDetails, accordionDetails, rewardTokenSymbol, totalValue }: AccordionFarmProps) {
     const { classes } = useStyles()
-
-    const aprFormatted =
-        apr || apr === 0 ? (
-            <>{apr === 0 ? <span>&#8734;</span> : `${Number.parseFloat((apr * 100).toFixed(2))}%`}</>
-        ) : (
-            '-'
-        )
 
     return (
         <Accordion className={classes.accordion}>
@@ -76,7 +64,7 @@ export function AccordionFarm({
                     {farmDetails}
                 </Grid>
                 <Grid item xs={2} display="flex" alignItems="center">
-                    <Typography className={classes.total}>{aprFormatted}</Typography>
+                    <Typography className={classes.total}>{APR}</Typography>
                 </Grid>
                 <Grid item xs={4} display="flex" alignItems="center">
                     <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>

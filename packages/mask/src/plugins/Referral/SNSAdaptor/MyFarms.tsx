@@ -15,14 +15,13 @@ import {
 } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
-import { getAccountRewardsProofs, getFarmsAPR } from '../Worker/apis/verifier'
+import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
 import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
 import { ATTR_TOKEN, MASK_TOKEN } from '../constants'
 import {
     Farm,
-    FarmsAPR,
     RewardProof,
     VerifierEffect,
     HarvestRequest,
@@ -104,17 +103,8 @@ interface FarmsListProps extends PageInterface {
     rewardsHarvested: RewardsHarvestedEvent[]
     allTokens: ERC20TokenDetailed[]
     farms: Farm[]
-    farmsAPR?: FarmsAPR
 }
-function FarmsList({
-    rewardsProofs,
-    allTokens,
-    farms,
-    farmsAPR,
-    pageType,
-    rewardsHarvested,
-    ...props
-}: FarmsListProps) {
+function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested, ...props }: FarmsListProps) {
     const { t } = useI18N()
     const chainId = useChainId()
     const account = useAccount()
@@ -199,17 +189,14 @@ function FarmsList({
         <>
             {rewardsProofs.map((proof) => {
                 let totalRewards = 0
-                let totalAPR = 0
                 let farm: Farm | undefined
                 const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
 
                 proof.req.rewards.forEach((reward) => {
                     const farmDetails = farmsMap.get(reward.farmHash)
-                    const farmAPR = farmsAPR?.get(reward.farmHash)?.APR || 0
 
                     farm = farmDetails
                     totalRewards = totalRewards + Number(fromWei(reward.value.hex))
-                    totalAPR = totalAPR + farmAPR
                 })
 
                 if (!farm) return null
@@ -234,7 +221,6 @@ function FarmsList({
                                 />
                             }
                             totalValue={totalRewards}
-                            apr={totalAPR}
                             rewardTokenSymbol={rewardToken.symbol}
                             accordionDetails={
                                 <Box display="flex" flexDirection="column">
@@ -288,7 +274,6 @@ function FarmsList({
                         farm={farm}
                         allTokensMap={allTokensMap}
                         totalValue={totalRewards}
-                        apr={totalAPR}
                         accordionDetails={
                             <Box display="flex" justifyContent="flex-end">
                                 {claimed ? (
@@ -340,8 +325,7 @@ export function MyFarms(props: PageInterface) {
 
     // fetch farm for referred tokens
     const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
+
     // fetch tokens data
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
@@ -368,7 +352,7 @@ export function MyFarms(props: PageInterface) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingProofs || loadingAllTokens || loadingFarms || loadingFarmsAPR || loadingRewardsHarvested ? (
+                {loadingProofs || loadingAllTokens || loadingFarms || loadingRewardsHarvested ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
@@ -383,7 +367,6 @@ export function MyFarms(props: PageInterface) {
                                 rewardsHarvested={rewardsHarvested}
                                 allTokens={allTokens}
                                 farms={farms}
-                                farmsAPR={farmsAPR}
                                 {...props}
                             />
                         )}

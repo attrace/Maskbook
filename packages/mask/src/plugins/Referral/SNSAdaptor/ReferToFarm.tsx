@@ -33,7 +33,6 @@ import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsAPR } from '../Worker/apis/verifier'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
@@ -94,8 +93,6 @@ export function ReferToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
 
     // token list
     const referredTokensDefn = farms.map((farm) => farm.referredTokenDefn)
@@ -212,7 +209,7 @@ export function ReferToFarm(props: PageInterface) {
                                         <RewardDataWidget
                                             title={t('plugin_referral_sponsored_referral_farm')}
                                             icon={Icons.SponsoredFarmIcon}
-                                            rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
+                                            rewardData={getFarmsRewardData(sponsoredFarms)}
                                             tokenSymbol={token?.symbol}
                                         />
                                     ) : null}

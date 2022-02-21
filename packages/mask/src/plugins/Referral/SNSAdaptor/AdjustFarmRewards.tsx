@@ -20,7 +20,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { Deposit } from './CreateFarm'
-import { ATTRACE_FEE_PERCENT } from '../constants'
+import { APR, ATTRACE_FEE_PERCENT } from '../constants'
 import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { Transaction } from './shared-ui/Transaction'
@@ -248,7 +248,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
 
     const rewardData = {
-        apr: farm?.apr,
+        apr: APR,
         dailyReward: Number.parseFloat(farmMetaState?.dailyFarmReward?.toFixed(5) ?? '0'),
         totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
     }
@@ -380,7 +380,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                 <Box>
                                     {t('plugin_referral_estimated_apr')}
                                     <Typography fontWeight={600} marginTop="4px">
-                                        {rewardData?.apr ? `${rewardData.apr * 100}%` : <span>&#8734;</span>}
+                                        {rewardData.apr}
                                     </Typography>
                                 </Box>
                             </Grid>

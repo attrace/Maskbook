@@ -300,13 +300,6 @@ export enum SearchFarmTypes {
     attrFarm = 'attrFarmsTokens',
 }
 
-export type FarmsAPR = Map<
-    string,
-    {
-        APR?: number | undefined
-    }
->
-
 // effects
 export type VerifierEffect = { nonce: number; proof: string[] }
 export type FarmRewardStruct = {

@@ -1,6 +1,7 @@
 import { Typography, Box, Grid } from '@mui/material'
 
 import { useI18N } from '../../../../utils'
+import { APR } from '../../constants'
 import type { Icons, RewardData } from '../../types'
 import { SvgIcons } from '../Icons'
 
@@ -28,17 +29,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
                 <Box>
                     {t('plugin_referral_estimated_apr')}
                     <Typography fontWeight={600} marginTop="4px">
-                        {rewardData?.apr || rewardData?.apr === 0 ? (
-                            <>
-                                {rewardData.apr === 0 ? (
-                                    <span>&#8734;</span>
-                                ) : (
-                                    `${Number.parseFloat(rewardData.apr.toFixed(2))}%`
-                                )}
-                            </>
-                        ) : (
-                            '-'
-                        )}
+                        {APR}
                     </Typography>
                 </Box>
             </Grid>

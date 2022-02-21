@@ -15,7 +15,6 @@ import { useCurrentIdentity } from '../../../components/DataSource/useActivatedU
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import { useAsync } from 'react-use'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsAPR } from '../Worker/apis/verifier'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import type { Coin } from '../../Trader/types'
 import { PluginTraderMessages } from '../../Trader/messages'
@@ -64,8 +63,6 @@ export function FarmPost(props: FarmPostProps) {
         async () => (chainId ? getAllFarms(web3, chainId) : []),
         [chainId],
     )
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
 
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
@@ -194,7 +191,7 @@ export function FarmPost(props: FarmPostProps) {
                                             <RewardDataWidget
                                                 title={t('plugin_referral_sponsored_referral_farm')}
                                                 icon={Icons.SponsoredFarmIcon}
-                                                rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
+                                                rewardData={getFarmsRewardData(sponsoredFarms)}
                                                 tokenSymbol={payload.referral_token_symbol}
                                             />
                                         ) : null}

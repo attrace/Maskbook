@@ -1,6 +1,6 @@
 import { createRenderWithMetadata, createTypedMessageMetadataReader } from '@masknet/shared-base'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN, REFERRAL_META_KEY, MASK_TOKEN, ATTR_TOKEN } from '../constants'
-import type { ReferralMetaData, ChainAddress, RewardData, Farm, FarmsAPR } from '../types'
+import type { ReferralMetaData, ChainAddress, RewardData, Farm } from '../types'
 import { Icons } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
@@ -46,7 +46,7 @@ export function getFarmTypeIconByReferredToken(
     }
     return Icons.UnderReviewIcon
 }
-export function getFarmsRewardData(farms?: Farm[], farmsAPR?: FarmsAPR): RewardData {
+export function getFarmsRewardData(farms?: Farm[]): RewardData {
     const dailyReward = farms?.reduce(function (previousValue, currentValue) {
         return previousValue + currentValue.dailyFarmReward
     }, 0)
@@ -54,19 +54,11 @@ export function getFarmsRewardData(farms?: Farm[], farmsAPR?: FarmsAPR): RewardD
         return previousValue + currentValue.totalFarmRewards
     }, 0)
 
-    let apr = 0
-    if (farms && farmsAPR) {
-        farms.forEach((farm) => {
-            const farmAPR = farmsAPR.get(farm.farmHash)?.APR || 0
-
-            apr = apr + farmAPR
-        })
-    }
-
     return {
         dailyReward: dailyReward || 0,
         totalReward: totalReward || 0,
-        apr: apr * 100,
+        // TODO: add APR in the next iteration
+        apr: 0,
     }
 }
 export function getSponsoredFarmsForReferredToken(chainId?: number, referredToken?: string, farms?: Farm[]) {
