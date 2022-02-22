@@ -16,8 +16,6 @@ import { getAllFarms } from '../Worker/apis/farms'
 import {
     TabsCreateFarm,
     TransactionStatus,
-    FARM_TYPE,
-    Farm,
     ChainAddress,
     PageInterface,
     PagesType,
@@ -82,10 +80,9 @@ export function BuyToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-    const pairTokenFarms: Farm[] = farms.filter((farm) => farm.farmType === FARM_TYPE.PAIR_TOKEN)
 
-    const referredTokensDefn: ChainAddress[] = pairTokenFarms.map((farm) => farm.referredTokenDefn)
-    // select uniq tokens
+    // get farm referred tokens defn
+    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
     const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
     const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
 
@@ -153,7 +150,7 @@ export function BuyToFarm(props: PageInterface) {
         )
     }
     const referredTokenFarms = token
-        ? pairTokenFarms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
+        ? farms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
         : []
     const rewardData = getFarmsRewardData(referredTokenFarms)
 

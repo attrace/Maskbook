@@ -101,12 +101,12 @@ export const getERC20TokenListItem =
         }
 
         const tokenChainAddr = toChainAddress(chainId, address)
-        const tokenHasSponsoredFarm = referredTokensDefn.includes(tokenChainAddr)
+        const tokenHasFarm = referredTokensDefn.includes(tokenChainAddr)
 
         const aprColumn = useMemo(() => {
             if (loadingAsset) return <LoadingAnimation />
 
-            if (tokenHasSponsoredFarm) {
+            if (tokenHasFarm) {
                 return APR
             }
 
@@ -131,7 +131,7 @@ export const getERC20TokenListItem =
                         component="span">
                         <div className={classes.metaInfo}>
                             <span className={classes.symbol}>{symbol}</span>{' '}
-                            {tokenHasSponsoredFarm && (
+                            {tokenHasFarm && (
                                 <Box className={classes.typeIcon}>
                                     <SvgIcons icon={Icons.SponsoredFarmIcon} size={16} />
                                 </Box>

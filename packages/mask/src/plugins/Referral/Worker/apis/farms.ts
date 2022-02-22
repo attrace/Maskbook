@@ -7,7 +7,6 @@ import {
     FarmDepositChange,
     ChainId,
     Farm,
-    FARM_TYPE,
     FarmDepositAndMetastate,
     FarmHash,
     RewardsHarvestedEvent,
@@ -21,7 +20,6 @@ import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import { FARM_ABI } from './abis'
 
-import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../../constants'
 import BigNumber from 'bignumber.js'
 
 const iface = new Interface(FARM_ABI)
@@ -244,23 +242,15 @@ function parseBasicFarmEvents(unparsed: any) {
     )
     uniqueFarms.forEach((event) => {
         const { farmHash, referredTokenDefn, rewardTokenDefn, sponsor } = event.args
-        let farm: Farm = {
+        const farm: Farm = {
             farmHash,
             referredTokenDefn,
             rewardTokenDefn,
             sponsor,
-            farmType: FARM_TYPE.PAIR_TOKEN,
             totalFarmRewards: farmMap.get(farmHash)?.totalFarmRewards || 0,
             dailyFarmReward: farmMap.get(farmHash)?.dailyFarmReward || 0,
         }
 
-        if (referredTokenDefn === PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN) {
-            const farmTokens: string[] = allEventsFarmTokenChange
-                .filter((e) => e.args.farmHash === farmHash)
-                .map((e) => e.args.token)
-
-            farm = { ...farm, tokens: farmTokens, farmType: FARM_TYPE.PROPORTIONAL }
-        }
         farms.push(farm)
     })
 

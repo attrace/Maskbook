@@ -4,7 +4,7 @@ import { useI18N } from '../../../../utils'
 
 import type { ChainId } from '@masknet/web3-shared-evm'
 
-import { getFarmTypeIconByReferredToken } from '../helpers'
+import { Icons } from '../../types'
 
 import { Box, Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
@@ -51,24 +51,14 @@ export interface TokenProps {
 
 export interface ReferredFarmTokenDetailedProps extends React.PropsWithChildren<{}> {
     token?: TokenProps
-    referredTokenDefn: string
-    rewardTokenDefn: string
-    chainId: ChainId
     hideFarmTypeIcon?: boolean
 }
 
-export function ReferredFarmTokenDetailed({
-    token,
-    referredTokenDefn,
-    rewardTokenDefn,
-    chainId,
-    hideFarmTypeIcon = false,
-}: ReferredFarmTokenDetailedProps) {
+export function ReferredFarmTokenDetailed({ token, hideFarmTypeIcon = false }: ReferredFarmTokenDetailedProps) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
 
-    const farmTypeIcon = getFarmTypeIconByReferredToken(referredTokenDefn, rewardTokenDefn, chainId)
     return (
         <div className={classes.container}>
             {token && (
@@ -79,7 +69,7 @@ export function ReferredFarmTokenDetailed({
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
                             {!hideFarmTypeIcon && (
                                 <Box className={classes.icon}>
-                                    <SvgIcons icon={farmTypeIcon} />
+                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
                                 </Box>
                             )}
                         </div>

@@ -1,8 +1,14 @@
+import { makeStyles } from '@masknet/theme'
+import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet/web3-shared-evm'
 import { Grid, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-import { makeStyles } from '@masknet/theme'
+import { parseChainAddress, FarmExistsEvent } from '../../types'
+
+import { toNativeRewardTokenDefn } from '../helpers'
 import { APR } from '../../constants'
+
+import { ReferredFarmTokenDetailed } from './ReferredFarmTokenDetailed'
 
 const useStyles = makeStyles()((theme) => {
     const isDarkMode = theme.palette.mode === 'dark'
@@ -40,15 +46,25 @@ const useStyles = makeStyles()((theme) => {
 })
 
 export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
-    farmDetails: React.ReactElement
-    accordionDetails: React.ReactElement
+    farm: FarmExistsEvent
+    allTokensMap: Map<string, ERC20TokenDetailed>
     totalValue: number
-    rewardTokenSymbol?: string
+    accordionDetails: React.ReactElement
     apr?: number
 }
 
-export function AccordionFarm({ farmDetails, accordionDetails, rewardTokenSymbol, totalValue }: AccordionFarmProps) {
+export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails }: AccordionFarmProps) {
     const { classes } = useStyles()
+
+    const chainId = useChainId()
+    const { value: nativeToken } = useNativeTokenDetailed()
+
+    const nativeRewardToken = toNativeRewardTokenDefn(chainId)
+    const rewardToken =
+        farm.rewardTokenDefn === nativeRewardToken
+            ? nativeToken
+            : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+    const rewardTokenSymbol = rewardToken?.symbol
 
     return (
         <Accordion className={classes.accordion}>
@@ -61,7 +77,7 @@ export function AccordionFarm({ farmDetails, accordionDetails, rewardTokenSymbol
                     content: classes.accordionSummaryContent,
                 }}>
                 <Grid item xs={6}>
-                    {farmDetails}
+                    <ReferredFarmTokenDetailed token={rewardToken} />
                 </Grid>
                 <Grid item xs={2} display="flex" alignItems="center">
                     <Typography className={classes.total}>{APR}</Typography>

@@ -1,8 +1,7 @@
 import { useAsync } from 'react-use'
 
 import { FormattedBalance, TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
-import { getFarmTypeIconByReferredToken } from './helpers'
-import { AdjustFarmRewardsInterface, TransactionStatus } from '../types'
+import { AdjustFarmRewardsInterface, TransactionStatus, Icons } from '../types'
 import { useI18N } from '../../../utils'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
@@ -89,12 +88,6 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
     const chainId = useChainId()
     const web3 = useWeb3({ chainId })
     const account = useAccount()
-
-    const farmTypeIcon = getFarmTypeIconByReferredToken(
-        farm?.referredTokenDefn ?? '',
-        farm?.rewardTokenDefn ?? '',
-        chainId,
-    )
 
     const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
 
@@ -367,7 +360,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                     <div className={classes.nameFarm}>
                                         {token.symbol} {t('plugin_referral_referral_farm')}{' '}
                                         <Box paddingLeft={1}>
-                                            <SvgIcons icon={farmTypeIcon} />
+                                            <SvgIcons icon={Icons.SponsoredFarmIcon} />
                                         </Box>
                                     </div>
                                     <span className={classes.name}>{token.name}</span>

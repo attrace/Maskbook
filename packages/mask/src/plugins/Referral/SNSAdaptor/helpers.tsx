@@ -1,7 +1,6 @@
 import { createRenderWithMetadata, createTypedMessageMetadataReader } from '@masknet/shared-base'
-import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN, REFERRAL_META_KEY, MASK_TOKEN, ATTR_TOKEN } from '../constants'
-import type { ReferralMetaData, ChainAddress, RewardData, Farm } from '../types'
-import { Icons } from '../types'
+import { REFERRAL_META_KEY } from '../constants'
+import type { ReferralMetaData, RewardData, Farm } from '../types'
 import schema from '../schema.json'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
@@ -28,24 +27,6 @@ export function toNativeRewardTokenDefn(chainId: ChainId): string {
 }
 
 // farms
-export function getFarmTypeIconByReferredToken(
-    referredTokenDefn: ChainAddress,
-    rewardTokenDefn: ChainAddress,
-    chainId: ChainId,
-) {
-    if (referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN) {
-        return Icons.SponsoredFarmIcon
-    }
-
-    if (rewardTokenDefn === toChainAddress(chainId, ATTR_TOKEN.address)) {
-        return Icons.AttrIcon
-    }
-
-    if (rewardTokenDefn === toChainAddress(chainId, MASK_TOKEN.address)) {
-        return Icons.MaskIcon
-    }
-    return Icons.UnderReviewIcon
-}
 export function getFarmsRewardData(farms?: Farm[]): RewardData {
     const dailyReward = farms?.reduce(function (previousValue, currentValue) {
         return previousValue + currentValue.dailyFarmReward

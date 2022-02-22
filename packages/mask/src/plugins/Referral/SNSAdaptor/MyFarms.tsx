@@ -18,8 +18,7 @@ import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
-import { ATTR_TOKEN, MASK_TOKEN } from '../constants'
+import { toNativeRewardTokenDefn } from './helpers'
 import {
     Farm,
     RewardProof,
@@ -33,11 +32,8 @@ import {
     TabsReferralFarms,
 } from '../types'
 
-import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { fromWei } from 'web3-utils'
-import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
-import { TokenDetailed } from './shared-ui/TokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -116,9 +112,6 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
     const rewardsHarvestedMap = new Map(
         rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
     )
-
-    const rewardTokenDefnATTR = toChainAddress(chainId, ATTR_TOKEN.address)
-    const rewardTokenDefnMASK = toChainAddress(chainId, MASK_TOKEN.address)
 
     const onStartHarvestRewards = useCallback((totalRewards: number, rewardTokenSymbol?: string) => {
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
@@ -201,75 +194,13 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
 
                 if (!farm) return null
 
-                // proportional farm: ATTR or MASK is reward token
-                const isProportionalFarm =
-                    proof.req.rewardTokenDefn === rewardTokenDefnATTR ||
-                    proof.req.rewardTokenDefn === rewardTokenDefnMASK
-
-                if (isProportionalFarm) {
-                    const rewardToken = proof.req.rewardTokenDefn === rewardTokenDefnATTR ? ATTR_TOKEN : MASK_TOKEN
-                    return (
-                        <AccordionFarm
-                            key={uuid()}
-                            farmDetails={
-                                <ReferredFarmTokenDetailed
-                                    token={rewardToken}
-                                    referredTokenDefn={proof.req.rewardTokenDefn}
-                                    rewardTokenDefn={proof.req.rewardTokenDefn}
-                                    chainId={chainId}
-                                    hideFarmTypeIcon
-                                />
-                            }
-                            totalValue={totalRewards}
-                            rewardTokenSymbol={rewardToken.symbol}
-                            accordionDetails={
-                                <Box display="flex" flexDirection="column">
-                                    <Box>
-                                        {farm.tokens?.map((token) => (
-                                            <Box marginBottom="8px" key={uuid()}>
-                                                <TokenDetailed
-                                                    token={allTokensMap.get(parseChainAddress(token).address)}
-                                                />
-                                            </Box>
-                                        ))}
-                                    </Box>
-                                    <Box display="flex" justifyContent="flex-end">
-                                        {claimed ? (
-                                            <Typography display="flex" alignItems="center" marginRight="8px">
-                                                <span style={{ fontWeight: 600, marginRight: '4px' }}>Claimed: </span>{' '}
-                                                {claimed} {rewardToken.symbol}
-                                            </Typography>
-                                        ) : (
-                                            <Button
-                                                disabled={!!claimed}
-                                                variant="contained"
-                                                size="medium"
-                                                onClick={() =>
-                                                    onHarvestRewardsClickButton(
-                                                        proof.effect,
-                                                        proof.req,
-                                                        totalRewards,
-                                                        rewardToken.symbol,
-                                                    )
-                                                }>
-                                                {t('plugin_referral_harvest_rewards')}
-                                            </Button>
-                                        )}
-                                    </Box>
-                                </Box>
-                            }
-                        />
-                    )
-                }
-
-                // sponsored farms
                 const nativeRewardToken = toNativeRewardTokenDefn(chainId)
                 const rewardToken =
                     farm.rewardTokenDefn === nativeRewardToken
                         ? nativeToken
                         : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
                 return (
-                    <AccordionSponsoredFarm
+                    <AccordionFarm
                         key={uuid()}
                         farm={farm}
                         allTokensMap={allTokensMap}

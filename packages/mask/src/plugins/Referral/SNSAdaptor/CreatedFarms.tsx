@@ -15,7 +15,7 @@ import {
 import { fromWei } from 'web3-utils'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
-import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
+import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
@@ -125,6 +125,7 @@ export function CreatedFarms(props: PageInterface) {
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
+    // TODO: remove filter after new contract deploy
     const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
     const farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
 
@@ -172,7 +173,7 @@ export function CreatedFarms(props: PageInterface) {
                         ) : (
                             farms.map((farm) => {
                                 return (
-                                    <AccordionSponsoredFarm
+                                    <AccordionFarm
                                         key={uuid()}
                                         farm={farm}
                                         allTokensMap={allTokensMap}

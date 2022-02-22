@@ -166,8 +166,6 @@ export enum FARM_TYPE {
 }
 
 export interface Farm extends FarmExistsEvent {
-    tokens?: ChainAddress[]
-    farmType: FARM_TYPE
     // sum of all delta in FarmDepositChange event
     totalFarmRewards: number
     dailyFarmReward: number
