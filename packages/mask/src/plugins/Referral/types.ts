@@ -53,17 +53,16 @@ export interface ReferralMetaData {
     promoter_address?: string
     sender: string
 }
+
+// TODO: add new approach to render svg
 export enum Icons {
     ReferralIcon = 0,
-    AttrIcon = 1,
-    SponsoredFarmIcon = 2,
-    UnderReviewIcon = 3,
-    MaskIcon = 4,
-    ReferToFarm = 5,
-    CreateFarm = 6,
-    BuyToFarm = 7,
-    RewardIcon = 8,
-    AttrTextIcon = 9,
+    SponsoredFarmIcon = 1,
+    ReferToFarm = 2,
+    CreateFarm = 3,
+    BuyToFarm = 4,
+    RewardIcon = 5,
+    AttrTextIcon = 6,
 }
 export interface RewardData {
     apr: number
@@ -159,11 +158,6 @@ export interface RewardsHarvestedEvent {
     leafHash: string
 }
 export interface FarmEvent extends FarmExistsEvent, FarmDepositChange {}
-
-export enum FARM_TYPE {
-    PAIR_TOKEN = 'PAIR_TOKEN', // named after uniswapv2 pairs, where a pair represents a token pair liquidity pool, in our case it represents a token pair referral farm, no DEX value conversion happens to calculate position in the farm
-    PROPORTIONAL = 'PROPORTIONAL', // where multiple referred tokens are watched for added value, complex DEX value conversion happens to calculate proportional position compared to other farm participants
-}
 
 export interface Farm extends FarmExistsEvent {
     // sum of all delta in FarmDepositChange event
