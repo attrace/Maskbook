@@ -1,16 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { Box, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
 import classNames from 'classnames'
-import { v4 as uuid } from 'uuid'
 import { Asset, currySameAddress, FungibleTokenDetailed, isSameAddress } from '@masknet/web3-shared-evm'
 import { TokenIcon, LoadingAnimation } from '@masknet/shared'
 import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import { Icons, TokensGroupedByType, ChainAddress } from '../../types'
-import { toChainAddress, getTokenTypeIcons } from '../helpers'
+import { Icons, ChainAddress } from '../../types'
+import { toChainAddress } from '../helpers'
 import { SvgIcons } from '../Icons'
+import { APR } from '../../constants'
 
 const useStyles = makeStyles()((theme) => ({
     icon: {
@@ -83,8 +83,7 @@ export const getERC20TokenListItem =
         },
         selectedTokens: string[],
         loadingAsset: boolean,
-        tokensGroupedByType: TokensGroupedByType,
-        referredTokensAPR?: Map<ChainAddress, { APR?: number }>,
+        referredTokensDefn: ChainAddress[],
     ) =>
     ({ data, onSelect }: MaskSearchableListItemProps<Asset>) => {
         const { classes } = useStyles()
@@ -102,23 +101,18 @@ export const getERC20TokenListItem =
         }
 
         const tokenChainAddr = toChainAddress(chainId, address)
-        const tokenTypeIcons = getTokenTypeIcons(tokenChainAddr, tokensGroupedByType)
-        const noFarmForToken = tokenTypeIcons.length === 0
-        const referredTokenAPRValue = referredTokensAPR?.get(tokenChainAddr)?.APR
-        const referredTokenAPR = referredTokenAPRValue ? (
-            `${Number.parseFloat((referredTokenAPRValue * 100).toFixed(2))}%`
-        ) : (
-            <span>&#8734;</span>
-        )
+        const tokenHasFarm = referredTokensDefn.includes(tokenChainAddr)
 
-        const action = useMemo(() => {
-            return !isNotAdded || isAdded || (info.inList && info.from === 'search') ? (
-                noFarmForToken ? (
-                    '-'
-                ) : (
-                    <span>{loadingAsset ? <LoadingAnimation /> : referredTokenAPR}</span>
-                )
-            ) : null
+        const aprColumn = useMemo(() => {
+            if (loadingAsset) return <LoadingAnimation />
+
+            if (tokenHasFarm) {
+                return APR
+            }
+
+            if (!isNotAdded || isAdded || (info.inList && info.from === 'search')) return '-'
+
+            return '-'
         }, [info, isNotAdded, isAdded, data.balance])
 
         return (
@@ -137,16 +131,11 @@ export const getERC20TokenListItem =
                         component="span">
                         <div className={classes.metaInfo}>
                             <span className={classes.symbol}>{symbol}</span>{' '}
-                            {noFarmForToken && (
+                            {tokenHasFarm && (
                                 <Box className={classes.typeIcon}>
-                                    <SvgIcons icon={Icons.UnderReviewIcon} size={16} />
+                                    <SvgIcons icon={Icons.SponsoredFarmIcon} size={16} />
                                 </Box>
                             )}
-                            {tokenTypeIcons.map((icon) => (
-                                <Box className={classes.typeIcon} key={uuid()}>
-                                    <SvgIcons icon={icon} size={16} />
-                                </Box>
-                            ))}
                         </div>
                         <span className={`${classes.name} dashboard token-list-symbol`}>
                             {name}
@@ -154,7 +143,7 @@ export const getERC20TokenListItem =
                         </span>
                     </Typography>
                     <Typography sx={{ fontSize: 16 }} color="textSecondary" component="span">
-                        {action}
+                        {aprColumn}
                     </Typography>
                 </ListItemText>
             </ListItem>

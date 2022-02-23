@@ -13,10 +13,9 @@ import {
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
-import { getFarmsAPR } from '../Worker/apis/verifier'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
 import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
-import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
+import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
@@ -123,14 +122,10 @@ export function CreatedFarms(props: PageInterface) {
         async () => getFarmsDeposits(web3, chainId),
         [web3],
     )
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(
-        async () => getFarmsAPR({ sponsor: account }),
-        [account],
-    )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
 
+    // TODO: remove filter after new contract deploy
     const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
     const farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
 
@@ -177,15 +172,12 @@ export function CreatedFarms(props: PageInterface) {
                             <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
                             farms.map((farm) => {
-                                const apr = farmsAPR?.get(farm.farmHash)?.APR || 0
-
                                 return (
-                                    <AccordionSponsoredFarm
+                                    <AccordionFarm
                                         key={uuid()}
                                         farm={farm}
                                         allTokensMap={allTokensMap}
                                         totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
-                                        apr={apr}
                                         accordionDetails={
                                             <Box display="flex" justifyContent="flex-end">
                                                 <Button
@@ -200,7 +192,7 @@ export function CreatedFarms(props: PageInterface) {
                                                     variant="contained"
                                                     size="medium"
                                                     onClick={() => {
-                                                        onAdjustRewardButtonClick({ ...farm, apr })
+                                                        onAdjustRewardButtonClick({ ...farm })
                                                     }}>
                                                     {t('plugin_referral_adjust_rewards')}
                                                 </Button>

@@ -15,14 +15,12 @@ import {
 } from '@masknet/web3-shared-evm'
 import { makeStyles } from '@masknet/theme'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
-import { getAccountRewardsProofs, getFarmsAPR } from '../Worker/apis/verifier'
+import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
 import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
-import { toChainAddress, toNativeRewardTokenDefn } from './helpers'
-import { ATTR_TOKEN, MASK_TOKEN } from '../constants'
+import { toNativeRewardTokenDefn } from './helpers'
 import {
     Farm,
-    FarmsAPR,
     RewardProof,
     VerifierEffect,
     HarvestRequest,
@@ -34,11 +32,8 @@ import {
     TabsReferralFarms,
 } from '../types'
 
-import { AccordionSponsoredFarm } from './shared-ui/AccordionSponsoredFarm'
 import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { fromWei } from 'web3-utils'
-import { ReferredFarmTokenDetailed } from './shared-ui/ReferredFarmTokenDetailed'
-import { TokenDetailed } from './shared-ui/TokenDetailed'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -104,17 +99,8 @@ interface FarmsListProps extends PageInterface {
     rewardsHarvested: RewardsHarvestedEvent[]
     allTokens: ERC20TokenDetailed[]
     farms: Farm[]
-    farmsAPR?: FarmsAPR
 }
-function FarmsList({
-    rewardsProofs,
-    allTokens,
-    farms,
-    farmsAPR,
-    pageType,
-    rewardsHarvested,
-    ...props
-}: FarmsListProps) {
+function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested, ...props }: FarmsListProps) {
     const { t } = useI18N()
     const chainId = useChainId()
     const account = useAccount()
@@ -126,9 +112,6 @@ function FarmsList({
     const rewardsHarvestedMap = new Map(
         rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
     )
-
-    const rewardTokenDefnATTR = toChainAddress(chainId, ATTR_TOKEN.address)
-    const rewardTokenDefnMASK = toChainAddress(chainId, MASK_TOKEN.address)
 
     const onStartHarvestRewards = useCallback((totalRewards: number, rewardTokenSymbol?: string) => {
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
@@ -199,96 +182,29 @@ function FarmsList({
         <>
             {rewardsProofs.map((proof) => {
                 let totalRewards = 0
-                let totalAPR = 0
                 let farm: Farm | undefined
                 const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
 
                 proof.req.rewards.forEach((reward) => {
                     const farmDetails = farmsMap.get(reward.farmHash)
-                    const farmAPR = farmsAPR?.get(reward.farmHash)?.APR || 0
 
                     farm = farmDetails
                     totalRewards = totalRewards + Number(fromWei(reward.value.hex))
-                    totalAPR = totalAPR + farmAPR
                 })
 
                 if (!farm) return null
 
-                // proportional farm: ATTR or MASK is reward token
-                const isProportionalFarm =
-                    proof.req.rewardTokenDefn === rewardTokenDefnATTR ||
-                    proof.req.rewardTokenDefn === rewardTokenDefnMASK
-
-                if (isProportionalFarm) {
-                    const rewardToken = proof.req.rewardTokenDefn === rewardTokenDefnATTR ? ATTR_TOKEN : MASK_TOKEN
-                    return (
-                        <AccordionFarm
-                            key={uuid()}
-                            farmDetails={
-                                <ReferredFarmTokenDetailed
-                                    token={rewardToken}
-                                    referredTokenDefn={proof.req.rewardTokenDefn}
-                                    rewardTokenDefn={proof.req.rewardTokenDefn}
-                                    chainId={chainId}
-                                    hideFarmTypeIcon
-                                />
-                            }
-                            totalValue={totalRewards}
-                            apr={totalAPR}
-                            rewardTokenSymbol={rewardToken.symbol}
-                            accordionDetails={
-                                <Box display="flex" flexDirection="column">
-                                    <Box>
-                                        {farm.tokens?.map((token) => (
-                                            <Box marginBottom="8px" key={uuid()}>
-                                                <TokenDetailed
-                                                    token={allTokensMap.get(parseChainAddress(token).address)}
-                                                />
-                                            </Box>
-                                        ))}
-                                    </Box>
-                                    <Box display="flex" justifyContent="flex-end">
-                                        {claimed ? (
-                                            <Typography display="flex" alignItems="center" marginRight="8px">
-                                                <span style={{ fontWeight: 600, marginRight: '4px' }}>Claimed: </span>{' '}
-                                                {claimed} {rewardToken.symbol}
-                                            </Typography>
-                                        ) : (
-                                            <Button
-                                                disabled={!!claimed}
-                                                variant="contained"
-                                                size="medium"
-                                                onClick={() =>
-                                                    onHarvestRewardsClickButton(
-                                                        proof.effect,
-                                                        proof.req,
-                                                        totalRewards,
-                                                        rewardToken.symbol,
-                                                    )
-                                                }>
-                                                {t('plugin_referral_harvest_rewards')}
-                                            </Button>
-                                        )}
-                                    </Box>
-                                </Box>
-                            }
-                        />
-                    )
-                }
-
-                // sponsored farms
                 const nativeRewardToken = toNativeRewardTokenDefn(chainId)
                 const rewardToken =
                     farm.rewardTokenDefn === nativeRewardToken
                         ? nativeToken
                         : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
                 return (
-                    <AccordionSponsoredFarm
+                    <AccordionFarm
                         key={uuid()}
                         farm={farm}
                         allTokensMap={allTokensMap}
                         totalValue={totalRewards}
-                        apr={totalAPR}
                         accordionDetails={
                             <Box display="flex" justifyContent="flex-end">
                                 {claimed ? (
@@ -340,8 +256,7 @@ export function MyFarms(props: PageInterface) {
 
     // fetch farm for referred tokens
     const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
+
     // fetch tokens data
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
         async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
@@ -368,7 +283,7 @@ export function MyFarms(props: PageInterface) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingProofs || loadingAllTokens || loadingFarms || loadingFarmsAPR || loadingRewardsHarvested ? (
+                {loadingProofs || loadingAllTokens || loadingFarms || loadingRewardsHarvested ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
@@ -383,7 +298,6 @@ export function MyFarms(props: PageInterface) {
                                 rewardsHarvested={rewardsHarvested}
                                 allTokens={allTokens}
                                 farms={farms}
-                                farmsAPR={farmsAPR}
                                 {...props}
                             />
                         )}

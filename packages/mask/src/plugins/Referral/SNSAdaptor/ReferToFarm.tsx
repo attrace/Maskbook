@@ -7,7 +7,15 @@ import { useI18N } from '../../../utils'
 import { ChainId, FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { ReferralMetaData, TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons } from '../types'
+import {
+    ReferralMetaData,
+    TabsCreateFarm,
+    TransactionStatus,
+    PageInterface,
+    PagesType,
+    Icons,
+    parseChainAddress,
+} from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
@@ -16,7 +24,7 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 
 import { blue } from '@mui/material/colors'
-import { ATTR_TOKEN, MASK_SWAP_V1, MASK_TOKEN, REFERRAL_META_KEY } from '../constants'
+import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
@@ -25,8 +33,7 @@ import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsAPR } from '../Worker/apis/verifier'
-import { getFarmsRewardData, groupReferredTokenFarmsByType } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { SvgIcons } from './Icons'
@@ -86,8 +93,12 @@ export function ReferToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-    // fetch farms APR
-    const { value: farmsAPR, loading: loadingFarmsAPR } = useAsync(async () => getFarmsAPR({}), [])
+
+    // token list
+    const referredTokensDefn = farms.map((farm) => farm.referredTokenDefn)
+    // select uniq tokens
+    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
+    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
 
     const { attachMetadata, dropMetadata } = useCompositionContext()
 
@@ -112,29 +123,16 @@ export function ReferToFarm(props: PageInterface) {
             open: true,
             uuid: id,
             title: t('plugin_referral_select_a_token_to_refer'),
+            tokenList,
         })
-    }, [id, setToken])
+    }, [id, setToken, tokenList])
+
     // #endregion
     const farm_category_types = [
-        {
-            title: t('plugin_referral_attrace_referral_farm'),
-            desc: t('plugin_referral_attrace_referral_farm_desc'),
-            icon: <SvgIcons size={20} icon={Icons.AttrIcon} />,
-        },
-        {
-            title: t('plugin_referral_mask_referral_farm'),
-            desc: t('plugin_referral_mask_referral_farm_desc'),
-            icon: <SvgIcons size={20} icon={Icons.MaskIcon} />,
-        },
         {
             title: t('plugin_referral_sponsored_referral_farm'),
             desc: t('plugin_referral_sponsored_referral_farm_desc'),
             icon: <SvgIcons size={16} icon={Icons.SponsoredFarmIcon} />,
-        },
-        {
-            title: t('plugin_referral_under_review'),
-            desc: t('plugin_referral_under_review_desc'),
-            icon: <SvgIcons size={20} icon={Icons.UnderReviewIcon} />,
         },
     ]
     const insertData = (selectedReferralData: ReferralMetaData) => {
@@ -175,13 +173,7 @@ export function ReferToFarm(props: PageInterface) {
         )
     }
 
-    const { sponsoredFarms, attrFarms, maskFarms } = groupReferredTokenFarmsByType(
-        token?.chainId,
-        token?.address,
-        farms,
-    )
-
-    const noFarmForSelectedToken = token && !sponsoredFarms?.length && !attrFarms?.length && !maskFarms?.length
+    const sponsoredFarms = getSponsoredFarmsForReferredToken(token?.chainId, token?.address, farms)
 
     return (
         <>
@@ -212,35 +204,13 @@ export function ReferToFarm(props: PageInterface) {
                             </Grid>
                             <Typography>
                                 <Grid container>
-                                    {(!token || loadingAllFarms) && <RewardDataWidget />}
-                                    {noFarmForSelectedToken ? (
-                                        <RewardDataWidget
-                                            title={t('plugin_referral_under_review')}
-                                            icon={Icons.UnderReviewIcon}
-                                        />
-                                    ) : null}
+                                    {(!token || loadingAllFarms || !sponsoredFarms?.length) && <RewardDataWidget />}
                                     {sponsoredFarms?.length ? (
                                         <RewardDataWidget
                                             title={t('plugin_referral_sponsored_referral_farm')}
                                             icon={Icons.SponsoredFarmIcon}
-                                            rewardData={getFarmsRewardData(sponsoredFarms, farmsAPR)}
+                                            rewardData={getFarmsRewardData(sponsoredFarms)}
                                             tokenSymbol={token?.symbol}
-                                        />
-                                    ) : null}
-                                    {attrFarms?.length ? (
-                                        <RewardDataWidget
-                                            title={t('plugin_referral_attrace_referral_farm')}
-                                            icon={Icons.AttrIcon}
-                                            rewardData={getFarmsRewardData(attrFarms, farmsAPR)}
-                                            tokenSymbol={ATTR_TOKEN.symbol}
-                                        />
-                                    ) : null}
-                                    {maskFarms?.length ? (
-                                        <RewardDataWidget
-                                            title={t('plugin_referral_mask_referral_farm')}
-                                            icon={Icons.MaskIcon}
-                                            rewardData={getFarmsRewardData(maskFarms, farmsAPR)}
-                                            tokenSymbol={MASK_TOKEN.symbol}
                                         />
                                     ) : null}
                                 </Grid>

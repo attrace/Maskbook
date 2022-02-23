@@ -1,17 +1,9 @@
 import { Typography, Box, Grid } from '@mui/material'
 
 import { useI18N } from '../../../../utils'
-import { isDashboardPage } from '@masknet/shared-base'
-import { makeStyles } from '@masknet/theme'
+import { APR } from '../../constants'
 import type { Icons, RewardData } from '../../types'
 import { SvgIcons } from '../Icons'
-
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    icon: {
-        maxWidth: '20px',
-        maxHeight: '20px',
-    },
-}))
 
 export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}> {
     title?: string
@@ -22,14 +14,12 @@ export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}>
 
 export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: RewardDataWidgetWidgetProps) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
 
     return (
         <Grid container marginTop="24px">
             {title && (
                 <Grid item xs={12} container marginBottom="12px" alignItems="center">
-                    <SvgIcons icon={icon} size={20} />
+                    <SvgIcons icon={icon} />
                     <Grid item paddingX={1}>
                         <Typography fontWeight={600}>{title}</Typography>
                     </Grid>
@@ -39,17 +29,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
                 <Box>
                     {t('plugin_referral_estimated_apr')}
                     <Typography fontWeight={600} marginTop="4px">
-                        {rewardData?.apr || rewardData?.apr === 0 ? (
-                            <>
-                                {rewardData.apr === 0 ? (
-                                    <span>&#8734;</span>
-                                ) : (
-                                    `${Number.parseFloat(rewardData.apr.toFixed(2))}%`
-                                )}
-                            </>
-                        ) : (
-                            '-'
-                        )}
+                        {APR}
                     </Typography>
                 </Box>
             </Grid>

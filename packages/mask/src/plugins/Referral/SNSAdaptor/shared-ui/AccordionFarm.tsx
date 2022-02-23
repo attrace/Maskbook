@@ -1,61 +1,70 @@
+import { makeStyles } from '@masknet/theme'
+import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet/web3-shared-evm'
 import { Grid, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-import { makeStyles } from '@masknet/theme'
+import { parseChainAddress, FarmExistsEvent } from '../../types'
 
-const useStyles = makeStyles()((theme) => ({
-    accordion: {
-        marginBottom: '20px',
-        width: '100%',
-        ':first-of-type': {
-            borderRadius: 0,
+import { toNativeRewardTokenDefn } from '../helpers'
+import { APR } from '../../constants'
+
+import { ReferredFarmTokenDetailed } from './ReferredFarmTokenDetailed'
+
+const useStyles = makeStyles()((theme) => {
+    const isDarkMode = theme.palette.mode === 'dark'
+
+    return {
+        accordion: {
+            marginBottom: '20px',
+            width: '100%',
+            background: isDarkMode ? '#15171A' : theme.palette.background.default,
+            ':first-of-type': {
+                borderRadius: 0,
+            },
+            ':before': {
+                height: 0,
+                opacity: 0,
+            },
         },
-        ':before': {
-            height: 0,
-            opacity: 0,
+        accordionSummary: {
+            margin: 0,
+            padding: 0,
         },
-    },
-    accordionSummary: {
-        margin: 0,
-        padding: 0,
-    },
-    accordionSummaryContent: {
-        margin: '0px!important',
-    },
-    accordionDetails: {
-        marginTop: '8px',
-        padding: '8px',
-        background: theme.palette.background.default,
-        borderRadius: '4px',
-    },
-    total: {
-        marginRight: '5px',
-    },
-}))
+        accordionSummaryContent: {
+            margin: '0px!important',
+        },
+        accordionDetails: {
+            marginTop: '8px',
+            padding: '8px',
+            background: isDarkMode ? '#15171A' : theme.palette.background.default,
+            borderRadius: '4px',
+        },
+        total: {
+            marginRight: '5px',
+        },
+    }
+})
 
 export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
-    farmDetails: React.ReactElement
-    accordionDetails: React.ReactElement
+    farm: FarmExistsEvent
+    allTokensMap: Map<string, ERC20TokenDetailed>
     totalValue: number
-    rewardTokenSymbol?: string
+    accordionDetails: React.ReactElement
     apr?: number
 }
 
-export function AccordionFarm({
-    farmDetails,
-    accordionDetails,
-    rewardTokenSymbol,
-    totalValue,
-    apr,
-}: AccordionFarmProps) {
+export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails }: AccordionFarmProps) {
     const { classes } = useStyles()
 
-    const aprFormatted =
-        apr || apr === 0 ? (
-            <>{apr === 0 ? <span>&#8734;</span> : `${Number.parseFloat((apr * 100).toFixed(2))}%`}</>
-        ) : (
-            '-'
-        )
+    const chainId = useChainId()
+    const { value: nativeToken } = useNativeTokenDetailed()
+
+    const nativeRewardToken = toNativeRewardTokenDefn(chainId)
+    const rewardToken =
+        farm.rewardTokenDefn === nativeRewardToken
+            ? nativeToken
+            : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+    const rewardTokenSymbol = rewardToken?.symbol
 
     return (
         <Accordion className={classes.accordion}>
@@ -68,10 +77,10 @@ export function AccordionFarm({
                     content: classes.accordionSummaryContent,
                 }}>
                 <Grid item xs={6}>
-                    {farmDetails}
+                    <ReferredFarmTokenDetailed token={rewardToken} />
                 </Grid>
                 <Grid item xs={2} display="flex" alignItems="center">
-                    <Typography className={classes.total}>{aprFormatted}</Typography>
+                    <Typography className={classes.total}>{APR}</Typography>
                 </Grid>
                 <Grid item xs={4} display="flex" alignItems="center">
                     <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>

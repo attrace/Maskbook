@@ -51,6 +51,8 @@ const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
         },
         dialogPaper: {
             maxWidth: '600px!important',
+            boxShadow: 'none!important',
+            backgroundImage: 'none!important',
         },
         dialogCloseButton: {
             display: hideBackBtn ? 'none' : 'inline-flex',
