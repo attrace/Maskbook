@@ -6,7 +6,7 @@ export const base: Plugin.Shared.Definition = {
     icon: '\u{1F4B0}',
     name: { fallback: 'Referral' },
     description: {
-        fallback: 'A plugin for Referral Farming',
+        fallback: 'A plugin for Referral Farms',
     },
     publisher: { name: { fallback: 'Mask Network' }, link: 'https://mask.io/' },
     enableRequirement: {
