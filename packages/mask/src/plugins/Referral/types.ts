@@ -84,7 +84,6 @@ export interface DepositProps {
     tokenSymbol?: string
     attraceFee: BigNumber
     requiredChainId: ChainId
-    isTransactionProcessing: boolean
     onDeposit: () => Promise<void>
 }
 export type Metastate = Array<MetastateKeyValue>
