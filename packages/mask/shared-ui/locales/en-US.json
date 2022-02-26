@@ -1028,9 +1028,8 @@
     "plugin_referral_sponsored_referral_farm": "Sponsored Referral Farm",
     "plugin_referral_referral_farm": "Referral Farm",
     "plugin_referral_no_created_farm": "You haven't created any referral farm yet",
-    "plugin_referral_transaction_confirmation_title": "Confirm permission and deposit",
     "plugin_referral_transaction_complete_signature_request": "Complete signature request",
-    "plugin_referral_transaction_sign_the_message_for_rewards": "Sign the message to register your address for rewards",
+    "plugin_referral_transaction_sign_the_message_to_register_address_for_rewards": "Sign the message to register your address for rewards",
     "plugin_referral_token_to_refer": "Token to Refer",
     "plugin_referral_sponsored_referral_farm_desc": "rewards in tokens chosen by the sponsor",
     "plugin_referral_select_a_token_to_refer": "Select a Token to Refer",
@@ -1043,7 +1042,6 @@
     "plugin_referral_buy_to_farm": "Buy to Farm",
     "plugin_referral_buy_to_farm_desc": "buy & hold sponsored tokens and earn farming rewards.",
     "plugin_referral_select_a_token": "Select a token",
-    "plugin_referral_confirmation_desc": "Confirm permission for the token and deposit {{reward}} {{token}} to create referral farm",
     "plugin_referral_rewards_earned": "Rewards earned",
     "plugin_referral_manage_farms": "Create Farms",
     "plugin_referral_manage_farms_desc": "incentivize referrals for the purchase of crypto tokens or NFT collection.",
@@ -1062,5 +1060,7 @@
     "plugin_referral_adjust_daily_and_total_reward_desc": "Confirm deposit of {{totalReward}} {{symbol}} to top up referral farm and adjust daily farm reward to {{dailyReward}} {{symbol}}",
     "plugin_referral_transaction": "Transaction",
     "plugin_referral_confirm_transaction": "Confirm transaction",
-    "plugin_referral_confirm_transaction_harvesting": "Harvesting your rewards of  {{reward}} {{symbol}}"
+    "plugin_referral_confirm_transaction_harvesting": "Harvesting your rewards of  {{reward}} {{symbol}}",
+    "plugin_referral_transaction_confirm_permission_deposit": "Confirm permission and deposit",
+    "plugin_referral_create_farm_transaction_confirm_desc": "Confirm permission for the token and deposit {{reward}} {{token}} to create referral farm"
 }

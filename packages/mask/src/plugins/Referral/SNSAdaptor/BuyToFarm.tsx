@@ -21,13 +21,13 @@ import {
     PagesType,
     Icons,
     parseChainAddress,
+    TabsReferralFarms,
 } from '../types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
-import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { MyFarms } from './MyFarms'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
@@ -76,7 +76,6 @@ export function BuyToFarm(props: PageInterface) {
     const account = useAccount()
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>()
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
@@ -127,28 +126,36 @@ export function BuyToFarm(props: PageInterface) {
         })
     }, [token, openSwapDialog])
 
+    const onConfirmReferFarm = useCallback(() => {
+        props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+            hideAttrLogo: true,
+            hideBackBtn: true,
+            transactionDialog: {
+                transaction: {
+                    status: TransactionStatus.CONFIRMATION,
+                    title: t('plugin_referral_transaction_complete_signature_request'),
+                    subtitle: t('plugin_referral_transaction_sign_the_message_to_register_address_for_rewards'),
+                },
+            },
+        })
+    }, [props])
+
+    const onErrorReferFarm = useCallback(() => {
+        props?.onChangePage?.(PagesType.REFER_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM)
+    }, [props])
+
     const referFarm = async () => {
         try {
-            setTransactionStatus(TransactionStatus.CONFIRMATION)
+            onConfirmReferFarm()
             const sig = await singAndPostProofWithReferrer(web3, account, token?.address ?? '', MASK_REFERRER)
-            setTransactionStatus(TransactionStatus.CONFIRMED)
 
             swapToken()
         } catch (error) {
-            setTransactionStatus(TransactionStatus.FAILED)
+            onErrorReferFarm()
             alert(error)
         }
     }
 
-    if (transactionStatus === TransactionStatus.CONFIRMATION) {
-        return (
-            <Transaction
-                status={TransactionStatus.CONFIRMATION}
-                title={t('plugin_referral_transaction_complete_signature_request')}
-                subtitle={t('plugin_referral_transaction_sign_the_message_for_rewards')}
-            />
-        )
-    }
     const referredTokenFarms = token
         ? farms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
         : []
