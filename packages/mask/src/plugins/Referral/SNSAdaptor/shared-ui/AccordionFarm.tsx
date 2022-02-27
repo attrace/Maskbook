@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme) => {
         accordion: {
             marginBottom: '20px',
             width: '100%',
-            background: isDarkMode ? '#15171A' : theme.palette.background.default,
+            background: isDarkMode ? 'transparent' : theme.palette.background.default,
             ':first-of-type': {
                 borderRadius: 0,
             },

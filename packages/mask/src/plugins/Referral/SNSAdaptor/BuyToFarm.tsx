@@ -37,6 +37,7 @@ import { toChainAddress, getFarmsRewardData } from './helpers'
 import { PluginTraderMessages } from '../../Trader/messages'
 import type { Coin } from '../../Trader/types'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { useTabStyles } from './styles'
 import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -69,6 +70,7 @@ export function BuyToFarm(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+    const { classes: tabClasses } = useTabStyles()
     const currentChainId = useChainId()
 
     const requiredChainId = useRequiredChainId(currentChainId)
@@ -163,8 +165,8 @@ export function BuyToFarm(props: PageInterface) {
                     variant="fullWidth"
                     onChange={(e, v) => setTab(v)}
                     aria-label="persona-post-contacts-button-group">
-                    <Tab value={TabsCreateFarm.NEW} label="New" />
-                    <Tab value={TabsCreateFarm.CREATED} label="My Farms" />
+                    <Tab value={TabsCreateFarm.NEW} label="New" classes={tabClasses} />
+                    <Tab value={TabsCreateFarm.CREATED} label="My Farms" classes={tabClasses} />
                 </Tabs>
                 <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
                     <Grid container />

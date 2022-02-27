@@ -56,7 +56,6 @@ const useStyles = makeStyles()((theme) => ({
         backgroundColor: 'transparent !important',
         border: `solid 1px ${MaskColorVar.twitterBorderLine}`,
     },
-    select: {},
 }))
 
 export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
