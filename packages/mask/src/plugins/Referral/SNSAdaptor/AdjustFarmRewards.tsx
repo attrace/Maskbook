@@ -28,6 +28,7 @@ import { getFarmsMetaState } from '../Worker/apis/farms'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { useCompositionContext } from '@masknet/plugin-infra'
+import { useSharedStyles } from './styles'
 import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles()((theme) => ({
@@ -80,11 +81,15 @@ const useStyles = makeStyles()((theme) => ({
             margin: 0,
         },
     },
+    switchButton: {
+        width: '100%',
+    },
 }))
 
 export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInterface) {
     const { t } = useI18N()
     const { classes } = useStyles()
+    const { classes: sharedClasses } = useSharedStyles()
     const chainId = useChainId()
     const web3 = useWeb3({ chainId })
     const account = useAccount()
@@ -246,7 +251,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
         totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
     }
 
-    const disableAdjustRewardsButton = !dailyFarmReward && !totalFarmReward
+    const disableAdjustRewardsButton = !Number(dailyFarmReward) && !Number(totalFarmReward)
 
     const rewardDataFields = () => {
         return (
@@ -290,52 +295,51 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                 disableUnderline: true,
                                 endAdornment: (
                                     <InputAdornment position="start">
-                                        {token && rewardBalance ? (
-                                            <>
-                                                <Grid container>
-                                                    <Grid item container>
-                                                        <Box>
-                                                            <Typography
-                                                                className={classes.balance}
-                                                                color="textSecondary"
-                                                                variant="body2"
-                                                                component="span">
-                                                                {t('wallet_balance')}:
-                                                                <FormattedBalance
-                                                                    value={rewardBalance ?? '0'}
-                                                                    decimals={token?.decimals}
-                                                                    significant={6}
-                                                                    formatter={formatBalance}
-                                                                />
-                                                            </Typography>
-                                                        </Box>
+                                        <Grid container>
+                                            <Grid item container>
+                                                <Box>
+                                                    <Typography
+                                                        className={classes.balance}
+                                                        color="textSecondary"
+                                                        variant="body2"
+                                                        component="span">
+                                                        {t('wallet_balance')}:{' '}
+                                                        <FormattedBalance
+                                                            value={rewardBalance ?? '0'}
+                                                            decimals={token?.decimals}
+                                                            significant={6}
+                                                            formatter={formatBalance}
+                                                        />
+                                                    </Typography>
+                                                </Box>
+                                            </Grid>
+                                            {rewardBalance && (
+                                                <Grid item container>
+                                                    <Grid item xs={6}>
+                                                        {token?.symbol}
                                                     </Grid>
-                                                    <Grid item container columnSpacing={1}>
-                                                        <Grid item xs={6}>
-                                                            {token?.symbol}
-                                                        </Grid>
-                                                        <Grid item xs={6}>
-                                                            <Chip
-                                                                size="small"
-                                                                label="MAX"
-                                                                clickable
-                                                                color="primary"
-                                                                variant="outlined"
-                                                                onClick={() => {
-                                                                    setTotalFarmReward(
-                                                                        formatBalance(
-                                                                            rewardBalance ?? '',
-                                                                            token?.decimals,
-                                                                            6,
-                                                                        ),
-                                                                    )
-                                                                }}
-                                                            />
-                                                        </Grid>
+                                                    <Grid item xs={6}>
+                                                        <Chip
+                                                            size="small"
+                                                            label="MAX"
+                                                            clickable
+                                                            color="primary"
+                                                            className={sharedClasses.maxChip}
+                                                            variant="outlined"
+                                                            onClick={() => {
+                                                                setTotalFarmReward(
+                                                                    formatBalance(
+                                                                        rewardBalance ?? '',
+                                                                        token?.decimals,
+                                                                        6,
+                                                                    ),
+                                                                )
+                                                            }}
+                                                        />
                                                     </Grid>
                                                 </Grid>
-                                            </>
-                                        ) : null}
+                                            )}
+                                        </Grid>
                                     </InputAdornment>
                                 ),
                             }}
@@ -349,11 +353,13 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
         <div>
             {token && (
                 <Typography display="flex" flexDirection="column">
-                    <Grid container rowSpacing={3} marginY={2}>
-                        <Grid item>
-                            <b>{t('plugin_referral_adjust_rewards_desc')}</b>
+                    <Grid container marginY={3}>
+                        <Grid item marginBottom="24px">
+                            <Typography fontWeight={600} variant="h6">
+                                {t('plugin_referral_adjust_rewards_desc')}
+                            </Typography>
                         </Grid>
-                        <Grid item>
+                        <Grid item marginBottom="24px">
                             <div className={classes.container}>
                                 <TokenIcon {...token} />
                                 <div className={classes.details}>
@@ -367,8 +373,7 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                                 </div>
                             </div>
                         </Grid>
-
-                        <Grid item xs={12} container>
+                        <Grid item xs={12} container marginBottom="24px">
                             <Grid item xs={4} display="flex" alignItems="center">
                                 <Box>
                                     {t('plugin_referral_estimated_apr')}
@@ -409,8 +414,13 @@ export function AdjustFarmRewards({ farm, token, onClose }: AdjustFarmRewardsInt
                             </Grid>
                         </Grid>
                         {rewardDataFields()}
-                        <Grid item xs={12}>
-                            <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                        <Grid item xs={12} marginTop="24px">
+                            <EthereumChainBoundary
+                                chainId={requiredChainId}
+                                noSwitchNetworkTip
+                                classes={{
+                                    switchButton: sharedClasses.switchButton,
+                                }}>
                                 <ActionButton
                                     fullWidth
                                     variant="contained"

@@ -36,6 +36,7 @@ import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { useTabStyles } from './styles'
 import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -81,6 +82,8 @@ export function ReferToFarm(props: PageInterface) {
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+    const { classes: tabClasses } = useTabStyles()
+
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
 
     // #region select token
@@ -186,8 +189,8 @@ export function ReferToFarm(props: PageInterface) {
                             variant="fullWidth"
                             onChange={(e, v) => setTab(v)}
                             aria-label="persona-post-contacts-button-group">
-                            <Tab value={TabsCreateFarm.NEW} label="New" />
-                            <Tab value={TabsCreateFarm.CREATED} label="My Farms" />
+                            <Tab value={TabsCreateFarm.NEW} label="New" classes={tabClasses} />
+                            <Tab value={TabsCreateFarm.CREATED} label="My Farms" classes={tabClasses} />
                         </Tabs>
                         <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
                             <Grid container />

@@ -14,7 +14,14 @@ import {
 } from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
 import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, parseChainAddress } from '../types'
+import {
+    FarmDepositChange,
+    FarmExistsEvent,
+    PageInterface,
+    PagesType,
+    parseChainAddress,
+    TabsReferralFarms,
+} from '../types'
 import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
@@ -136,12 +143,17 @@ export function CreatedFarms(props: PageInterface) {
             farm.rewardTokenDefn === nativeRewardToken
                 ? nativeToken
                 : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
-        props.continue(PagesType.CREATE_FARM, PagesType.ADJUST_REWARDS, t('plugin_referral_adjust_rewards'), {
-            adjustFarmDialog: {
-                farm: farm,
-                token: rewardToken,
+        props.continue(
+            PagesType.CREATE_FARM,
+            PagesType.ADJUST_REWARDS,
+            `${TabsReferralFarms.TOKENS}: ${t('plugin_referral_adjust_rewards')}`,
+            {
+                adjustFarmDialog: {
+                    farm: farm,
+                    token: rewardToken,
+                },
             },
-        })
+        )
     }
 
     return (

@@ -313,7 +313,7 @@ export function ApplicationBoard({ secondEntries, secondEntryChainTabs }: MaskAp
             isNotEvm,
         ),
         createEntry(
-            'Referral Farming',
+            'Referral Farms',
             new URL('./assets/referral.png', import.meta.url).toString(),
             // onReferralDialogOpen,
             () => openEncryptedMessage(PluginId.Referral),
