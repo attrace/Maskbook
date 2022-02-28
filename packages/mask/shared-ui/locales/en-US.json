@@ -1051,6 +1051,7 @@
     "plugin_referral_create_farms_rewards_desc": "The <strong>rewards</strong> will be distributed to participants daily based on their share of the referred/purchased value in the referral farm.",
     "plugin_referral_you_have_not_joined_farm": "You haven’t joined any referral farm yet",
     "plugin_referral_harvest_rewards": "Harvest Rewards",
+    "plugin_referral_claimable": "Claimable",
     "plugin_referral_request_to_withdraw": "Request to Withdraw",
     "plugin_referral_adjust_rewards": "Adjust Rewards",
     "plugin_referral_adjust_rewards_desc": "Increase/decrease the Daily Farm Reward or deposit Additional Farm Rewards to top up referral farm",
