@@ -19,5 +19,6 @@ export const useSharedStyles = makeStyles()((theme) => ({
         borderRadius: '8px',
         height: '24px',
         marginLeft: '8px',
+        color: '#1D9BF0',
     },
 }))

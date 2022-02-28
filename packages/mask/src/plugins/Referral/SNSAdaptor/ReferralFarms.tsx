@@ -110,7 +110,7 @@ export function ReferralFarms(props: PageInterface) {
             iconUrl: Icons.BuyToFarm,
         },
         {
-            name: t('plugin_referral_manage_farms'),
+            name: t('plugin_referral_create_farms'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM, tab + ': ' + PagesType.CREATE_FARM)
             },
@@ -129,7 +129,7 @@ export function ReferralFarms(props: PageInterface) {
                         onChange={(e, v) => setTab(v)}
                         aria-label="persona-post-contacts-button-group">
                         <Tab value={TabsReferralFarms.TOKENS} label="Crypto Tokens" classes={tabClasses} />
-                        <Tab value={TabsReferralFarms.NFT} label="NFTs" classes={tabClasses} />
+                        <Tab value={TabsReferralFarms.NFT} label="NFTs" classes={tabClasses} disabled />
                     </Tabs>
                     <TabPanel value={TabsReferralFarms.TOKENS} className={classes.tab}>
                         <Grid container spacing="20px">
