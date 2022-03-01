@@ -93,9 +93,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
-    const [transactionTitle, setTransactionTitle] = useState<string>('')
-    const [transactionSubTitle, setTransactionSubTitle] = useState<string>('')
-    const [isTransactionProcessing, setTransactionProcessing] = useState(false)
     const [onDepositPage, setOnDepositPage] = useState<boolean>(false)
 
     const {
@@ -141,7 +138,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             },
             (val: boolean) => {
                 if (val) {
-                    setTransactionProcessing(true)
+                    onConfirmAdjustFarm()
                 } else {
                     onErrorDeposit()
                 }
@@ -162,51 +159,60 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     }, [web3, account, chainId, token, totalFarmReward, dailyFarmReward])
 
     const adjustRewards = useCallback(() => {
-        if (totalFarmReward !== '' && dailyFarmReward !== '') {
-            setTransactionTitle(t('plugin_referral_confirm_transaction'))
-            setTransactionSubTitle(
-                t('plugin_referral_adjust_daily_and_total_reward_desc', {
-                    totalReward: attraceFee.plus(totalFarmReward),
-                    dailyReward: dailyFarmReward,
-                    symbol: token?.symbol ?? '',
-                }),
-            )
-            setOnDepositPage(true)
-        } else if (totalFarmReward !== '') {
-            setTransactionTitle(t('plugin_referral_confirm_deposit'))
-            setTransactionSubTitle(
-                t('plugin_referral_adjust_total_reward_desc', {
-                    reward: attraceFee.plus(totalFarmReward),
-                    symbol: token?.symbol ?? '',
-                }),
-            )
+        if (totalFarmReward) {
             setOnDepositPage(true)
         } else {
-            setTransactionTitle(t('plugin_referral_confirm_transaction'))
-            setTransactionSubTitle(
-                t('plugin_referral_adjust_daily_reward_desc', {
-                    reward: dailyFarmReward,
-                    symbol: token?.symbol ?? '',
-                }),
-            )
-
             adjustFarmReward()
         }
-    }, [totalFarmReward, dailyFarmReward, attraceFee, token])
+    }, [totalFarmReward])
+
+    const getTransactionTitles = useCallback(
+        (totalFarmReward: string, dailyFarmReward: string) => {
+            if (totalFarmReward !== '' && dailyFarmReward !== '') {
+                return {
+                    title: t('plugin_referral_confirm_transaction'),
+                    subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
+                        totalReward: attraceFee.plus(totalFarmReward),
+                        dailyReward: dailyFarmReward,
+                        symbol: token?.symbol ?? '',
+                    }),
+                }
+            } else if (totalFarmReward !== '') {
+                return {
+                    title: t('plugin_referral_confirm_transaction'),
+                    subtitle: t('plugin_referral_adjust_total_reward_desc', {
+                        reward: attraceFee.plus(totalFarmReward),
+                        symbol: token?.symbol ?? '',
+                    }),
+                }
+            } else {
+                return {
+                    title: t('plugin_referral_confirm_transaction'),
+                    subtitle: t('plugin_referral_adjust_daily_reward_desc', {
+                        reward: dailyFarmReward,
+                        symbol: token?.symbol ?? '',
+                    }),
+                }
+            }
+        },
+        [token, attraceFee],
+    )
 
     const onConfirmAdjustFarm = useCallback(() => {
+        const { title, subtitle } = getTransactionTitles(totalFarmReward, dailyFarmReward)
+
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
             hideAttrLogo: true,
             hideBackBtn: true,
             transactionDialog: {
                 transaction: {
                     status: TransactionStatus.CONFIRMATION,
-                    title: transactionTitle,
-                    subtitle: transactionSubTitle,
+                    title: title,
+                    subtitle: subtitle,
                 },
             },
         })
-    }, [props, transactionTitle, transactionSubTitle])
+    }, [props, totalFarmReward, dailyFarmReward])
 
     const onConfirmedAdjustFarm = useCallback(
         (txHash: string) => {
@@ -231,10 +237,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const onErrorDeposit = useCallback(() => {
         props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
     }, [props])
-
-    if (isTransactionProcessing) {
-        onConfirmAdjustFarm()
-    }
 
     if (onDepositPage) {
         return (
