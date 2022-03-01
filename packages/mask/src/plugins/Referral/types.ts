@@ -320,7 +320,7 @@ type TransactionProps =
           status: TransactionStatus.CONFIRMED
           actionButton: {
               label: string
-              onClick: () => void
+              onClick: (token?: FungibleTokenDetailed) => void
           }
           transactionHash: string
       }

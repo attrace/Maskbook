@@ -230,31 +230,34 @@ export function CreateFarm(props: PageInterface) {
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
-    }, [web3, account, token, token, totalFarmReward, dailyFarmReward])
+    }, [web3, account, currentChainId, token, totalFarmReward, dailyFarmReward])
 
-    const onInsertData = useCallback(() => {
-        if (!token?.address) {
-            return alert('REFERRED TOKEN DID NOT SELECT')
-        }
+    const onInsertData = useCallback(
+        (token?: FungibleTokenDetailed) => {
+            if (!token?.address) {
+                return alert('REFERRED TOKEN DID NOT SELECT')
+            }
 
-        const { address, name = '', symbol = '', logoURI = [''] } = token
-        const selectedReferralData = {
-            referral_token: address,
-            referral_token_name: name,
-            referral_token_symbol: symbol,
-            referral_token_icon: logoURI,
-            referral_token_chain_id: currentChainId,
-            sender: senderName ?? '',
-        }
-        if (selectedReferralData) {
-            attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
-        } else {
-            dropMetadata(REFERRAL_META_KEY)
-        }
+            const { address, name = '', symbol = '', logoURI = [''] } = token
+            const selectedReferralData = {
+                referral_token: address,
+                referral_token_name: name,
+                referral_token_symbol: symbol,
+                referral_token_icon: logoURI,
+                referral_token_chain_id: currentChainId,
+                sender: senderName ?? '',
+            }
+            if (selectedReferralData) {
+                attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
+            } else {
+                dropMetadata(REFERRAL_META_KEY)
+            }
 
-        closeWalletStatusDialog()
-        props.onClose?.()
-    }, [token, currentChainId])
+            closeWalletStatusDialog()
+            props.onClose?.()
+        },
+        [token],
+    )
 
     const onUpdateByRemote = useCallback(
         (ev: SelectTokenUpdated) => {
@@ -326,14 +329,14 @@ export function CreateFarm(props: PageInterface) {
                         status: TransactionStatus.CONFIRMED,
                         actionButton: {
                             label: t('plugin_referral_publish_farm'),
-                            onClick: onInsertData,
+                            onClick: () => onInsertData(token),
                         },
                         transactionHash: txHash,
                     },
                 },
             })
         },
-        [props],
+        [props, token],
     )
 
     const onErrorDeposit = useCallback(() => {
@@ -351,6 +354,7 @@ export function CreateFarm(props: PageInterface) {
             />
         )
     }
+
     const rewardDataFields = () => {
         return (
             <>
