@@ -81,11 +81,11 @@ export async function runCreateERC20PairFarm(
             .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                 onStart(true)
             })
-            .on(TransactionEventType.TRANSACTION_HASH, (hash: string) => {
-                onTransactionHash(hash)
-            })
-            .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
-                onConfirm(true)
+            .on(TransactionEventType.CONFIRMATION, (no: number, receipt: TransactionReceipt) => {
+                // show Confirm dialog only at the first time
+                if (no === 1) {
+                    onTransactionHash(receipt.transactionHash)
+                }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
                 alert(error)
@@ -173,11 +173,11 @@ export async function adjustFarmRewards(
                 .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
                     onStart(true)
                 })
-                .on(TransactionEventType.TRANSACTION_HASH, (hash: string) => {
-                    onTransactionHash(hash)
-                })
-                .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
-                    onConfirm(true)
+                .on(TransactionEventType.CONFIRMATION, (no: number, receipt: TransactionReceipt) => {
+                    // show Confirm dialog only at the first time
+                    if (no === 1) {
+                        onTransactionHash(receipt.transactionHash)
+                    }
                 })
                 .on(TransactionEventType.ERROR, (error: Error) => {
                     onConfirm(false)

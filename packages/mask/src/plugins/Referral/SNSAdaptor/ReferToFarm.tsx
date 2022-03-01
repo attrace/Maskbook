@@ -15,6 +15,7 @@ import {
     PagesType,
     Icons,
     parseChainAddress,
+    TabsReferralFarms,
 } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
@@ -28,7 +29,6 @@ import { MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { singAndPostProofOrigin } from '../Worker/apis/proofs'
-import { Transaction } from './shared-ui/Transaction'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
@@ -89,7 +89,6 @@ export function ReferToFarm(props: PageInterface) {
     // #region select token
     const [token, setToken] = useState<FungibleTokenDetailed>()
     const [id] = useState(uuid())
-    const [isTransactionProcessing, setIsTransactionProcessing] = useState<boolean>(false)
     const requiredChainId = useRequiredChainId(currentChainId)
     const web3 = useWeb3()
     const account = useAccount()
@@ -147,11 +146,29 @@ export function ReferToFarm(props: PageInterface) {
         closeWalletStatusDialog()
         props.onClose?.()
     }
+
+    const onConfirmReferFarm = useCallback(() => {
+        props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+            hideAttrLogo: true,
+            hideBackBtn: true,
+            transactionDialog: {
+                transaction: {
+                    status: TransactionStatus.CONFIRMATION,
+                    title: t('plugin_referral_transaction_complete_signature_request'),
+                    subtitle: t('plugin_referral_transaction_sign_the_message_to_register_address_for_rewards'),
+                },
+            },
+        })
+    }, [props])
+
+    const onErrorReferFarm = useCallback(() => {
+        props?.onChangePage?.(PagesType.REFER_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM)
+    }, [props])
+
     const referFarm = async () => {
         try {
-            setIsTransactionProcessing(true)
+            onConfirmReferFarm()
             const sig = await singAndPostProofOrigin(web3, account, token?.address ?? '', MASK_SWAP_V1)
-            setIsTransactionProcessing(false)
             insertData({
                 referral_token: token?.address ?? '',
                 referral_token_name: token?.name ?? '',
@@ -162,18 +179,9 @@ export function ReferToFarm(props: PageInterface) {
                 sender: senderName ?? '',
             })
         } catch (error) {
-            setIsTransactionProcessing(false)
+            onErrorReferFarm()
             alert(error)
         }
-    }
-    if (isTransactionProcessing) {
-        return (
-            <Transaction
-                status={TransactionStatus.CONFIRMATION}
-                title={t('plugin_referral_transaction_complete_signature_request')}
-                subtitle={t('plugin_referral_transaction_sign_the_message_for_rewards')}
-            />
-        )
     }
 
     const sponsoredFarms = getSponsoredFarmsForReferredToken(token?.chainId, token?.address, farms)

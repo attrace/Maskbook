@@ -84,7 +84,6 @@ export interface DepositProps {
     tokenSymbol?: string
     attraceFee: BigNumber
     requiredChainId: ChainId
-    isTransactionProcessing: boolean
     onDeposit: () => Promise<void>
 }
 export type Metastate = Array<MetastateKeyValue>
@@ -211,10 +210,9 @@ interface AdjustFarm extends FarmExistsEvent {
     totalFarmRewards?: number
     apr?: number
 }
-export interface AdjustFarmRewardsInterface {
+export interface AdjustFarmRewardsInterface extends PageInterface {
     farm?: AdjustFarm
     token?: FungibleTokenDetailed
-    onClose?: () => void
 }
 export interface TransactionDialogInterface {
     onClose?: () => void
@@ -322,7 +320,7 @@ type TransactionProps =
           status: TransactionStatus.CONFIRMED
           actionButton: {
               label: string
-              onClick: () => void
+              onClick: (token?: FungibleTokenDetailed) => void
           }
           transactionHash: string
       }

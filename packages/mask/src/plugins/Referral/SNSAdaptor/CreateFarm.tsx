@@ -1,16 +1,5 @@
 import { useCallback, useState } from 'react'
-import {
-    Typography,
-    Box,
-    Tab,
-    Tabs,
-    Grid,
-    TextField,
-    CircularProgress,
-    Chip,
-    InputAdornment,
-    Divider,
-} from '@mui/material'
+import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
@@ -25,11 +14,18 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { TabsCreateFarm, TokenType, TransactionStatus, DepositProps, PageInterface } from '../types'
+import {
+    TabsCreateFarm,
+    TokenType,
+    TransactionStatus,
+    DepositProps,
+    PageInterface,
+    PagesType,
+    TabsReferralFarms,
+} from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
-import { Transaction } from './shared-ui/Transaction'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 
 import { FormattedBalance, useRemoteControlledDialog } from '@masknet/shared'
@@ -108,14 +104,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 // Deposit
 
-export function Deposit({
-    totalFarmReward,
-    tokenSymbol,
-    attraceFee,
-    requiredChainId,
-    isTransactionProcessing,
-    onDeposit,
-}: DepositProps) {
+export function Deposit({ totalFarmReward, tokenSymbol, attraceFee, requiredChainId, onDeposit }: DepositProps) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
@@ -155,17 +144,12 @@ export function Deposit({
                                 fullWidth
                                 variant="contained"
                                 size="large"
-                                disabled={isTransactionProcessing}
                                 onClick={async () => {
                                     await onDeposit()
                                 }}>
-                                {!isTransactionProcessing ? (
-                                    <div>
-                                        Deposit {totalDeposit} {tokenSymbol}
-                                    </div>
-                                ) : (
-                                    <CircularProgress size={20} />
-                                )}
+                                <div>
+                                    Deposit {totalDeposit} {tokenSymbol}
+                                </div>
                             </ActionButton>
                         </EthereumChainBoundary>
                     </Grid>
@@ -196,7 +180,6 @@ export function CreateFarm(props: PageInterface) {
         retry: retryLoadRewardBalance,
     } = useFungibleTokenBalance(token?.type ?? EthereumTokenType.Native, token?.address ?? '')
 
-    const [transactionHash, setTransactionHash] = useState<string | null>(null)
     // const [transactionState, setTransactionState] = useState<TransactionState | null>(null)
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
@@ -206,8 +189,6 @@ export function CreateFarm(props: PageInterface) {
 
     const web3 = useWeb3()
     const account = useAccount()
-    const [isTransactionConfirmed, setTransactionConfirmed] = useState(false)
-    const [isTransactionProcessing, setTransactionProcessing] = useState(false)
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const currentIdentity = useCurrentIdentity()
     const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
@@ -228,14 +209,19 @@ export function CreateFarm(props: PageInterface) {
 
             await runCreateERC20PairFarm(
                 (val: boolean) => {
-                    setTransactionProcessing(!val)
-                    setTransactionConfirmed(val)
+                    if (!val) {
+                        onErrorDeposit()
+                    }
                 },
                 (val: boolean) => {
-                    setTransactionProcessing(val)
+                    if (val) {
+                        onConfirmDeposit()
+                    } else {
+                        onErrorDeposit()
+                    }
                 },
-                (val: string) => {
-                    setTransactionHash(val)
+                (txHash: string) => {
+                    onConfirmedDeposit(txHash)
                 },
                 web3,
                 account,
@@ -248,31 +234,34 @@ export function CreateFarm(props: PageInterface) {
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
-    }, [web3, account, token, token, totalFarmReward, dailyFarmReward])
+    }, [web3, account, currentChainId, token, totalFarmReward, dailyFarmReward])
 
-    const onInsertData = useCallback(() => {
-        if (!token?.address) {
-            return alert('REFERRED TOKEN DID NOT SELECT')
-        }
+    const onInsertData = useCallback(
+        (token?: FungibleTokenDetailed) => {
+            if (!token?.address) {
+                return alert('REFERRED TOKEN DID NOT SELECT')
+            }
 
-        const { address, name = '', symbol = '', logoURI = [''] } = token
-        const selectedReferralData = {
-            referral_token: address,
-            referral_token_name: name,
-            referral_token_symbol: symbol,
-            referral_token_icon: logoURI,
-            referral_token_chain_id: currentChainId,
-            sender: senderName ?? '',
-        }
-        if (selectedReferralData) {
-            attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
-        } else {
-            dropMetadata(REFERRAL_META_KEY)
-        }
+            const { address, name = '', symbol = '', logoURI = [''] } = token
+            const selectedReferralData = {
+                referral_token: address,
+                referral_token_name: name,
+                referral_token_symbol: symbol,
+                referral_token_icon: logoURI,
+                referral_token_chain_id: currentChainId,
+                sender: senderName ?? '',
+            }
+            if (selectedReferralData) {
+                attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
+            } else {
+                dropMetadata(REFERRAL_META_KEY)
+            }
 
-        closeWalletStatusDialog()
-        props.onClose?.()
-    }, [token, currentChainId])
+            closeWalletStatusDialog()
+            props.onClose?.()
+        },
+        [token],
+    )
 
     const onUpdateByRemote = useCallback(
         (ev: SelectTokenUpdated) => {
@@ -317,28 +306,46 @@ export function CreateFarm(props: PageInterface) {
         setAttraceFee(attraceFee)
     }, [])
 
-    if (isTransactionProcessing) {
-        return (
-            <Transaction
-                status={TransactionStatus.CONFIRMATION}
-                title={t('plugin_referral_transaction_confirmation_title')}
-                subtitle={t('plugin_referral_confirmation_desc', {
-                    reward: attraceFee.plus(totalFarmReward),
-                    token: token?.symbol ?? '',
-                })}
-            />
-        )
-    }
+    const onConfirmDeposit = useCallback(() => {
+        props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+            hideAttrLogo: true,
+            hideBackBtn: true,
+            transactionDialog: {
+                transaction: {
+                    status: TransactionStatus.CONFIRMATION,
+                    title: t('plugin_referral_transaction_confirm_permission_deposit'),
+                    subtitle: t('plugin_referral_create_farm_transaction_confirm_desc', {
+                        reward: attraceFee.plus(totalFarmReward),
+                        token: token?.symbol ?? '',
+                    }),
+                },
+            },
+        })
+    }, [props, attraceFee, totalFarmReward, token])
 
-    if (isTransactionConfirmed) {
-        return (
-            <Transaction
-                status={TransactionStatus.CONFIRMED}
-                actionButton={{ label: t('plugin_referral_publish_farm'), onClick: onInsertData }}
-                transactionHash={transactionHash ?? ''}
-            />
-        )
-    }
+    const onConfirmedDeposit = useCallback(
+        (txHash: string) => {
+            props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
+                hideAttrLogo: true,
+                hideBackBtn: true,
+                transactionDialog: {
+                    transaction: {
+                        status: TransactionStatus.CONFIRMED,
+                        actionButton: {
+                            label: t('plugin_referral_publish_farm'),
+                            onClick: () => onInsertData(token),
+                        },
+                        transactionHash: txHash,
+                    },
+                },
+            })
+        },
+        [props, token],
+    )
+
+    const onErrorDeposit = useCallback(() => {
+        props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
+    }, [props])
 
     if (createFarm) {
         return (
@@ -346,12 +353,12 @@ export function CreateFarm(props: PageInterface) {
                 totalFarmReward={totalFarmReward}
                 tokenSymbol={token?.symbol}
                 attraceFee={attraceFee}
-                isTransactionProcessing={isTransactionProcessing}
                 onDeposit={onDeposit}
                 requiredChainId={requiredChainId}
             />
         )
     }
+
     const rewardDataFields = () => {
         return (
             <>

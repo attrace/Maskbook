@@ -143,6 +143,7 @@ export function CreatedFarms(props: PageInterface) {
             farm.rewardTokenDefn === nativeRewardToken
                 ? nativeToken
                 : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+
         props.continue(
             PagesType.CREATE_FARM,
             PagesType.ADJUST_REWARDS,
@@ -151,6 +152,7 @@ export function CreatedFarms(props: PageInterface) {
                 adjustFarmDialog: {
                     farm: farm,
                     token: rewardToken,
+                    continue: () => {},
                 },
             },
         )
