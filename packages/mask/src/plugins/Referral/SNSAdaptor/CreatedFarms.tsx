@@ -140,6 +140,8 @@ export function CreatedFarms(props: PageInterface) {
             adjustFarmDialog: {
                 farm: farm,
                 token: rewardToken,
+                // eslint-disable-next-line prettier/prettier
+                continue: () => {},
             },
         })
     }

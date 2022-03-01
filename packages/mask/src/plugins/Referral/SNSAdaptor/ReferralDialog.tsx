@@ -107,7 +107,14 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
             case PagesType.BUY_TO_FARM:
                 return <BuyToFarm continue={onContinue} onClose={onClose} onChangePage={onChangePage} />
             case PagesType.ADJUST_REWARDS:
-                return <AdjustFarmRewards onClose={onClose} {...propsData?.adjustFarmDialog} />
+                return (
+                    <AdjustFarmRewards
+                        {...propsData?.adjustFarmDialog}
+                        continue={onContinue}
+                        onClose={onClose}
+                        onChangePage={onChangePage}
+                    />
+                )
             case PagesType.SELECT_TOKEN:
                 return <SelectToken />
             case PagesType.TRANSACTION:

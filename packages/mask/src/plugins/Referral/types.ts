@@ -210,10 +210,9 @@ interface AdjustFarm extends FarmExistsEvent {
     totalFarmRewards?: number
     apr?: number
 }
-export interface AdjustFarmRewardsInterface {
+export interface AdjustFarmRewardsInterface extends PageInterface {
     farm?: AdjustFarm
     token?: FungibleTokenDetailed
-    onClose?: () => void
 }
 export interface TransactionDialogInterface {
     onClose?: () => void
