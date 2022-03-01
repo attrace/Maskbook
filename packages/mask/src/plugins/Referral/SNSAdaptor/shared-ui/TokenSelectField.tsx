@@ -23,6 +23,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
             background: 'transparent',
         },
     },
+    textField: {
+        width: '100%',
+    },
     icon: {
         width: '20px',
         height: '20px',
@@ -47,6 +50,7 @@ export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
                 value={token?.symbol}
                 variant="standard"
                 placeholder={t('plugin_referral_select_a_token')}
+                className={classes.textField}
                 InputProps={{
                     readOnly: true,
                     disableUnderline: true,

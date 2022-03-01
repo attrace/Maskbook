@@ -183,7 +183,6 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
             {rewardsProofs.map((proof) => {
                 let totalRewards = 0
                 let farm: Farm | undefined
-                const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
 
                 proof.req.rewards.forEach((reward) => {
                     const farmDetails = farmsMap.get(reward.farmHash)
@@ -193,6 +192,9 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                 })
 
                 if (!farm) return null
+
+                const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
+                const claimable = totalRewards - claimed
 
                 const nativeRewardToken = toNativeRewardTokenDefn(chainId)
                 const rewardToken =
@@ -207,27 +209,24 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                         totalValue={totalRewards}
                         accordionDetails={
                             <Box display="flex" justifyContent="flex-end">
-                                {claimed ? (
-                                    <Typography display="flex" alignItems="center" marginRight="8px">
-                                        <span style={{ fontWeight: 600, marginRight: '4px' }}>Claimed: </span> {claimed}{' '}
-                                        {rewardToken?.symbol}
-                                    </Typography>
-                                ) : (
-                                    <Button
-                                        disabled={!!claimed}
-                                        variant="contained"
-                                        size="medium"
-                                        onClick={() =>
-                                            onHarvestRewardsClickButton(
-                                                proof.effect,
-                                                proof.req,
-                                                totalRewards,
-                                                rewardToken?.symbol,
-                                            )
-                                        }>
-                                        {t('plugin_referral_harvest_rewards')}
-                                    </Button>
-                                )}
+                                <Typography display="flex" alignItems="center" marginRight="20px" fontWeight={600}>
+                                    <span style={{ marginRight: '4px' }}>{t('plugin_referral_claimable')}:</span>{' '}
+                                    {claimable} {rewardToken?.symbol}
+                                </Typography>
+                                <Button
+                                    disabled={!!claimed}
+                                    variant="contained"
+                                    size="medium"
+                                    onClick={() =>
+                                        onHarvestRewardsClickButton(
+                                            proof.effect,
+                                            proof.req,
+                                            totalRewards,
+                                            rewardToken?.symbol,
+                                        )
+                                    }>
+                                    {t('plugin_referral_harvest_rewards')}
+                                </Button>
                             </Box>
                         }
                     />

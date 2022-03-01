@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment } from '@mui/material'
+import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
@@ -41,6 +41,8 @@ import { runCreateERC20PairFarm } from '../Worker/apis/referralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import BigNumber from 'bignumber.js'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { useSharedStyles, useTabStyles } from './styles'
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
         width: 535,
@@ -161,6 +163,8 @@ export function CreateFarm(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+    const { classes: tabClasses } = useTabStyles()
+    const { classes: sharedClasses } = useSharedStyles()
     const currentChainId = useChainId()
 
     const requiredChainId = useRequiredChainId(currentChainId)
@@ -358,7 +362,7 @@ export function CreateFarm(props: PageInterface) {
     const rewardDataFields = () => {
         return (
             <>
-                <Grid item xs={6} display="flex" paddingLeft={3}>
+                <Grid item xs={6} display="flex">
                     <Box>
                         <TextField
                             label={t('plugin_referral_daily_farm_reward')}
@@ -397,52 +401,55 @@ export function CreateFarm(props: PageInterface) {
                                 disableUnderline: true,
                                 endAdornment: (
                                     <InputAdornment position="start">
-                                        {token && rewardBalance ? (
-                                            <>
-                                                <Grid container>
-                                                    <Grid item container>
-                                                        <Box>
-                                                            <Typography
-                                                                className={classes.balance}
-                                                                color="textSecondary"
-                                                                variant="body2"
-                                                                component="span">
-                                                                {t('wallet_balance')}:
-                                                                <FormattedBalance
-                                                                    value={rewardBalance ?? '0'}
-                                                                    decimals={token?.decimals}
-                                                                    significant={6}
-                                                                    formatter={formatBalance}
-                                                                />
-                                                            </Typography>
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item container columnSpacing={1}>
-                                                        <Grid item xs={6}>
-                                                            {token?.symbol}
-                                                        </Grid>
-                                                        <Grid item xs={6}>
-                                                            <Chip
-                                                                size="small"
-                                                                label="MAX"
-                                                                clickable
-                                                                color="primary"
-                                                                variant="outlined"
-                                                                onClick={() => {
-                                                                    setTotalFarmReward(
-                                                                        formatBalance(
-                                                                            rewardBalance ?? '',
-                                                                            token?.decimals,
-                                                                            6,
-                                                                        ),
-                                                                    )
-                                                                }}
+                                        <Grid container>
+                                            <Grid item container>
+                                                <Box>
+                                                    <Typography
+                                                        className={classes.balance}
+                                                        color="textSecondary"
+                                                        variant="body2"
+                                                        component="span">
+                                                        {t('wallet_balance')}:{' '}
+                                                        {token ? (
+                                                            <FormattedBalance
+                                                                value={rewardBalance ?? '0'}
+                                                                decimals={token?.decimals}
+                                                                significant={6}
+                                                                formatter={formatBalance}
                                                             />
-                                                        </Grid>
+                                                        ) : (
+                                                            '-'
+                                                        )}
+                                                    </Typography>
+                                                </Box>
+                                            </Grid>
+                                            {token ? (
+                                                <Grid item container>
+                                                    <Grid item xs={6}>
+                                                        {token?.symbol}
+                                                    </Grid>
+                                                    <Grid item xs={6}>
+                                                        <Chip
+                                                            size="small"
+                                                            label="MAX"
+                                                            clickable
+                                                            color="primary"
+                                                            variant="outlined"
+                                                            className={sharedClasses.maxChip}
+                                                            onClick={() => {
+                                                                setTotalFarmReward(
+                                                                    formatBalance(
+                                                                        rewardBalance ?? '',
+                                                                        token?.decimals,
+                                                                        6,
+                                                                    ),
+                                                                )
+                                                            }}
+                                                        />
                                                     </Grid>
                                                 </Grid>
-                                            </>
-                                        ) : null}
+                                            ) : null}
+                                        </Grid>
                                     </InputAdornment>
                                 ),
                             }}
@@ -452,7 +459,8 @@ export function CreateFarm(props: PageInterface) {
             </>
         )
     }
-    const createFarmBtnDisabled = !token?.address || !token?.address || !totalFarmReward || !dailyFarmReward
+    const createFarmBtnDisabled =
+        !token?.address || !token?.address || !Number(totalFarmReward) || !Number(dailyFarmReward)
 
     return (
         <div>
@@ -464,24 +472,25 @@ export function CreateFarm(props: PageInterface) {
                         variant="fullWidth"
                         onChange={(e, v) => setTab(v)}
                         aria-label="persona-post-contacts-button-group">
-                        <Tab value={TabsCreateFarm.NEW} label="New" />
-                        <Tab value={TabsCreateFarm.CREATED} label="Created" />
+                        <Tab value={TabsCreateFarm.NEW} label="New" classes={tabClasses} />
+                        <Tab value={TabsCreateFarm.CREATED} label="Created" classes={tabClasses} />
                     </Tabs>
                     <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
                         <Typography>
-                            <Grid container rowSpacing={2}>
+                            <Grid container rowSpacing={3}>
                                 <Grid item>
-                                    <b>{t('plugin_referral_create_referral_farm_desc')}</b>
+                                    <Typography fontWeight={600} variant="h6">
+                                        {t('plugin_referral_create_referral_farm_desc')}
+                                    </Typography>
                                 </Grid>
                                 <Grid item>{t('plugin_referral_select_a_token_desc')}</Grid>
-
                                 <Grid
                                     item
                                     container
                                     justifyContent="space-around"
                                     display="flex"
                                     alignItems="flex-start"
-                                    rowSpacing="20px">
+                                    rowSpacing="24px">
                                     <Grid item xs={6} justifyContent="center" display="flex">
                                         <TokenSelectField
                                             label={t('plugin_referral_token_to_refer')}
@@ -495,11 +504,17 @@ export function CreateFarm(props: PageInterface) {
                                         />
                                     </Grid>
                                     <Grid item xs={6} display="flex" />
+                                    <Grid item xs={12} padding={0}>
+                                        <Divider />
+                                    </Grid>
                                     {rewardDataFields()}
                                 </Grid>
 
                                 <Grid item xs={12}>
-                                    <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                                    <EthereumChainBoundary
+                                        chainId={requiredChainId}
+                                        noSwitchNetworkTip
+                                        classes={{ switchButton: sharedClasses.switchButton }}>
                                         <ActionButton
                                             fullWidth
                                             variant="contained"

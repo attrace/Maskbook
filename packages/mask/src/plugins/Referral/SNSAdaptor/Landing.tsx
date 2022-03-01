@@ -71,14 +71,14 @@ export function Landing(props: PageInterface) {
             iconUrl: Icons.BuyToFarm,
         },
         {
-            name: t('plugin_referral_manage_farms'),
-            desc: t('plugin_referral_manage_farms_desc'),
+            name: t('plugin_referral_create_farms'),
+            desc: t('plugin_referral_create_farms_desc'),
             iconUrl: Icons.CreateFarm,
         },
         {
             desc: (
                 <Trans
-                    i18nKey="plugin_referral_manage_farms_rewards_desc"
+                    i18nKey="plugin_referral_create_farms_rewards_desc"
                     components={{
                         strong: <strong />,
                     }}
