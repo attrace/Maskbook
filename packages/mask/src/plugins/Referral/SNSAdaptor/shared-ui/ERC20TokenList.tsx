@@ -20,9 +20,10 @@ import {
     useNativeTokenDetailed,
     useTrustedERC20Tokens,
 } from '@masknet/web3-shared-evm'
-import { MaskFixedSizeListProps, MaskTextFieldProps, SearchableList, makeStyles, MaskColorVar } from '@masknet/theme'
+import { MaskFixedSizeListProps, MaskTextFieldProps, makeStyles, MaskColorVar } from '@masknet/theme'
 import { Stack, Typography } from '@mui/material'
 import { getERC20TokenListItem } from './ERC20TokenListItem'
+import { SearchableList } from './SearchableList'
 import type { ChainAddress } from '../../types'
 
 const DEFAULT_LIST_HEIGHT = 300
@@ -56,7 +57,6 @@ const useStyles = makeStyles()((theme) => ({
         backgroundColor: 'transparent !important',
         border: `solid 1px ${MaskColorVar.twitterBorderLine}`,
     },
-    select: {},
 }))
 
 export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {

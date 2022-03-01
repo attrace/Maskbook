@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { TabContext, TabPanel } from '@mui/lab'
-import { Button, Box, Tab, Tabs, Grid } from '@mui/material'
-// import { ProtocolType } from '../types'
+import { Button, Box, Tab, Tabs, Grid, Typography } from '@mui/material'
 import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Icons, PageInterface, PagesType, TabsReferralFarms } from '../types'
 import { SvgIcons } from './Icons'
+
+import { useTabStyles } from './styles'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     root: {
@@ -52,6 +53,9 @@ const useStylesType = makeStyles()((theme) => ({
         marginRight: 4,
         justifyContent: 'center',
     },
+    name: {
+        fontSize: '0.938rem',
+    },
 }))
 
 interface TypeProps {
@@ -71,7 +75,9 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
                 className={classes.root}>
                 <Grid>
                     <SvgIcons icon={iconUrl} size={40} />
-                    <div>{name}</div>
+                    <Typography fontWeight={400} className={classes.name}>
+                        {name}
+                    </Typography>
                 </Grid>
             </Button>
         </Grid>
@@ -84,26 +90,27 @@ export function ReferralFarms(props: PageInterface) {
     const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
+    const { classes: tabClasses } = useTabStyles()
+
     const [tab, setTab] = useState<string>(TabsReferralFarms.TOKENS)
 
     const types = [
         {
-            name: 'Refer to Farm',
+            name: t('plugin_referral_refer_to_farm'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM, tab + ': ' + PagesType.REFER_TO_FARM)
             },
             iconUrl: Icons.ReferToFarm,
         },
         {
-            name: 'Buy to Farm',
+            name: t('plugin_referral_buy_to_farm'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM, tab + ': ' + PagesType.BUY_TO_FARM)
             },
             iconUrl: Icons.BuyToFarm,
         },
         {
-            name: 'Create Farm',
+            name: t('plugin_referral_create_farms'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM, tab + ': ' + PagesType.CREATE_FARM)
             },
@@ -121,8 +128,8 @@ export function ReferralFarms(props: PageInterface) {
                         variant="fullWidth"
                         onChange={(e, v) => setTab(v)}
                         aria-label="persona-post-contacts-button-group">
-                        <Tab value={TabsReferralFarms.TOKENS} label="Crypto Tokens" />
-                        <Tab value={TabsReferralFarms.NFT} label="NFTs" />
+                        <Tab value={TabsReferralFarms.TOKENS} label="Crypto Tokens" classes={tabClasses} />
+                        <Tab value={TabsReferralFarms.NFT} label="NFTs" classes={tabClasses} disabled />
                     </Tabs>
                     <TabPanel value={TabsReferralFarms.TOKENS} className={classes.tab}>
                         <Grid container spacing="20px">
