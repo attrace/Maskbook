@@ -20,19 +20,13 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         margin: '12px 0 8px',
         fontSize: '18px',
         lineHeight: '25px',
-        color: '#111418',
+        color: theme.palette.text.strong,
         fontWeight: 600,
     },
     subtitle: {
         fontSize: '16px',
         lineHeight: '22px',
-        color: '#536471',
-    },
-    confirmedButton: {
-        minHeight: '48px',
-        backgroundColor: '#111418',
-        fontSize: '16px',
-        lineHeight: '22px',
+        color: theme.palette.text.secondary,
     },
 }))
 
@@ -86,7 +80,6 @@ export function Transaction(props: TransactionDialogInterface | undefined) {
                     <Grid item xs={12} marginTop="40px">
                         <ActionButton
                             fullWidth
-                            className={classes.confirmedButton}
                             variant="contained"
                             size="large"
                             onClick={() => transaction.actionButton.onClick()}>

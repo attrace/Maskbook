@@ -61,7 +61,7 @@ const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
         },
         dialogCloseButton: {
             display: hideBackBtn ? 'none' : 'inline-flex',
-            color: '#111418',
+            color: theme.palette.text.strong,
             padding: 0,
             marginRight: '16px',
         },
