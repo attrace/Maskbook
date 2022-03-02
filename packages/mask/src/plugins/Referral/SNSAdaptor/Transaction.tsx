@@ -10,7 +10,7 @@ import ActionButton from '../../../extension/options-page/DashboardComponents/Ac
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     confirmation: {
-        padding: '44px 60px 40px',
+        padding: '45px 36px 40px',
     },
     heading: {
         fontSize: '20px',
@@ -18,6 +18,22 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
     title: {
         margin: '12px 0 8px',
+        fontSize: '18px',
+        lineHeight: '25px',
+        color: '#111418',
+        fontWeight: 600,
+    },
+    subtitle: {
+        fontSize: '16px',
+        lineHeight: '22px',
+        color: '#536471',
+        fontWeight: 500,
+    },
+    confirmedButton: {
+        minHeight: '48px',
+        backgroundColor: '#111418',
+        fontSize: '16px',
+        lineHeight: '22px',
     },
 }))
 
@@ -41,34 +57,37 @@ export function Transaction(props: TransactionDialogInterface | undefined) {
                 alignItems="center"
                 className={classes.confirmation}>
                 <CircularProgress size={72} />
-                <Typography fontWeight={600} className={classes.title} variant="h6">
+                <Typography className={classes.title} variant="h6">
                     {transaction.title}
                 </Typography>
-                {transaction.subtitle && <Typography fontWeight={500}>{transaction.subtitle}</Typography>}
+                {transaction.subtitle && <Typography className={classes.subtitle}>{transaction.subtitle}</Typography>}
             </Grid>
         )
     }
     if (transaction.status === TransactionStatus.CONFIRMED) {
         return (
             <Typography>
-                <Grid container textAlign="center" rowSpacing="5px" sx={{ p: 2 }}>
-                    <Grid item xs={12}>
+                <Grid container textAlign="center" sx={{ pt: 6, pb: 3 }}>
+                    <Grid item xs={12} marginBottom="10px">
                         <DoneIcon sx={{ fontSize: 60 }} />
                     </Grid>
-                    <Grid item xs={12} className={classes.heading}>
+                    <Grid item xs={12} className={classes.title}>
                         {t('plugin_wallet_transaction_confirmed')}
                     </Grid>
                     <Grid item xs={12}>
                         <Link
                             href={resolveTransactionLinkOnExplorer(currentChainId, transaction.transactionHash)}
+                            fontSize="16px"
+                            lineHeight="22px"
                             target="_blank">
                             {t('plugin_wallet_view_on_explorer')}
                         </Link>
                     </Grid>
 
-                    <Grid item xs={12} marginTop={2}>
+                    <Grid item xs={12} marginTop="40px">
                         <ActionButton
                             fullWidth
+                            className={classes.confirmedButton}
                             variant="contained"
                             size="large"
                             onClick={() => transaction.actionButton.onClick()}>

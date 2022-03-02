@@ -76,9 +76,33 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '20px',
         fontWeight: 'bold',
     },
+    /* Deposit start */
     depositRoot: {
         padding: `${theme.spacing(3)} 0`,
     },
+    depositTitle: {
+        fontWeight: 600,
+        fontSize: '18px',
+        lineHeight: '25px',
+        marginBottom: '12px',
+        color: '#111418',
+    },
+    depositRow: {
+        fontWeight: 500,
+        fontSize: '16px',
+        lineHeight: '22px',
+        color: '#536471',
+    },
+    depositTotal: {
+        fontWeight: 600,
+    },
+    depositButton: {
+        minHeight: '48px',
+        backgroundColor: '#111418',
+        fontSize: '16px',
+        lineHeight: '22px',
+    },
+    /* Deposit end */
     balance: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
@@ -116,32 +140,38 @@ export function Deposit({ totalFarmReward, tokenSymbol, attraceFee, requiredChai
     return (
         <div className={classes.depositRoot}>
             <Typography>
-                <Grid container justifyContent="space-between" rowSpacing="20px">
-                    <Grid xs={12}>
-                        <b>{t('plugin_referral_deposit_total_rewards')}</b>
+                <Grid container justifyContent="space-between" rowSpacing="12px">
+                    <Grid item xs={12} className={classes.depositTitle}>
+                        {t('plugin_referral_deposit_total_rewards')}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} className={classes.depositRow}>
                         {t('plugin_referral_total_farm_rewards')}
                     </Grid>
-                    <Grid item xs={6} display="flex" justifyContent="right">
+                    <Grid item xs={6} display="flex" justifyContent="right" className={classes.depositRow}>
                         {totalFarmReward} {tokenSymbol}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} className={classes.depositRow}>
                         {t('plugin_referral_attrace_fees')}
                     </Grid>
-                    <Grid item xs={6} display="flex" justifyContent="right">
+                    <Grid item xs={6} display="flex" justifyContent="right" className={classes.depositRow}>
                         {attraceFee.toString()} {tokenSymbol}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} className={`${classes.depositRow} ${classes.depositTotal}`}>
                         {t('plugin_referral_deposit_total')}
                     </Grid>
-                    <Grid item xs={6} display="flex" justifyContent="right">
+                    <Grid
+                        item
+                        xs={6}
+                        display="flex"
+                        justifyContent="right"
+                        className={`${classes.depositRow} ${classes.depositTotal}`}>
                         {totalDeposit} {tokenSymbol}
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} marginTop="20px">
                         <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
                             <ActionButton
                                 fullWidth
+                                className={classes.depositButton}
                                 variant="contained"
                                 size="large"
                                 onClick={async () => {
