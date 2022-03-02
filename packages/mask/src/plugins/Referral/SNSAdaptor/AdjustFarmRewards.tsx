@@ -98,7 +98,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
-    const [isConfirmationProcessing, setIsConfirmationProcessing] = useState<boolean>(false)
     const [onDepositPage, setOnDepositPage] = useState<boolean>(false)
 
     const {
@@ -144,7 +143,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             },
             (val: boolean) => {
                 if (val) {
-                    setIsConfirmationProcessing(true)
+                    onConfirmAdjustFarm()
                 } else {
                     onErrorDeposit()
                 }
@@ -170,7 +169,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         } else {
             adjustFarmReward()
         }
-    }, [totalFarmReward])
+    }, [totalFarmReward, dailyFarmReward])
 
     const getTransactionTitles = useCallback(
         (totalFarmReward: string, dailyFarmReward: string) => {
@@ -243,10 +242,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const onErrorDeposit = useCallback(() => {
         props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
     }, [props])
-
-    if (isConfirmationProcessing) {
-        onConfirmAdjustFarm()
-    }
 
     if (onDepositPage) {
         return (
