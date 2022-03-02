@@ -45,9 +45,14 @@ const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
         },
         dialogTitleTypography: {
             flex: '1',
+            marginLeft: 0,
         },
         dialogTitle: {
-            minHeight: '53px',
+            minHeight: '60px',
+            padding: theme.spacing(0, 3),
+            fontSize: '19px',
+            lineHeight: '27px',
+            fontWeight: 600,
         },
         dialogPaper: {
             maxWidth: '600px!important',
@@ -56,6 +61,9 @@ const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
         },
         dialogCloseButton: {
             display: hideBackBtn ? 'none' : 'inline-flex',
+            color: '#111418',
+            padding: 0,
+            marginRight: '16px',
         },
     }),
 )
@@ -147,7 +155,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 ) : (
                     <Box display="flex" justifyContent="space-between" className={classes.title}>
                         <div>{currentTitle}</div>
-                        <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
+                        <Typography display="flex" alignItems="center" className={classes.attrText}>
                             {t('plugin_powered_by')}
                             <Box className={classes.icon}>
                                 <SvgIcons icon={Icons.AttrTextIcon} />
