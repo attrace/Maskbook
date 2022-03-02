@@ -28,11 +28,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         lineHeight: '22px',
         color: theme.palette.text.secondary,
     },
-    confirmedButton: {
-        backgroundColor: theme.palette.text.strong,
-        fontSize: '16px',
-        lineHeight: '22px',
-    },
 }))
 
 export function Transaction(props: TransactionDialogInterface | undefined) {
@@ -85,7 +80,6 @@ export function Transaction(props: TransactionDialogInterface | undefined) {
                     <Grid item xs={12} marginTop="40px">
                         <ActionButton
                             fullWidth
-                            className={classes.confirmedButton}
                             variant="contained"
                             size="large"
                             onClick={() => transaction.actionButton.onClick()}>

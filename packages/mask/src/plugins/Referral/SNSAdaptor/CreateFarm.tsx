@@ -95,11 +95,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     depositTotal: {
         fontWeight: 600,
     },
-    depositButton: {
-        backgroundColor: theme.palette.text.strong,
-        fontSize: '16px',
-        lineHeight: '22px',
-    },
     /* Deposit end */
     balance: {
         whiteSpace: 'nowrap',
@@ -169,7 +164,6 @@ export function Deposit({ totalFarmReward, tokenSymbol, attraceFee, requiredChai
                         <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
                             <ActionButton
                                 fullWidth
-                                className={classes.depositButton}
                                 variant="contained"
                                 size="large"
                                 onClick={async () => {
