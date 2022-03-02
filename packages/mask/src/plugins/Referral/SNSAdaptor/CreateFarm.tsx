@@ -88,7 +88,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         color: '#111418',
     },
     depositRow: {
-        fontWeight: 500,
         fontSize: '16px',
         lineHeight: '22px',
         color: '#536471',

@@ -155,7 +155,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 ) : (
                     <Box display="flex" justifyContent="space-between" className={classes.title}>
                         <div>{currentTitle}</div>
-                        <Typography display="flex" alignItems="center" className={classes.attrText} fontWeight={400}>
+                        <Typography display="flex" alignItems="center" className={classes.attrText}>
                             {t('plugin_powered_by')}
                             <Box className={classes.icon}>
                                 <SvgIcons icon={Icons.AttrTextIcon} />

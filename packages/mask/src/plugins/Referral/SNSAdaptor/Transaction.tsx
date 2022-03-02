@@ -27,7 +27,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '16px',
         lineHeight: '22px',
         color: '#536471',
-        fontWeight: 500,
     },
     confirmedButton: {
         minHeight: '48px',

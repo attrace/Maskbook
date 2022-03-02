@@ -98,6 +98,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
+    const [isConfirmationProcessing, setIsConfirmationProcessing] = useState<boolean>(false)
     const [onDepositPage, setOnDepositPage] = useState<boolean>(false)
 
     const {
@@ -143,7 +144,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             },
             (val: boolean) => {
                 if (val) {
-                    onConfirmAdjustFarm()
+                    setIsConfirmationProcessing(true)
                 } else {
                     onErrorDeposit()
                 }
@@ -184,7 +185,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 }
             } else if (totalFarmReward !== '') {
                 return {
-                    title: t('plugin_referral_confirm_transaction'),
+                    title: t('plugin_referral_confirm_deposit'),
                     subtitle: t('plugin_referral_adjust_total_reward_desc', {
                         reward: attraceFee.plus(totalFarmReward),
                         symbol: token?.symbol ?? '',
@@ -242,6 +243,10 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const onErrorDeposit = useCallback(() => {
         props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
     }, [props])
+
+    if (isConfirmationProcessing) {
+        onConfirmAdjustFarm()
+    }
 
     if (onDepositPage) {
         return (
