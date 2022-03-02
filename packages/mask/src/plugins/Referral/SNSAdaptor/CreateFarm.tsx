@@ -85,19 +85,18 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '18px',
         lineHeight: '25px',
         marginBottom: '12px',
-        color: '#111418',
+        color: theme.palette.text.strong,
     },
     depositRow: {
         fontSize: '16px',
         lineHeight: '22px',
-        color: '#536471',
+        color: theme.palette.text.secondary,
     },
     depositTotal: {
         fontWeight: 600,
     },
     depositButton: {
-        minHeight: '48px',
-        backgroundColor: '#111418',
+        backgroundColor: theme.palette.text.strong,
         fontSize: '16px',
         lineHeight: '22px',
     },
