@@ -15,6 +15,7 @@ import { BuyToFarm } from './BuyToFarm'
 import { AdjustFarmRewards } from './AdjustFarmRewards'
 import { SvgIcons } from './Icons'
 import { Transaction } from './Transaction'
+import { Deposit } from './Deposit'
 
 interface ReferralDialogProps {
     open: boolean
@@ -123,6 +124,8 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                         onChangePage={onChangePage}
                     />
                 )
+            case PagesType.DEPOSIT:
+                return <Deposit {...propsData?.depositDialog} />
             case PagesType.SELECT_TOKEN:
                 return <SelectToken />
             case PagesType.TRANSACTION:

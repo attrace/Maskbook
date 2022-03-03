@@ -18,7 +18,6 @@ import { useCallback, useState } from 'react'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
-import { Deposit } from './CreateFarm'
 import { APR, ATTRACE_FEE_PERCENT } from '../constants'
 import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
@@ -98,7 +97,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
-    const [onDepositPage, setOnDepositPage] = useState<boolean>(false)
 
     const {
         value: rewardBalance = '0',
@@ -165,11 +163,31 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const adjustRewards = useCallback(() => {
         if (totalFarmReward) {
-            setOnDepositPage(true)
+            onTotalFarmReward()
         } else {
             adjustFarmReward()
         }
     }, [totalFarmReward, dailyFarmReward])
+
+    const onTotalFarmReward = useCallback(() => {
+        props.continue(
+            PagesType.ADJUST_REWARDS,
+            PagesType.DEPOSIT,
+            TabsReferralFarms.TOKENS + ': ' + PagesType.ADJUST_REWARDS,
+            {
+                hideAttrLogo: true,
+                depositDialog: {
+                    deposit: {
+                        totalFarmReward: totalFarmReward,
+                        tokenSymbol: token?.symbol,
+                        attraceFee: attraceFee,
+                        requiredChainId: requiredChainId,
+                        onDeposit: adjustFarmReward,
+                    },
+                },
+            },
+        )
+    }, [props, attraceFee, totalFarmReward, token, requiredChainId])
 
     const getTransactionTitles = useCallback(
         (totalFarmReward: string, dailyFarmReward: string) => {
@@ -240,22 +258,15 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     )
 
     const onErrorDeposit = useCallback(() => {
-        props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
-    }, [props])
-
-    if (onDepositPage) {
-        return (
-            <Deposit
-                totalFarmReward={totalFarmReward}
-                tokenSymbol={token?.symbol}
-                attraceFee={attraceFee}
-                onDeposit={async () => {
-                    await adjustFarmReward()
-                }}
-                requiredChainId={requiredChainId}
-            />
-        )
-    }
+        props?.onChangePage?.(PagesType.ADJUST_REWARDS, TabsReferralFarms.TOKENS + ': ' + PagesType.ADJUST_REWARDS, {
+            adjustFarmDialog: {
+                farm: farm,
+                token: token,
+                // eslint-disable-next-line prettier/prettier
+                continue: () => {},
+            },
+        })
+    }, [props, farm, token])
 
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
 
