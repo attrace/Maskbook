@@ -14,15 +14,7 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import {
-    TabsCreateFarm,
-    TokenType,
-    TransactionStatus,
-    DepositProps,
-    PageInterface,
-    PagesType,
-    TabsReferralFarms,
-} from '../types'
+import { TabsCreateFarm, TokenType, TransactionStatus, PageInterface, PagesType, TabsReferralFarms } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
@@ -76,26 +68,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '20px',
         fontWeight: 'bold',
     },
-    /* Deposit start */
-    depositRoot: {
-        padding: `${theme.spacing(3)} 0`,
-    },
-    depositTitle: {
-        fontWeight: 600,
-        fontSize: '18px',
-        lineHeight: '25px',
-        marginBottom: '12px',
-        color: theme.palette.text.strong,
-    },
-    depositRow: {
-        fontSize: '16px',
-        lineHeight: '22px',
-        color: theme.palette.text.secondary,
-    },
-    depositTotal: {
-        fontWeight: 600,
-    },
-    /* Deposit end */
     balance: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
@@ -119,68 +91,6 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
 }))
 
-// Deposit
-
-export function Deposit({ totalFarmReward, tokenSymbol, attraceFee, requiredChainId, onDeposit }: DepositProps) {
-    const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
-
-    const totalFarmRewardNum = new BigNumber(totalFarmReward)
-
-    const totalDeposit = totalFarmRewardNum.plus(attraceFee).toString()
-
-    return (
-        <div className={classes.depositRoot}>
-            <Typography>
-                <Grid container justifyContent="space-between" rowSpacing="12px">
-                    <Grid item xs={12} className={classes.depositTitle}>
-                        {t('plugin_referral_deposit_total_rewards')}
-                    </Grid>
-                    <Grid item xs={6} className={classes.depositRow}>
-                        {t('plugin_referral_total_farm_rewards')}
-                    </Grid>
-                    <Grid item xs={6} display="flex" justifyContent="right" className={classes.depositRow}>
-                        {totalFarmReward} {tokenSymbol}
-                    </Grid>
-                    <Grid item xs={6} className={classes.depositRow}>
-                        {t('plugin_referral_attrace_fees')}
-                    </Grid>
-                    <Grid item xs={6} display="flex" justifyContent="right" className={classes.depositRow}>
-                        {attraceFee.toString()} {tokenSymbol}
-                    </Grid>
-                    <Grid item xs={6} className={`${classes.depositRow} ${classes.depositTotal}`}>
-                        {t('plugin_referral_deposit_total')}
-                    </Grid>
-                    <Grid
-                        item
-                        xs={6}
-                        display="flex"
-                        justifyContent="right"
-                        className={`${classes.depositRow} ${classes.depositTotal}`}>
-                        {totalDeposit} {tokenSymbol}
-                    </Grid>
-                    <Grid item xs={12} marginTop="20px">
-                        <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                            <ActionButton
-                                fullWidth
-                                variant="contained"
-                                size="large"
-                                onClick={async () => {
-                                    await onDeposit()
-                                }}>
-                                <div>
-                                    Deposit {totalDeposit} {tokenSymbol}
-                                </div>
-                            </ActionButton>
-                        </EthereumChainBoundary>
-                    </Grid>
-                </Grid>
-            </Typography>
-        </div>
-    )
-}
-
 export function CreateFarm(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
@@ -192,7 +102,6 @@ export function CreateFarm(props: PageInterface) {
     const requiredChainId = useRequiredChainId(currentChainId)
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-    const [createFarm, setCreateFarm] = useState(false)
 
     // #region select token
     const [token, setToken] = useState<FungibleTokenDetailed>()
@@ -311,13 +220,13 @@ export function CreateFarm(props: PageInterface) {
     )
     // #endregion
 
-    const clickCreateFarm = () => {
+    const clickCreateFarm = useCallback(() => {
         if (token?.address !== NATIVE_TOKEN) {
-            setCreateFarm(true)
+            onCreateFarm()
         } else {
             alert("CAN'T CREATE NATIVE TOKEN FARM")
         }
-    }
+    }, [token, totalFarmReward, dailyFarmReward])
 
     const onChangeTotalFarmReward = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const totalFarmReward = e.currentTarget.value
@@ -327,6 +236,26 @@ export function CreateFarm(props: PageInterface) {
         setTotalFarmReward(totalFarmReward)
         setAttraceFee(attraceFee)
     }, [])
+
+    const onCreateFarm = useCallback(() => {
+        props.continue(
+            PagesType.CREATE_FARM,
+            PagesType.DEPOSIT,
+            TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM,
+            {
+                hideAttrLogo: true,
+                depositDialog: {
+                    deposit: {
+                        totalFarmReward: totalFarmReward,
+                        tokenSymbol: token?.symbol,
+                        attraceFee: attraceFee,
+                        requiredChainId: requiredChainId,
+                        onDeposit: onDeposit,
+                    },
+                },
+            },
+        )
+    }, [props, attraceFee, totalFarmReward, token, requiredChainId])
 
     const onConfirmDeposit = useCallback(() => {
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
@@ -368,18 +297,6 @@ export function CreateFarm(props: PageInterface) {
     const onErrorDeposit = useCallback(() => {
         props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
     }, [props])
-
-    if (createFarm) {
-        return (
-            <Deposit
-                totalFarmReward={totalFarmReward}
-                tokenSymbol={token?.symbol}
-                attraceFee={attraceFee}
-                onDeposit={onDeposit}
-                requiredChainId={requiredChainId}
-            />
-        )
-    }
 
     const rewardDataFields = () => {
         return (

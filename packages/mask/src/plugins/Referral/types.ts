@@ -28,6 +28,7 @@ export enum PagesType {
     BUY_TO_FARM = 'Buy to Farm',
     SELECT_TOKEN = 'Select a Token to Refer',
     ADJUST_REWARDS = 'Adjust Rewards',
+    DEPOSIT = 'Deposit',
     TRANSACTION = 'Transaction',
 }
 export enum TabsReferralFarms {
@@ -79,6 +80,7 @@ export interface MetastateKeyValue {
     // Value is the output of coder.encode([...types], [...values])
     value: string
 }
+
 export interface DepositProps {
     totalFarmReward: string
     tokenSymbol?: string
@@ -86,6 +88,7 @@ export interface DepositProps {
     requiredChainId: ChainId
     onDeposit: () => Promise<void>
 }
+
 export type Metastate = Array<MetastateKeyValue>
 
 export const ReferralFarmsV1 = 'ReferralFarmsV1'
@@ -210,20 +213,29 @@ interface AdjustFarm extends FarmExistsEvent {
     totalFarmRewards?: number
     apr?: number
 }
+
 export interface AdjustFarmRewardsInterface extends PageInterface {
     farm?: AdjustFarm
     token?: FungibleTokenDetailed
 }
+
+export interface DepositDialogInterface {
+    deposit?: DepositProps
+}
+
 export interface TransactionDialogInterface {
     onClose?: () => void
     transaction?: TransactionProps
 }
+
 export interface DialogInterface {
     hideBackBtn?: boolean
     hideAttrLogo?: boolean
     adjustFarmDialog?: AdjustFarmRewardsInterface
+    depositDialog?: DepositDialogInterface
     transactionDialog?: TransactionDialogInterface
 }
+
 export interface PageInterface {
     pageType?: PagesType
     onClose?: () => void
