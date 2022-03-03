@@ -81,6 +81,9 @@ const useStyles = makeStyles()((theme) => ({
             background: getMaskColor(theme).redMain,
         },
     },
+    viewStatsDisabled: {
+        marginRight: '8px',
+    },
 }))
 
 interface Farm extends FarmExistsEvent {
@@ -194,6 +197,12 @@ export function CreatedFarms(props: PageInterface) {
                                         totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
                                         accordionDetails={
                                             <Box display="flex" justifyContent="flex-end">
+                                                <Button
+                                                    variant="text"
+                                                    disabled
+                                                    classes={{ disabled: classes.viewStatsDisabled }}>
+                                                    {t('plugin_referral_view_stats')}
+                                                </Button>
                                                 <Button
                                                     disabled
                                                     variant="contained"

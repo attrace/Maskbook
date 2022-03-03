@@ -1051,6 +1051,7 @@
     "plugin_referral_harvest_rewards": "Harvest Rewards",
     "plugin_referral_claimable": "Claimable",
     "plugin_referral_request_to_withdraw": "Request to Withdraw",
+    "plugin_referral_view_stats": "View Stats",
     "plugin_referral_adjust_rewards": "Adjust Rewards",
     "plugin_referral_adjust_rewards_desc": "Increase/decrease the Daily Farm Reward or deposit Additional Farm Rewards to top up referral farm",
     "plugin_referral_additional_farm_rewards": "Additional Farm Rewards",
