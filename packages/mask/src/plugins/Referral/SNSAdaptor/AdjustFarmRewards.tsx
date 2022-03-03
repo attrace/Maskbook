@@ -163,13 +163,13 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const adjustRewards = useCallback(() => {
         if (totalFarmReward) {
-            onTotalFarmReward()
+            onUpdateTotalFarmReward()
         } else {
             adjustFarmReward()
         }
     }, [totalFarmReward, dailyFarmReward])
 
-    const onTotalFarmReward = useCallback(() => {
+    const onUpdateTotalFarmReward = useCallback(() => {
         props.continue(
             PagesType.ADJUST_REWARDS,
             PagesType.DEPOSIT,
