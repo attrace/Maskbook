@@ -1,4 +1,5 @@
-import { isDashboardPage, makeTypedMessageText } from '@masknet/shared-base'
+import { isDashboardPage } from '@masknet/shared-base'
+import { makeTypedMessageText } from '@masknet/typed-message'
 import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
