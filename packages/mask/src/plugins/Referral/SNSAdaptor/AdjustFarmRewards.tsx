@@ -86,6 +86,8 @@ const useStyles = makeStyles()((theme) => ({
 
 export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const { farm, token } = props
+    localStorage.setItem('adjustFarmRewardsData', JSON.stringify({ farm, token }))
+
     const { t } = useI18N()
     const { classes } = useStyles()
     const { classes: sharedClasses } = useSharedStyles()

@@ -150,6 +150,22 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                     const temp = [...previousPages]
                     temp.splice(temp.length - 1, 1)
                     setPreviousPages(temp)
+
+                    if (page === PagesType.DEPOSIT && previousPage.page === PagesType.ADJUST_REWARDS) {
+                        const data: any = localStorage.getItem('adjustFarmRewardsData')
+                        const adjustFarmRewardsData = JSON.parse(data)
+
+                        const props: DialogInterface = {
+                            adjustFarmDialog: {
+                                farm: adjustFarmRewardsData.farm,
+                                token: adjustFarmRewardsData.token,
+                                // eslint-disable-next-line prettier/prettier
+                                continue: () => {},
+                            },
+                        }
+
+                        setPropsData(props)
+                    }
                 }
             }}
             title={
