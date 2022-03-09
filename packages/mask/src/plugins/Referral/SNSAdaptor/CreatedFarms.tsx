@@ -25,7 +25,7 @@ import {
 import { AccordionFarm } from './shared-ui/AccordionFarm'
 import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
-import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
+import { TokenList } from '@masknet/web3-providers'
 import { toNativeRewardTokenDefn } from './helpers'
 
 const useStyles = makeStyles()((theme) => ({
@@ -118,7 +118,7 @@ export function CreatedFarms(props: PageInterface) {
     const web3 = useWeb3({ chainId })
     const { ERC20 } = useTokenListConstants()
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
-        async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
+        async () => (!ERC20 || ERC20.length === 0 ? [] : TokenList.fetchERC20TokensFromTokenLists(ERC20, chainId)),
         [chainId, ERC20?.sort().join()],
     )
     // fetch my farms

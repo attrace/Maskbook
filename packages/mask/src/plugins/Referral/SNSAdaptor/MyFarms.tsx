@@ -17,7 +17,7 @@ import { makeStyles } from '@masknet/theme'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
-import { fetchERC20TokensFromTokenLists } from '../../../extension/background-script/EthereumService'
+import { TokenList } from '@masknet/web3-providers'
 import { toNativeRewardTokenDefn } from './helpers'
 import {
     Farm,
@@ -258,7 +258,7 @@ export function MyFarms(props: PageInterface) {
 
     // fetch tokens data
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
-        async () => (!ERC20 || ERC20.length === 0 ? [] : fetchERC20TokensFromTokenLists(ERC20, chainId)),
+        async () => (!ERC20 || ERC20.length === 0 ? [] : TokenList.fetchERC20TokensFromTokenLists(ERC20, chainId)),
         [chainId, ERC20?.sort().join()],
     )
 
