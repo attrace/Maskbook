@@ -1,4 +1,4 @@
-import { createRenderWithMetadata, createTypedMessageMetadataReader } from '@masknet/shared-base'
+import { createTypedMessageMetadataReader, createRenderWithMetadata } from '@masknet/typed-message'
 import { REFERRAL_META_KEY } from '../constants'
 import type { ReferralMetaData, RewardData, Farm } from '../types'
 import schema from '../schema.json'
