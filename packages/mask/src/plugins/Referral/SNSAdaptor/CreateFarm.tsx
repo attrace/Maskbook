@@ -20,9 +20,10 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { CreatedFarms } from './CreatedFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 
-import { FormattedBalance, useRemoteControlledDialog } from '@masknet/shared'
+import { FormattedBalance } from '@masknet/shared'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 
 import { blue } from '@mui/material/colors'
 import { ATTRACE_FEE_PERCENT, NATIVE_TOKEN, REFERRAL_META_KEY } from '../constants'

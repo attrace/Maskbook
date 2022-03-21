@@ -10,7 +10,8 @@ import { singAndPostProofOrigin, singAndPostProofWithReferrer } from '../Worker/
 import { MASK_REFERRER, MASK_SWAP_V1, REFERRAL_META_KEY } from '../constants'
 
 import { MaskMessages, useI18N } from '../../../utils'
-import { TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
+import { TokenIcon } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { useCallback } from 'react'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'

@@ -1,6 +1,6 @@
 import { useAsync } from 'react-use'
-
-import { FormattedBalance, TokenIcon, useRemoteControlledDialog } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
+import { FormattedBalance, TokenIcon } from '@masknet/shared'
 import { AdjustFarmRewardsInterface, TransactionStatus, Icons, PagesType, TabsReferralFarms } from '../types'
 import { useI18N } from '../../../utils'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
@@ -264,7 +264,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             adjustFarmDialog: {
                 farm: farm,
                 token: token,
-                // eslint-disable-next-line prettier/prettier
                 continue: () => {},
             },
         })

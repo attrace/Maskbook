@@ -5,7 +5,7 @@ import { ChainId, FungibleTokenDetailed, useChainId, useWeb3 } from '@masknet/we
 import { isDashboardPage } from '@masknet/shared-base'
 import { delay } from '@dimensiondev/kit'
 import { makeStyles } from '@masknet/theme'
-import { useRemoteControlledDialog } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { PluginReferralMessages } from '../messages'
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { DialogContent } from '@mui/material'

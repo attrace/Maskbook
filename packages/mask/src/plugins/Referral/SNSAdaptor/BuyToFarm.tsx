@@ -7,7 +7,7 @@ import { useI18N } from '../../../utils'
 import { useAccount, useChainId, useWeb3, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-import { useRemoteControlledDialog } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 
 import { MASK_REFERRER } from '../constants'
 import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'

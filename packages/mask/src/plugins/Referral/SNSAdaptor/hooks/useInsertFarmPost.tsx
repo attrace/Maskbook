@@ -1,6 +1,6 @@
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { useCurrentIdentity } from '../../../../components/DataSource/useActivatedUI'
-import { useRemoteControlledDialog } from '@masknet/shared'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import type { ChainId, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { REFERRAL_META_KEY } from '../../constants'
 import { useCompositionContext } from '@masknet/plugin-infra'
