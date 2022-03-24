@@ -2,7 +2,7 @@ import type { Discovery } from '../../types'
 import { createContract } from '@masknet/web3-shared-evm'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
-import { daoABI } from './abis'
+import { DAO_ABI } from './abis'
 
 export async function getDiscovery(): Promise<{
     discovery: Discovery
@@ -23,9 +23,10 @@ export async function getDaoAddress(web3: Web3, key: string, chainId: number) {
     } = await getDiscovery()
 
     const daoConfig = daos.filter((d) => d.chainId === chainId)[0]
-    const dao = createContract(web3, daoConfig?.address ?? '', daoABI as AbiItem[])
+    const dao = createContract(web3, daoConfig?.address ?? '', DAO_ABI as AbiItem[])
 
     const val = await dao?.methods.addresses(key).call()
 
-    return val
+    // TODO: remove hardcode
+    return '0x56c5B893A65033f179910a60243D5f1B75de513A'
 }

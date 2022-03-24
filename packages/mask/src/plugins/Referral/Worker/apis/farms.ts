@@ -18,20 +18,20 @@ import { orderBy } from 'lodash-unified'
 
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
-import { FARM_ABI } from './abis'
+import { REFERRAL_FARMS_V1_ABI } from './abis'
 
 import BigNumber from 'bignumber.js'
 
-const iface = new Interface(FARM_ABI)
+const REFERRAL_FARMS_V1_IFACE = new Interface(REFERRAL_FARMS_V1_ABI)
 
 // Index the events name => id
 const eventIds: any = {}
-Object.entries(iface.events).forEach(([k, v]) => (eventIds[v.name] = keccak256(k)))
+Object.entries(REFERRAL_FARMS_V1_IFACE.events).forEach(([k, v]) => (eventIds[v.name] = keccak256(k)))
 
 function parseEvents(items: Array<any>): Array<any> {
     const itemsSorted = orderBy(items, ['chainId', 'blockNumber', 'logIndex'], ['asc', 'asc', 'asc'])
     const parsed = itemsSorted.map((row) => {
-        return iface.parseLog({
+        return REFERRAL_FARMS_V1_IFACE.parseLog({
             data: row.data,
             topics: JSON.parse(row.topics),
         })
@@ -81,13 +81,13 @@ function parseFarmDepositAndMetaStateChangeEvents(unparsed: any) {
         if (e.topic === eventIds.FarmMetastate) {
             const { key, value } = e.args
 
-            const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
-            if (key === dailyRewardRateKey) {
-                const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
+            const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
+            if (key === periodRewardRateKey) {
+                const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
 
                 farmMap.set(farmHash, {
                     ...prevFarmState,
-                    dailyFarmReward: Number(fromWei(dailyRewardRate.toString())),
+                    dailyFarmReward: Number(fromWei(periodRewardRate.toString())),
                 })
             }
         }
@@ -110,13 +110,14 @@ function parseFarmMetaStateChangeEvents(unparsed: any) {
     parsed.forEach((e) => {
         const { farmHash, key, value } = e.args
 
-        const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
-
+        const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
         let dailyFarmReward = 0
-        if (key === dailyRewardRateKey) {
-            const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
-            dailyFarmReward = Number(fromWei(dailyRewardRate.toString()))
+
+        if (key === periodRewardRateKey) {
+            const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
+            dailyFarmReward = Number(fromWei(periodRewardRate.toString()))
         }
+
         // set the last value(newest) of dailyFarmReward
         farmMetastateMap.set(farmHash, { dailyFarmReward })
     })
@@ -209,7 +210,6 @@ function parseBasicFarmEvents(unparsed: any) {
     const farms: Array<Farm> = []
 
     const allEventsFarmExists = parsed.filter((e) => e.topic === eventIds.FarmExists)
-    const allEventsFarmTokenChange = parsed.filter((e) => e.topic === eventIds.FarmTokenChange)
 
     // colect all deposit and dailyRewardRate for farmHash
     const farmMap = new Map<string, { totalFarmRewards?: number; dailyFarmReward?: number }>()
@@ -225,13 +225,13 @@ function parseBasicFarmEvents(unparsed: any) {
         if (e.topic === eventIds.FarmMetastate) {
             const { key, value } = e.args
 
-            const dailyRewardRateKey = padRight(asciiToHex('dailyRewardRate'), 64)
-            if (key === dailyRewardRateKey) {
-                const dailyRewardRate = defaultAbiCoder.decode(['uint256'], value)[0]
+            const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
+            if (key === periodRewardRateKey) {
+                const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
 
                 farmMap.set(farmHash, {
                     ...prevFarmState,
-                    dailyFarmReward: Number(fromWei(dailyRewardRate.toString())),
+                    dailyFarmReward: Number(fromWei(periodRewardRate.toString())),
                 })
             }
         }

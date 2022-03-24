@@ -1,13 +1,14 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
+import BigNumber from 'bignumber.js'
 import type { TransactionReceipt } from 'web3-core'
 import { ChainId, createContract, TransactionEventType } from '@masknet/web3-shared-evm'
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
-import { toChainAddress, toNativeRewardTokenDefn } from '../../SNSAdaptor/helpers'
-import { Metastate, ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
+
+import { toChainAddress } from '../../SNSAdaptor/helpers'
+import { ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
 import { getDaoAddress } from './discovery'
-import { erc20ABI, FARM_ABI } from './abis'
-import BigNumber from 'bignumber.js'
+import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'
 import { NATIVE_TOKEN } from '../../constants'
 
 export async function runCreateERC20PairFarm(
@@ -21,59 +22,54 @@ export async function runCreateERC20PairFarm(
     referredTokenAddr: string,
     totalFarmReward: BigNumber,
     dailyFarmReward: BigNumber,
-    disableMetaState?: boolean,
 ) {
     try {
         onStart(true)
         let tx: any
-        const maxAllowance = new BigNumber(toWei('10000000000000', 'ether'))
 
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
         const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
+        const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
+        totalFarmReward = new BigNumber(toWei(totalFarmReward.toString(), 'ether'))
 
-        const rewardTokenInstance = createContract(web3, rewardTokenAddr, erc20ABI as AbiItem[])
         const config = {
             from: account,
         }
-        totalFarmReward = new BigNumber(toWei(totalFarmReward.toString(), 'ether'))
-        const estimatedGas = await rewardTokenInstance?.methods.approve(farmsAddr, totalFarmReward).estimateGas(config)
 
+        // Grant permission
+        const rewardTokenInstance = createContract(web3, rewardTokenAddr, ERC20_ABI as AbiItem[])
         const allowance = await rewardTokenInstance?.methods.allowance(account, farmsAddr).call()
-
-        const isNeededGrantPermission = allowance < totalFarmReward
-
+        const isNeededGrantPermission = new BigNumber(allowance).isLessThan(totalFarmReward)
         if (isNeededGrantPermission) {
+            const maxAllowance = new BigNumber(toWei('10000000000000', 'ether'))
+            const estimatedGas = await rewardTokenInstance?.methods.approve(farmsAddr, maxAllowance).estimateGas(config)
+
             tx = await rewardTokenInstance?.methods.approve(farmsAddr, maxAllowance).send({
                 ...config,
                 gas: estimatedGas,
             })
         }
-
-        const metastate = [
-            {
-                key: padRight(asciiToHex('dailyRewardRate'), 64),
-                value: defaultAbiCoder.encode(['uint256'], [toWei(dailyFarmReward.toString(), 'ether')]),
-            },
-        ]
+        const metastate =
+            dailyFarmReward.toNumber() > 0
+                ? [
+                      // Metastate keys ideally are ascii and up to length 31 (ascii, utf8 might be less)
+                      {
+                          key: padRight(asciiToHex('periodRewardRate'), 64),
+                          value: defaultAbiCoder.encode(
+                              ['uint128', 'int128'],
+                              [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                          ),
+                      },
+                  ]
+                : []
 
         const estimatedGas2 = await farms?.methods
-            .increaseReferralFarm(
-                rewardTokenDefn,
-                referredTokenDefn,
-                totalFarmReward,
-                !disableMetaState ? metastate : [],
-            )
+            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmReward, metastate)
             .estimateGas(config)
 
         tx = await farms?.methods
-            .increaseReferralFarm(
-                rewardTokenDefn,
-                referredTokenDefn,
-                totalFarmReward,
-                !disableMetaState ? metastate : [],
-            )
+            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmReward, metastate)
             .send({
                 ...config,
                 gas: estimatedGas2,
@@ -88,14 +84,12 @@ export async function runCreateERC20PairFarm(
                 }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
-                alert(error)
                 onConfirm(false)
                 onStart(false)
             })
     } catch (error) {
         onConfirm(false)
         onStart(false)
-        alert(error)
     }
 }
 export async function adjustFarmRewards(
@@ -109,27 +103,24 @@ export async function adjustFarmRewards(
     referredTokenAddr: string,
     totalFarmReward: BigNumber,
     dailyFarmReward: BigNumber,
-    disableAdjustTotalRewards: boolean,
-    disableAdjustDailyReward: boolean,
 ) {
     try {
-        if (!disableAdjustTotalRewards) {
+        // Increase/decrease the Daily Farm Reward and deposit Additional Farm Rewards
+        if (totalFarmReward && totalFarmReward.toNumber() > 0) {
             if (rewardTokenAddr === NATIVE_TOKEN) {
-                await runCreateNativeFarm(
+                return await runCreateNativeFarm(
                     onConfirm,
                     onStart,
                     onTransactionHash,
                     web3,
                     account,
                     chainId,
-                    rewardTokenAddr,
                     referredTokenAddr,
                     totalFarmReward,
                     dailyFarmReward,
-                    disableAdjustDailyReward,
                 )
             } else {
-                await runCreateERC20PairFarm(
+                return await runCreateERC20PairFarm(
                     onConfirm,
                     onStart,
                     onTransactionHash,
@@ -140,10 +131,12 @@ export async function adjustFarmRewards(
                     referredTokenAddr,
                     totalFarmReward,
                     dailyFarmReward,
-                    disableAdjustDailyReward,
                 )
             }
-        } else {
+        }
+
+        // Increase/decrease the Daily Farm Reward
+        if (dailyFarmReward.toNumber() > 0) {
             onStart(true)
 
             const config = {
@@ -151,13 +144,16 @@ export async function adjustFarmRewards(
             }
 
             const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-            const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
+            const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
             const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
             const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
             const metastate = [
                 {
-                    key: padRight(asciiToHex('dailyRewardRate'), 64),
-                    value: defaultAbiCoder.encode(['uint256'], [toWei(dailyFarmReward.toString(), 'ether')]),
+                    key: padRight(asciiToHex('periodRewardRate'), 64),
+                    value: defaultAbiCoder.encode(
+                        ['uint128', 'int128'],
+                        [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                    ),
                 },
             ]
             const estimatedGas = await farms?.methods
@@ -187,9 +183,9 @@ export async function adjustFarmRewards(
     } catch (error) {
         onConfirm(false)
         onStart(false)
-        alert(error)
     }
 }
+
 export async function runCreateNativeFarm(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
@@ -197,37 +193,39 @@ export async function runCreateNativeFarm(
     web3: Web3,
     account: string,
     chainId: ChainId,
-    rewardTokenAddr: string,
     referredTokenAddr: string,
     totalFarmReward: BigNumber,
     dailyFarmReward: BigNumber,
-    disableMetaState?: boolean,
 ) {
     try {
         onStart(true)
-        let tx: any, metastate: Metastate
 
         const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
-        const rewardTokenDefn = toNativeRewardTokenDefn(chainId)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
-        metastate = [
-            {
-                key: padRight(asciiToHex('dailyRewardRate'), 64),
-                value: defaultAbiCoder.encode(['uint256'], [toWei(dailyFarmReward.toString(), 'ether')]),
-            },
-        ]
+        const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
+        const metastate =
+            dailyFarmReward.toNumber() > 0
+                ? [
+                      {
+                          key: padRight(asciiToHex('periodRewardRate'), 64),
+                          value: defaultAbiCoder.encode(
+                              ['uint128', 'int128'],
+                              [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                          ),
+                      },
+                  ]
+                : []
 
         const config = {
             from: account,
             value: toWei(totalFarmReward.toString(), 'ether'),
         }
         const estimatedGas = await farms?.methods
-            .increaseReferralFarmNative(referredTokenDefn, !disableMetaState ? metastate : [])
+            .increaseReferralFarmNative(referredTokenDefn, metastate)
             .estimateGas(config)
 
-        tx = await farms?.methods
-            .increaseReferralFarmNative(referredTokenDefn, !disableMetaState ? metastate : [])
+        const tx = await farms?.methods
+            .increaseReferralFarmNative(referredTokenDefn, metastate)
             .send({
                 ...config,
                 gas: estimatedGas,
@@ -270,7 +268,7 @@ export async function harvestRewards(
         }
 
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-        const farms = createContract(web3, farmsAddr, FARM_ABI as AbiItem[])
+        const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
 
         const estimatedGas = await farms?.methods.harvestRewards([req], [effect], []).estimateGas(config)
 

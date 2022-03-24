@@ -1,7 +1,13 @@
 import { useAsync } from 'react-use'
-import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
-import { FormattedBalance, TokenIcon } from '@masknet/shared'
-import { AdjustFarmRewardsInterface, TransactionStatus, Icons, PagesType, TabsReferralFarms } from '../types'
+import { TokenIcon } from '@masknet/shared'
+import {
+    AdjustFarmRewardsInterface,
+    TransactionStatus,
+    Icons,
+    PagesType,
+    TabsReferralFarms,
+    parseChainAddress,
+} from '../types'
 import { useI18N } from '../../../utils'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
@@ -12,6 +18,7 @@ import {
     useChainId,
     useFungibleTokenBalance,
     useWeb3,
+    FungibleTokenDetailed,
 } from '@masknet/web3-shared-evm'
 import { Box } from '@mui/system'
 import { useCallback, useState } from 'react'
@@ -23,9 +30,6 @@ import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { getFarmsMetaState } from '../Worker/apis/farms'
 
-import { WalletMessages } from '@masknet/plugin-wallet'
-import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { useCompositionContext } from '@masknet/plugin-infra'
 import { useSharedStyles } from './styles'
 import { SvgIcons } from './Icons'
 
@@ -82,11 +86,17 @@ const useStyles = makeStyles()((theme) => ({
     switchButton: {
         width: '100%',
     },
+    tokenIcon: {
+        width: '40px',
+        height: '40px',
+        backgroundColor: theme.palette.background.default,
+        borderRadius: '50%',
+    },
 }))
 
 export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
-    const { farm, token } = props
-    localStorage.setItem('adjustFarmRewardsData', JSON.stringify({ farm, token }))
+    const { farm, rewardToken, referredToken } = props
+    localStorage.setItem('adjustFarmRewardsData', JSON.stringify({ farm, rewardToken, referredToken }))
 
     const { t } = useI18N()
     const { classes } = useStyles()
@@ -96,7 +106,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const account = useAccount()
 
     const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
-
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
 
@@ -104,20 +113,13 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         value: rewardBalance = '0',
         loading: loadingRewardBalance,
         retry: retryLoadRewardBalance,
-    } = useFungibleTokenBalance(token?.type ?? EthereumTokenType.Native, token?.address ?? '')
+    } = useFungibleTokenBalance(rewardToken?.type ?? EthereumTokenType.Native, rewardToken?.address ?? '')
     const requiredChainId = useRequiredChainId(chainId)
 
     const { value: farmsMetaState } = useAsync(
         async () => (farm?.farmHash ? getFarmsMetaState(web3, chainId, [farm.farmHash]) : undefined),
         [web3, farm, chainId],
     )
-
-    const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
-        WalletMessages.events.walletStatusDialogUpdated,
-    )
-    const currentIdentity = useCurrentIdentity()
-    const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
-    const { attachMetadata, dropMetadata } = useCompositionContext()
 
     const onChangeTotalFarmReward = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const totalFarmReward = e.currentTarget.value
@@ -128,8 +130,16 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         setAttraceFee(attraceFee)
     }, [])
 
-    const adjustFarmReward = useCallback(async () => {
-        const tokenAddress = token?.address ?? ''
+    const onAdjustFarmReward = useCallback(async () => {
+        const referredTokenAddr =
+            referredToken?.address || (farm?.referredTokenDefn && parseChainAddress(farm.referredTokenDefn).address)
+        const rewardTokenAddr =
+            rewardToken?.address || (farm?.rewardTokenDefn && parseChainAddress(farm.rewardTokenDefn).address)
+
+        if (!referredTokenAddr || !rewardTokenAddr) {
+            return onErrorDeposit()
+        }
+
         const totalFarmRewardNum = !totalFarmReward
             ? new BigNumber(0)
             : new BigNumber(totalFarmReward ?? 0).plus(attraceFee)
@@ -154,24 +164,22 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             web3,
             account,
             chainId,
-            tokenAddress,
-            tokenAddress,
+            rewardTokenAddr,
+            referredTokenAddr,
             totalFarmRewardNum,
             dailyFarmRewardNum,
-            !totalFarmReward,
-            !dailyFarmReward,
         )
-    }, [web3, account, chainId, token, totalFarmReward, dailyFarmReward])
+    }, [web3, account, chainId, farm, referredToken, rewardToken, totalFarmReward, dailyFarmReward])
 
-    const adjustRewards = useCallback(() => {
-        if (totalFarmReward) {
-            onUpdateTotalFarmReward()
+    const onClickAdjustRewards = useCallback(() => {
+        if (totalFarmReward && Number(totalFarmReward) > 0) {
+            onOpenDepositDialog()
         } else {
-            adjustFarmReward()
+            onAdjustFarmReward()
         }
     }, [totalFarmReward, dailyFarmReward])
 
-    const onUpdateTotalFarmReward = useCallback(() => {
+    const onOpenDepositDialog = useCallback(() => {
         props.continue(
             PagesType.ADJUST_REWARDS,
             PagesType.DEPOSIT,
@@ -181,50 +189,59 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 depositDialog: {
                     deposit: {
                         totalFarmReward: totalFarmReward,
-                        tokenSymbol: token?.symbol,
+                        tokenSymbol: rewardToken?.symbol,
                         attraceFee: attraceFee,
                         requiredChainId: requiredChainId,
-                        onDeposit: adjustFarmReward,
+                        onDeposit: onAdjustFarmReward,
                     },
                 },
             },
         )
-    }, [props, attraceFee, totalFarmReward, token, requiredChainId])
+    }, [props, attraceFee, totalFarmReward, rewardToken, requiredChainId])
 
-    const getTransactionTitles = useCallback(
-        (totalFarmReward: string, dailyFarmReward: string) => {
-            if (totalFarmReward !== '' && dailyFarmReward !== '') {
-                return {
-                    title: t('plugin_referral_confirm_transaction'),
-                    subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
-                        totalReward: attraceFee.plus(totalFarmReward),
-                        dailyReward: dailyFarmReward,
-                        symbol: token?.symbol ?? '',
-                    }),
-                }
-            } else if (totalFarmReward !== '') {
-                return {
-                    title: t('plugin_referral_confirm_deposit'),
-                    subtitle: t('plugin_referral_adjust_total_reward_desc', {
-                        reward: attraceFee.plus(totalFarmReward),
-                        symbol: token?.symbol ?? '',
-                    }),
-                }
-            } else {
-                return {
-                    title: t('plugin_referral_confirm_transaction'),
-                    subtitle: t('plugin_referral_adjust_daily_reward_desc', {
-                        reward: dailyFarmReward,
-                        symbol: token?.symbol ?? '',
-                    }),
-                }
+    const getTransactionTitles = (
+        totalFarmReward: number,
+        dailyFarmReward: number,
+        attraceFee: BigNumber,
+        rewardToken?: FungibleTokenDetailed,
+    ) => {
+        if (totalFarmReward && dailyFarmReward) {
+            return {
+                title: t('plugin_referral_confirm_transaction'),
+                subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
+                    totalReward: attraceFee.plus(totalFarmReward),
+                    dailyReward: dailyFarmReward,
+                    symbol: rewardToken?.symbol ?? '',
+                }),
             }
-        },
-        [token, attraceFee],
-    )
+        }
+
+        if (totalFarmReward) {
+            return {
+                title: t('plugin_referral_confirm_deposit'),
+                subtitle: t('plugin_referral_adjust_total_reward_desc', {
+                    reward: attraceFee.plus(totalFarmReward),
+                    symbol: rewardToken?.symbol ?? '',
+                }),
+            }
+        }
+
+        return {
+            title: t('plugin_referral_confirm_transaction'),
+            subtitle: t('plugin_referral_adjust_daily_reward_desc', {
+                reward: dailyFarmReward,
+                symbol: rewardToken?.symbol ?? '',
+            }),
+        }
+    }
 
     const onConfirmAdjustFarm = useCallback(() => {
-        const { title, subtitle } = getTransactionTitles(totalFarmReward, dailyFarmReward)
+        const { title, subtitle } = getTransactionTitles(
+            Number(totalFarmReward),
+            Number(dailyFarmReward),
+            attraceFee,
+            props.rewardToken,
+        )
 
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
             hideAttrLogo: true,
@@ -237,7 +254,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 },
             },
         })
-    }, [props, totalFarmReward, dailyFarmReward])
+    }, [props, totalFarmReward, dailyFarmReward, attraceFee])
 
     const onConfirmedAdjustFarm = useCallback(
         (txHash: string) => {
@@ -263,11 +280,12 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         props?.onChangePage?.(PagesType.ADJUST_REWARDS, TabsReferralFarms.TOKENS + ': ' + PagesType.ADJUST_REWARDS, {
             adjustFarmDialog: {
                 farm: farm,
-                token: token,
+                rewardToken,
+                referredToken,
                 continue: () => {},
             },
         })
-    }, [props, farm, token])
+    }, [props, farm, rewardToken, referredToken])
 
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
 
@@ -278,10 +296,71 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     }
 
     const disableAdjustRewardsButton = !Number(dailyFarmReward) && !Number(totalFarmReward)
+    const balance = formatBalance(rewardBalance ?? '', rewardToken?.decimals, 6)
 
-    const rewardDataFields = () => {
-        return (
-            <>
+    return rewardToken ? (
+        <Typography display="flex" flexDirection="column">
+            <Grid container marginY={3}>
+                <Grid item marginBottom="24px">
+                    <Typography fontWeight={600} variant="h6">
+                        {t('plugin_referral_adjust_rewards_desc')}
+                    </Typography>
+                </Grid>
+                <Grid item marginBottom="24px">
+                    <div className={classes.container}>
+                        {referredToken ? <TokenIcon {...referredToken} /> : <div className={classes.tokenIcon} />}
+                        <div className={classes.details}>
+                            <div className={classes.nameFarm}>
+                                {referredToken?.symbol} {t('plugin_referral_referral_farm')}{' '}
+                                <Box paddingLeft={1}>
+                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
+                                </Box>
+                            </div>
+                            <span className={classes.name}>{referredToken?.name}</span>
+                        </div>
+                    </div>
+                </Grid>
+                <Grid item xs={12} container marginBottom="24px">
+                    <Grid item xs={4} display="flex" alignItems="center">
+                        <Box>
+                            {t('plugin_referral_estimated_apr')}
+                            <Typography fontWeight={600} marginTop="4px">
+                                {rewardData.apr}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={4} display="flex" alignItems="center">
+                        <Box>
+                            {t('plugin_referral_daily_rewards')}
+                            <Typography fontWeight={600} marginTop="4px">
+                                {rewardData ? (
+                                    <>
+                                        {Number.parseFloat(rewardData.dailyReward.toFixed(5))}{' '}
+                                        {rewardToken?.symbol ?? '-'}
+                                    </>
+                                ) : (
+                                    '-'
+                                )}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={4} display="flex" alignItems="center">
+                        <Box>
+                            {t('plugin_referral_total_farm_rewards')}
+                            <Typography fontWeight={600} marginTop="4px">
+                                {rewardData ? (
+                                    <>
+                                        {Number.parseFloat(rewardData.totalReward.toFixed(5))}{' '}
+                                        {rewardToken?.symbol ?? '-'}
+                                    </>
+                                ) : (
+                                    '-'
+                                )}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
+
                 <Grid item xs={6} display="flex">
                     <Box>
                         <TextField
@@ -298,7 +377,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                             className={classes.textField}
                             InputProps={{
                                 disableUnderline: true,
-                                endAdornment: <InputAdornment position="end">{token?.symbol}</InputAdornment>,
+                                endAdornment: <InputAdornment position="end">{rewardToken?.symbol}</InputAdornment>,
                             }}
                         />
                     </Box>
@@ -321,147 +400,55 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                                 disableUnderline: true,
                                 endAdornment: (
                                     <InputAdornment position="start">
-                                        <Grid container>
-                                            <Grid item container>
-                                                <Box>
-                                                    <Typography
-                                                        className={classes.balance}
-                                                        color="textSecondary"
-                                                        variant="body2"
-                                                        component="span">
-                                                        {t('wallet_balance')}:{' '}
-                                                        <FormattedBalance
-                                                            value={rewardBalance ?? '0'}
-                                                            decimals={token?.decimals}
-                                                            significant={6}
-                                                            formatter={formatBalance}
-                                                        />
-                                                    </Typography>
+                                        <Box>
+                                            <Typography
+                                                className={classes.balance}
+                                                color="textSecondary"
+                                                variant="body2"
+                                                component="span">
+                                                {t('wallet_balance')}: {balance}
+                                            </Typography>
+                                            {rewardToken && (
+                                                <Box display="flex" alignItems="center">
+                                                    {rewardToken?.symbol}
+                                                    <Chip
+                                                        size="small"
+                                                        label="MAX"
+                                                        clickable
+                                                        color="primary"
+                                                        className={sharedClasses.maxChip}
+                                                        variant="outlined"
+                                                        onClick={() => setTotalFarmReward(balance)}
+                                                    />
                                                 </Box>
-                                            </Grid>
-                                            {rewardBalance && (
-                                                <Grid item container>
-                                                    <Grid item xs={6}>
-                                                        {token?.symbol}
-                                                    </Grid>
-                                                    <Grid item xs={6}>
-                                                        <Chip
-                                                            size="small"
-                                                            label="MAX"
-                                                            clickable
-                                                            color="primary"
-                                                            className={sharedClasses.maxChip}
-                                                            variant="outlined"
-                                                            onClick={() => {
-                                                                setTotalFarmReward(
-                                                                    formatBalance(
-                                                                        rewardBalance ?? '',
-                                                                        token?.decimals,
-                                                                        6,
-                                                                    ),
-                                                                )
-                                                            }}
-                                                        />
-                                                    </Grid>
-                                                </Grid>
                                             )}
-                                        </Grid>
+                                        </Box>
                                     </InputAdornment>
                                 ),
                             }}
                         />
                     </Box>
                 </Grid>
-            </>
-        )
-    }
-    return (
-        <div>
-            {token && (
-                <Typography display="flex" flexDirection="column">
-                    <Grid container marginY={3}>
-                        <Grid item marginBottom="24px">
-                            <Typography fontWeight={600} variant="h6">
-                                {t('plugin_referral_adjust_rewards_desc')}
-                            </Typography>
-                        </Grid>
-                        <Grid item marginBottom="24px">
-                            <div className={classes.container}>
-                                <TokenIcon {...token} />
-                                <div className={classes.details}>
-                                    <div className={classes.nameFarm}>
-                                        {token.symbol} {t('plugin_referral_referral_farm')}{' '}
-                                        <Box paddingLeft={1}>
-                                            <SvgIcons icon={Icons.SponsoredFarmIcon} />
-                                        </Box>
-                                    </div>
-                                    <span className={classes.name}>{token.name}</span>
-                                </div>
-                            </div>
-                        </Grid>
-                        <Grid item xs={12} container marginBottom="24px">
-                            <Grid item xs={4} display="flex" alignItems="center">
-                                <Box>
-                                    {t('plugin_referral_estimated_apr')}
-                                    <Typography fontWeight={600} marginTop="4px">
-                                        {rewardData.apr}
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                            <Grid item xs={4} display="flex" alignItems="center">
-                                <Box>
-                                    {t('plugin_referral_daily_rewards')}
-                                    <Typography fontWeight={600} marginTop="4px">
-                                        {rewardData ? (
-                                            <>
-                                                {Number.parseFloat(rewardData.dailyReward.toFixed(5))}{' '}
-                                                {token?.symbol ?? '-'}
-                                            </>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                            <Grid item xs={4} display="flex" alignItems="center">
-                                <Box>
-                                    {t('plugin_referral_total_farm_rewards')}
-                                    <Typography fontWeight={600} marginTop="4px">
-                                        {rewardData ? (
-                                            <>
-                                                {Number.parseFloat(rewardData.totalReward.toFixed(5))}{' '}
-                                                {token?.symbol ?? '-'}
-                                            </>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </Typography>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                        {rewardDataFields()}
-                        <Grid item xs={12} marginTop="24px">
-                            <EthereumChainBoundary
-                                chainId={requiredChainId}
-                                noSwitchNetworkTip
-                                classes={{
-                                    switchButton: sharedClasses.switchButton,
-                                }}>
-                                <ActionButton
-                                    fullWidth
-                                    variant="contained"
-                                    size="large"
-                                    disabled={disableAdjustRewardsButton}
-                                    onClick={() => {
-                                        adjustRewards()
-                                    }}>
-                                    {t('plugin_referral_adjust_rewards')}
-                                </ActionButton>
-                            </EthereumChainBoundary>
-                        </Grid>
-                    </Grid>
-                </Typography>
-            )}
-        </div>
+                <Grid item xs={12} marginTop="24px">
+                    <EthereumChainBoundary
+                        chainId={requiredChainId}
+                        noSwitchNetworkTip
+                        classes={{
+                            switchButton: sharedClasses.switchButton,
+                        }}>
+                        <ActionButton
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            disabled={disableAdjustRewardsButton}
+                            onClick={onClickAdjustRewards}>
+                            {t('plugin_referral_adjust_rewards')}
+                        </ActionButton>
+                    </EthereumChainBoundary>
+                </Grid>
+            </Grid>
+        </Typography>
+    ) : (
+        <Typography>{t('plugin_referral_adjust_rewards_error')}</Typography>
     )
 }

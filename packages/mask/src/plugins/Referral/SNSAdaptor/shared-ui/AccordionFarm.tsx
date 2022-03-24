@@ -55,16 +55,16 @@ export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
 
 export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails }: AccordionFarmProps) {
     const { classes } = useStyles()
-
     const chainId = useChainId()
     const { value: nativeToken } = useNativeTokenDetailed()
 
     const nativeRewardToken = toNativeRewardTokenDefn(chainId)
-    const rewardToken =
-        farm.rewardTokenDefn === nativeRewardToken
-            ? nativeToken
-            : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
-    const rewardTokenSymbol = rewardToken?.symbol
+    const referredTokenAddr = parseChainAddress(farm.referredTokenDefn).address
+    const rewardTokenAddr = parseChainAddress(farm.rewardTokenDefn).address
+
+    const referredToken =
+        farm.referredTokenDefn === nativeRewardToken ? nativeToken : allTokensMap.get(referredTokenAddr)
+    const rewardToken = farm.rewardTokenDefn === nativeRewardToken ? nativeToken : allTokensMap.get(rewardTokenAddr)
 
     return (
         <Accordion className={classes.accordion}>
@@ -77,14 +77,16 @@ export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails
                     content: classes.accordionSummaryContent,
                 }}>
                 <Grid item xs={6}>
-                    <ReferredFarmTokenDetailed token={rewardToken} />
+                    <ReferredFarmTokenDetailed
+                        token={{ address: parseChainAddress(farm.referredTokenDefn).address, ...referredToken }}
+                    />
                 </Grid>
                 <Grid item xs={2} display="flex" alignItems="center">
                     <Typography className={classes.total}>{APR}</Typography>
                 </Grid>
                 <Grid item xs={4} display="flex" alignItems="center">
                     <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>
-                    <Typography className={classes.total}>{rewardTokenSymbol || '-'}</Typography>
+                    <Typography className={classes.total}>{rewardToken?.symbol || '-'}</Typography>
                 </Grid>
             </AccordionSummary>
             <AccordionDetails className={classes.accordionDetails}>{accordionDetails}</AccordionDetails>

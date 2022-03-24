@@ -27,6 +27,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: '16px',
         lineHeight: '22px',
         color: theme.palette.text.secondary,
+        textAlign: 'center',
     },
 }))
 
@@ -76,7 +77,6 @@ export function Transaction(props: TransactionDialogInterface | undefined) {
                             {t('plugin_wallet_view_on_explorer')}
                         </Link>
                     </Grid>
-
                     <Grid item xs={12} marginTop="40px">
                         <ActionButton
                             fullWidth
