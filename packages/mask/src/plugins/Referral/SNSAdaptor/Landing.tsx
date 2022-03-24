@@ -1,18 +1,13 @@
-import { useState } from 'react'
-import { Typography, Button, Grid, Box } from '@mui/material'
 import { Trans } from 'react-i18next'
-// import { ProtocolType } from '../types'
-import { useI18N } from '../../../utils'
-import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
+
+import { useI18N } from '../../../utils'
 import { Icons, PageInterface, PagesType } from '../types'
+
+import { Typography, Button, Grid, Box } from '@mui/material'
 import { SvgIcons } from './Icons'
-interface ReferralDialogProps {
-    open: boolean
-    onClose?: () => void
-    onSwapDialogOpen?: () => void
-}
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {
         padding: theme.spacing(3, 0, 3),
@@ -53,11 +48,8 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export function Landing(props: PageInterface) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    // const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null)
 
     const data = [
         {
@@ -103,10 +95,10 @@ export function Landing(props: PageInterface) {
                 {t('plugin_referral_how_it_works')}
             </Typography>
             <Grid textAlign="left" direction="row" container className={classes.smallText} rowSpacing="12px">
-                {data.map((e) => {
+                {data.map((e, i) => {
                     return (
                         <Grid
-                            key={e.name}
+                            key={`${e.name}-${i}`}
                             item
                             xs={12}
                             display="flex"
@@ -128,7 +120,7 @@ export function Landing(props: PageInterface) {
                             props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)
                         }}
                         variant="contained">
-                        Continue
+                        {t('plugin_referral_continue')}
                     </Button>
                 </Grid>
             </Grid>

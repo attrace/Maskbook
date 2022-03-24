@@ -216,7 +216,8 @@ interface AdjustFarm extends FarmExistsEvent {
 
 export interface AdjustFarmRewardsInterface extends PageInterface {
     farm?: AdjustFarm
-    token?: FungibleTokenDetailed
+    rewardToken?: FungibleTokenDetailed
+    referredToken?: FungibleTokenDetailed
 }
 
 export interface DepositDialogInterface {

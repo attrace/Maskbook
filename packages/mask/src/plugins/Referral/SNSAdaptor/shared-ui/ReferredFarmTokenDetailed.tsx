@@ -39,6 +39,12 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         color: theme.palette.text.secondary,
         fontWeight: 400,
     },
+    tokenIcon: {
+        width: '40px',
+        height: '40px',
+        backgroundColor: theme.palette.background.default,
+        borderRadius: '50%',
+    },
 }))
 
 export interface TokenProps {
@@ -63,7 +69,7 @@ export function ReferredFarmTokenDetailed({ token, hideFarmTypeIcon = false }: R
         <div className={classes.container}>
             {token && (
                 <>
-                    <TokenIcon {...token} />
+                    {token.logoURI ? <TokenIcon {...token} /> : <div className={classes.tokenIcon} />}
                     <Typography className={classes.details} display="flex" flexDirection="column">
                         <div className={classes.nameFarm}>
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}

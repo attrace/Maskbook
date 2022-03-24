@@ -3,7 +3,6 @@ import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { Box, Typography, DialogContent } from '@mui/material'
 import { Icons, PageHistory, PagesType, DialogInterface } from '../types'
 import { useI18N } from '../../../utils'
-import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Landing } from './Landing'
@@ -73,8 +72,6 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
     const [propsData, setPropsData] = useState<DialogInterface>()
 
     const { t } = useI18N()
-    const currentChainId = useChainId()
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard, hideBackBtn: propsData?.hideBackBtn })
     const [currentPage, setCurrentPage] = useState<PageHistory>({
@@ -158,8 +155,8 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                         const props: DialogInterface = {
                             adjustFarmDialog: {
                                 farm: adjustFarmRewardsData.farm,
-                                token: adjustFarmRewardsData.token,
-                                // eslint-disable-next-line prettier/prettier
+                                referredToken: adjustFarmRewardsData.referredToken,
+                                rewardToken: adjustFarmRewardsData.rewardToken,
                                 continue: () => {},
                             },
                         }

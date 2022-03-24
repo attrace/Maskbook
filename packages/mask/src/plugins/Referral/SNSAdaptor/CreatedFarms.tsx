@@ -4,7 +4,6 @@ import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
 import { getMaskColor, makeStyles } from '@masknet/theme'
 
 import { useI18N } from '../../../utils'
-import { v4 as uuid } from 'uuid'
 import {
     useAccount,
     useChainId,
@@ -23,7 +22,6 @@ import {
     TabsReferralFarms,
 } from '../types'
 import { AccordionFarm } from './shared-ui/AccordionFarm'
-import { PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN } from '../constants'
 
 import { TokenList } from '@masknet/web3-providers'
 import { toNativeRewardTokenDefn } from './helpers'
@@ -121,12 +119,14 @@ export function CreatedFarms(props: PageInterface) {
         async () => (!ERC20 || ERC20.length === 0 ? [] : TokenList.fetchERC20TokensFromTokenLists(ERC20, chainId)),
         [chainId, ERC20?.sort().join()],
     )
+    const { value: nativeToken } = useNativeTokenDetailed()
+
     // fetch my farms
     const { value: myFarms = [], loading: loadingMyFarms } = useAsync(
         async () => getMyFarms(web3, account, chainId),
         [web3, account],
     )
-    const { value: nativeToken } = useNativeTokenDetailed()
+
     // fetch all deposits
     const { value: farmsDeposits = [], loading: loadingFarmsDeposits } = useAsync(
         async () => getFarmsDeposits(web3, chainId),
@@ -134,10 +134,7 @@ export function CreatedFarms(props: PageInterface) {
     )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
-
-    // TODO: remove filter after new contract deploy
-    const mySponsoredFarms = myFarms.filter((farm) => farm.referredTokenDefn !== PROPORTIONAL_FARM_REFERRED_TOKEN_DEFN)
-    const farms = groupDepositForFarms(mySponsoredFarms, farmsDeposits)
+    const farms = groupDepositForFarms(myFarms, farmsDeposits)
 
     const onAdjustRewardButtonClick = (farm: Farm) => {
         const nativeRewardToken = toNativeRewardTokenDefn(chainId)
@@ -145,7 +142,8 @@ export function CreatedFarms(props: PageInterface) {
         const rewardToken =
             farm.rewardTokenDefn === nativeRewardToken
                 ? nativeToken
-                : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+                : allTokensMap.get(parseChainAddress(farm.rewardTokenDefn).address)
+        const referredToken = allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
 
         props.continue(
             PagesType.CREATE_FARM,
@@ -154,7 +152,8 @@ export function CreatedFarms(props: PageInterface) {
             {
                 adjustFarmDialog: {
                     farm: farm,
-                    token: rewardToken,
+                    rewardToken,
+                    referredToken,
                     continue: () => {},
                 },
             },
@@ -188,42 +187,40 @@ export function CreatedFarms(props: PageInterface) {
                         {farms.length === 0 ? (
                             <Typography className={classes.noFarm}>{t('plugin_referral_no_created_farm')}</Typography>
                         ) : (
-                            farms.map((farm) => {
-                                return (
-                                    <AccordionFarm
-                                        key={uuid()}
-                                        farm={farm}
-                                        allTokensMap={allTokensMap}
-                                        totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
-                                        accordionDetails={
-                                            <Box display="flex" justifyContent="flex-end">
-                                                <Button
-                                                    variant="text"
-                                                    disabled
-                                                    classes={{ disabled: classes.viewStatsDisabled }}>
-                                                    {t('plugin_referral_view_stats')}
-                                                </Button>
-                                                <Button
-                                                    disabled
-                                                    variant="contained"
-                                                    size="medium"
-                                                    className={classes.buttonWithdraw}
-                                                    onClick={() => console.log('request to withdraw')}>
-                                                    {t('plugin_referral_request_to_withdraw')}
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    size="medium"
-                                                    onClick={() => {
-                                                        onAdjustRewardButtonClick({ ...farm })
-                                                    }}>
-                                                    {t('plugin_referral_adjust_rewards')}
-                                                </Button>
-                                            </Box>
-                                        }
-                                    />
-                                )
-                            })
+                            farms.map((farm) => (
+                                <AccordionFarm
+                                    key={farm.farmHash}
+                                    farm={farm}
+                                    allTokensMap={allTokensMap}
+                                    totalValue={Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0')}
+                                    accordionDetails={
+                                        <Box display="flex" justifyContent="flex-end">
+                                            <Button
+                                                variant="text"
+                                                disabled
+                                                classes={{ disabled: classes.viewStatsDisabled }}>
+                                                {t('plugin_referral_view_stats')}
+                                            </Button>
+                                            <Button
+                                                disabled
+                                                variant="contained"
+                                                size="medium"
+                                                className={classes.buttonWithdraw}
+                                                onClick={() => console.log('request to withdraw')}>
+                                                {t('plugin_referral_request_to_withdraw')}
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                size="medium"
+                                                onClick={() => {
+                                                    onAdjustRewardButtonClick({ ...farm })
+                                                }}>
+                                                {t('plugin_referral_adjust_rewards')}
+                                            </Button>
+                                        </Box>
+                                    }
+                                />
+                            ))
                         )}
                     </>
                 )}
