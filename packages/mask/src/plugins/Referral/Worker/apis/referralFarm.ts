@@ -246,7 +246,6 @@ export async function runCreateNativeFarm(
     } catch (error) {
         onConfirm(false)
         onStart(false)
-        alert(error)
     }
 }
 
@@ -292,6 +291,5 @@ export async function harvestRewards(
             })
     } catch (error) {
         onError()
-        alert(error)
     }
 }

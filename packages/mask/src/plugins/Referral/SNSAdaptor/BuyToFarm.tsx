@@ -1,44 +1,41 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
-
+import { FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
+import { isDashboardPage } from '@masknet/shared-base'
+import { makeStyles, useCustomSnackbar } from '@masknet/theme'
+import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { v4 as uuid } from 'uuid'
 
 import { useI18N } from '../../../utils'
-import { useAccount, useChainId, useWeb3, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
-import { makeStyles } from '@masknet/theme'
-import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
-
-import { MASK_REFERRER } from '../constants'
-import { singAndPostProofWithReferrer } from '../Worker/apis/proofs'
+import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { singAndPostProofOfRecommendationWithReferrer } from '../Worker/apis/proofOfRecommendation'
+import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
+import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
-
+import { toChainAddress, getFarmsRewardData } from './helpers'
+import { MASK_REFERRER } from '../constants'
 import {
     TabsCreateFarm,
     TransactionStatus,
-    ChainAddress,
     PageInterface,
     PagesType,
     Icons,
     parseChainAddress,
     TabsReferralFarms,
+    ChainAddress,
 } from '../types'
+import type { Coin } from '../../Trader/types'
 
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
-import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { MyFarms } from './MyFarms'
+import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
-
-import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-import { toChainAddress, getFarmsRewardData } from './helpers'
-import { PluginTraderMessages } from '../../Trader/messages'
-import type { Coin } from '../../Trader/types'
-import { useRequiredChainId } from './hooks/useRequiredChainId'
-import { useTabStyles } from './styles'
 import { SvgIcons } from './Icons'
+
+import { useTabStyles } from './styles'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -72,24 +69,14 @@ export function BuyToFarm(props: PageInterface) {
     const { classes } = useStyles({ isDashboard })
     const { classes: tabClasses } = useTabStyles()
     const currentChainId = useChainId()
-
     const requiredChainId = useRequiredChainId(currentChainId)
     const web3 = useWeb3()
     const account = useAccount()
+    const { showSnackbar } = useCustomSnackbar()
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
-
-    // fetch all farms
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-
-    // get farm referred tokens defn
-    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
-    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
-    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
-
-    const [token, setToken] = useState<FungibleTokenDetailed>()
-
     const [id] = useState(uuid())
+    const [token, setToken] = useState<FungibleTokenDetailed>()
     const { setDialog: setSelectTokenDialog } = useRemoteControlledDialog(
         PluginReferralMessages.selectTokenUpdated,
         useCallback(
@@ -100,6 +87,15 @@ export function BuyToFarm(props: PageInterface) {
             [id, setToken],
         ),
     )
+    const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
+
+    // fetch all farms
+    const { value: farms = [] } = useAsync(async () => getAllFarms(web3, currentChainId), [])
+    // get farm referred tokens defn
+    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
+    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
+    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
+
     const onClickTokenSelect = useCallback(() => {
         setSelectTokenDialog({
             open: true,
@@ -108,12 +104,12 @@ export function BuyToFarm(props: PageInterface) {
             tokenList,
         })
     }, [id, setToken, tokenList])
-    // #endregion
-
-    const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
 
     const swapToken = useCallback(() => {
-        if (!token) return
+        if (!token) {
+            showSnackbar(t('plugin_referral_error_token_not_select'), { variant: 'error' })
+            return
+        }
         openSwapDialog({
             open: true,
             traderProps: {
@@ -142,21 +138,27 @@ export function BuyToFarm(props: PageInterface) {
         })
     }, [props])
 
-    const onErrorReferFarm = useCallback(() => {
-        props?.onChangePage?.(PagesType.REFER_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM)
-    }, [props])
+    const onError = useCallback(
+        (error?: string) => {
+            showSnackbar(error || t('go_wrong'), { variant: 'error' })
+            props?.onChangePage?.(PagesType.BUY_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.BUY_TO_FARM)
+        },
+        [props],
+    )
 
-    const referFarm = async () => {
+    const onClickBuyToFarm = useCallback(async () => {
+        if (!token?.address) {
+            return onError(t('plugin_referral_error_token_not_select'))
+        }
         try {
             onConfirmReferFarm()
-            const sig = await singAndPostProofWithReferrer(web3, account, token?.address ?? '', MASK_REFERRER)
+            await singAndPostProofOfRecommendationWithReferrer(web3, account, token.address, MASK_REFERRER)
 
             swapToken()
-        } catch (error) {
-            onErrorReferFarm()
-            alert(error)
+        } catch (error: any) {
+            onError(error?.message)
         }
-    }
+    }, [web3, account, token])
 
     const referredTokenFarms = token
         ? farms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
@@ -225,7 +227,12 @@ export function BuyToFarm(props: PageInterface) {
                         </Grid>
                     </Typography>
                     <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
-                        <ActionButton fullWidth variant="contained" size="large" onClick={referFarm} disabled={!token}>
+                        <ActionButton
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            onClick={onClickBuyToFarm}
+                            disabled={!token}>
                             {t('plugin_referral_buy_to_farm')}
                         </ActionButton>
                     </EthereumChainBoundary>

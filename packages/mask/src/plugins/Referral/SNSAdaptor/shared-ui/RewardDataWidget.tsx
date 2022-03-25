@@ -1,8 +1,8 @@
-import { Typography, Box, Grid } from '@mui/material'
-
 import { useI18N } from '../../../../utils'
 import { APR } from '../../constants'
 import type { Icons, RewardData } from '../../types'
+
+import { Typography, Box, Grid } from '@mui/material'
 import { SvgIcons } from '../Icons'
 
 export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}> {
@@ -27,7 +27,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
             )}
             <Grid item xs={4} display="flex" alignItems="center">
                 <Box>
-                    {t('plugin_referral_estimated_apr')}
+                    <Typography>{t('plugin_referral_estimated_apr')}</Typography>
                     <Typography fontWeight={600} marginTop="4px">
                         {APR}
                     </Typography>
@@ -35,7 +35,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
             </Grid>
             <Grid item xs={4} display="flex" alignItems="center">
                 <Box>
-                    {t('plugin_referral_daily_rewards')}
+                    <Typography>{t('plugin_referral_daily_rewards')}</Typography>
                     <Typography fontWeight={600} marginTop="4px">
                         {rewardData ? (
                             <>
@@ -49,7 +49,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
             </Grid>
             <Grid item xs={4} display="flex" alignItems="center">
                 <Box>
-                    {t('plugin_referral_total_farm_rewards')}
+                    <Typography>{t('plugin_referral_total_farm_rewards')}</Typography>
                     <Typography fontWeight={600} marginTop="4px">
                         {rewardData ? (
                             <>

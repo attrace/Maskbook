@@ -224,6 +224,29 @@ export interface DepositDialogInterface {
     deposit?: DepositProps
 }
 
+type TransactionProps =
+    | {
+          status: TransactionStatus.CONFIRMATION
+          title: string
+          subtitle?: string
+      }
+    | {
+          status: TransactionStatus.CONFIRMED
+          actionButton: {
+              label: string
+              onClick: (token?: FungibleTokenDetailed) => void
+          }
+          transactionHash: string
+      }
+    | {
+          status: TransactionStatus.FAILED
+          actionButton: {
+              label: string
+              onClick: () => void
+          }
+          subtitle?: string
+      }
+
 export interface TransactionDialogInterface {
     onClose?: () => void
     transaction?: TransactionProps
@@ -242,23 +265,6 @@ export interface PageInterface {
     onClose?: () => void
     continue: (currentPage: PagesType, nextPage: PagesType, title?: string, props?: DialogInterface) => void
     onChangePage?: (page: PagesType, title?: string, props?: DialogInterface) => void
-}
-// This assumes a link in style of https://app.attrace.com/l/011f9840a85d5af5bf1d1762f925bdaddc4201f9849a24fe8179a0aa7347f6f9b664f0e3f573212a6d?d=maskswapv1
-export function parseLinkUrlPath(fullUrlPath: string) {
-    // const { pathname, query } = urlParse(fullUrlPath, true);
-    // // Strip off the '/l/
-    // const str = pathname.substring(3);
-    // // Read the version
-    // const version = parseInt(str.substring(0, 2), 16);
-    // // Read the token
-    // const token = '0x' + str.substring(2,42);
-    // // Read the referrer
-    // const referrer = '0x' + str.substring(42,82);
-    // return {
-    //   referrer,
-    //   token,
-    //   dapp: query.d || null,
-    // }
 }
 
 export function expandEvmAddressToBytes32(addr: EvmAddress): Bytes32 {
@@ -323,17 +329,13 @@ export type RewardProof = {
     leafHash: string
 }
 
-type TransactionProps =
-    | {
-          status: TransactionStatus.CONFIRMATION
-          title: string
-          subtitle?: string
-      }
-    | {
-          status: TransactionStatus.CONFIRMED
-          actionButton: {
-              label: string
-              onClick: (token?: FungibleTokenDetailed) => void
-          }
-          transactionHash: string
-      }
+export enum RpcMethod {
+    oracle_chainId = 'oracle_chainId',
+    oracle_getDerivedBlockByHash = 'oracle_getDerivedBlockByHash',
+    oracle_getBundleReceipt = 'oracle_getBundleReceipt',
+    oracle_getDerivedBlockByNumber = 'oracle_getDerivedBlockByNumber',
+    oracle_getOperationalAddress = 'oracle_getOperationalAddress',
+    oracle_getTimePromise = 'oracle_getTimePromise',
+    oracle_sendProofOfRecommendationOrigin = 'oracle_sendProofOfRecommendationOrigin',
+    oracle_sendProofOfRecommendation = 'oracle_sendProofOfRecommendation',
+}
