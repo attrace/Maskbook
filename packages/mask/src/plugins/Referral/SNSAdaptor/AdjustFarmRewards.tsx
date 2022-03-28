@@ -1,16 +1,10 @@
+import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
+import BigNumber from 'bignumber.js'
 import { TokenIcon } from '@masknet/shared'
-import {
-    AdjustFarmRewardsInterface,
-    TransactionStatus,
-    Icons,
-    PagesType,
-    TabsReferralFarms,
-    parseChainAddress,
-} from '../types'
-import { useI18N } from '../../../utils'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
+import { Box } from '@mui/system'
 import {
     EthereumTokenType,
     formatBalance,
@@ -20,18 +14,20 @@ import {
     useWeb3,
     FungibleTokenDetailed,
 } from '@masknet/web3-shared-evm'
-import { Box } from '@mui/system'
-import { useCallback, useState } from 'react'
+
+import { AdjustFarmRewardsInterface, TransactionStatus, Icons, PagesType, TabsReferralFarms } from '../types'
+import { useI18N } from '../../../utils'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { parseChainAddress } from './helpers'
 import { APR, ATTRACE_FEE_PERCENT } from '../constants'
-import BigNumber from 'bignumber.js'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { getFarmsMetaState } from '../Worker/apis/farms'
 
-import { useSharedStyles } from './styles'
 import { SvgIcons } from './Icons'
+
+import { useSharedStyles } from './styles'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -199,41 +195,44 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         )
     }, [props, attraceFee, totalFarmReward, rewardToken, requiredChainId])
 
-    const getTransactionTitles = (
-        totalFarmReward: number,
-        dailyFarmReward: number,
-        attraceFee: BigNumber,
-        rewardToken?: FungibleTokenDetailed,
-    ) => {
-        if (totalFarmReward && dailyFarmReward) {
+    const getTransactionTitles = useCallback(
+        (
+            totalFarmReward: number,
+            dailyFarmReward: number,
+            attraceFee: BigNumber,
+            rewardToken?: FungibleTokenDetailed,
+        ) => {
+            if (totalFarmReward && dailyFarmReward) {
+                return {
+                    title: t('plugin_referral_confirm_transaction'),
+                    subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
+                        totalReward: attraceFee.plus(totalFarmReward),
+                        dailyReward: dailyFarmReward,
+                        symbol: rewardToken?.symbol ?? '',
+                    }),
+                }
+            }
+
+            if (totalFarmReward) {
+                return {
+                    title: t('plugin_referral_confirm_deposit'),
+                    subtitle: t('plugin_referral_adjust_total_reward_desc', {
+                        reward: attraceFee.plus(totalFarmReward),
+                        symbol: rewardToken?.symbol ?? '',
+                    }),
+                }
+            }
+
             return {
                 title: t('plugin_referral_confirm_transaction'),
-                subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
-                    totalReward: attraceFee.plus(totalFarmReward),
-                    dailyReward: dailyFarmReward,
+                subtitle: t('plugin_referral_adjust_daily_reward_desc', {
+                    reward: dailyFarmReward,
                     symbol: rewardToken?.symbol ?? '',
                 }),
             }
-        }
-
-        if (totalFarmReward) {
-            return {
-                title: t('plugin_referral_confirm_deposit'),
-                subtitle: t('plugin_referral_adjust_total_reward_desc', {
-                    reward: attraceFee.plus(totalFarmReward),
-                    symbol: rewardToken?.symbol ?? '',
-                }),
-            }
-        }
-
-        return {
-            title: t('plugin_referral_confirm_transaction'),
-            subtitle: t('plugin_referral_adjust_daily_reward_desc', {
-                reward: dailyFarmReward,
-                symbol: rewardToken?.symbol ?? '',
-            }),
-        }
-    }
+        },
+        [t],
+    )
 
     const onConfirmAdjustFarm = useCallback(() => {
         const { title, subtitle } = getTransactionTitles(
@@ -360,7 +359,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                         </Box>
                     </Grid>
                 </Grid>
-
                 <Grid item xs={6} display="flex">
                     <Box>
                         <TextField

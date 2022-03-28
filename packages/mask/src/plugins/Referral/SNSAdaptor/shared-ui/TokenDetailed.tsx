@@ -1,8 +1,6 @@
 import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
-
 import type { ChainId } from '@masknet/web3-shared-evm'
-
 import { Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
 

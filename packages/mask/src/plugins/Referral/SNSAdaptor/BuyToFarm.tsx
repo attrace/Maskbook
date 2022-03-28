@@ -4,6 +4,8 @@ import { FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
+import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
+import { TabContext, TabPanel } from '@mui/lab'
 import { v4 as uuid } from 'uuid'
 
 import { useI18N } from '../../../utils'
@@ -12,7 +14,7 @@ import { singAndPostProofOfRecommendationWithReferrer } from '../Worker/apis/pro
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { toChainAddress, getFarmsRewardData } from './helpers'
+import { toChainAddress, getFarmsRewardData, parseChainAddress } from './helpers'
 import { MASK_REFERRER } from '../constants'
 import {
     TabsCreateFarm,
@@ -20,14 +22,11 @@ import {
     PageInterface,
     PagesType,
     Icons,
-    parseChainAddress,
     TabsReferralFarms,
     ChainAddress,
 } from '../types'
 import type { Coin } from '../../Trader/types'
 
-import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
-import { TabContext, TabPanel } from '@mui/lab'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { MyFarms } from './MyFarms'

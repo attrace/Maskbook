@@ -1,11 +1,13 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
-
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeTypedMessageText } from '@masknet/typed-message'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
+import { TokenIcon } from '@masknet/shared'
+import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
+import { Box } from '@mui/system'
 
 import { Icons, ReferralMetaData } from '../types'
 import type { Coin } from '../../Trader/types'
@@ -20,9 +22,6 @@ import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers
 import { getAllFarms } from '../Worker/apis/farms'
 import { PluginTraderMessages } from '../../Trader/messages'
 
-import { TokenIcon } from '@masknet/shared'
-import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
 import { MaskIcon } from '../../../resources/MaskIcon'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 

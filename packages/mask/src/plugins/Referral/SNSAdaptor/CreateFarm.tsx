@@ -13,9 +13,11 @@ import {
     useWeb3,
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
-import { makeStyles } from '@masknet/theme'
+import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useCompositionContext } from '@masknet/plugin-infra'
 import { blue } from '@mui/material/colors'
+import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
+import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
 import { TabsCreateFarm, TokenType, TransactionStatus, PageInterface, PagesType, TabsReferralFarms } from '../types'
@@ -25,8 +27,6 @@ import { runCreateERC20PairFarm } from '../Worker/apis/referralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 
-import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
-import { TabContext, TabPanel } from '@mui/lab'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { CreatedFarms } from './CreatedFarms'
@@ -99,6 +99,7 @@ export function CreateFarm(props: PageInterface) {
     const account = useAccount()
     const { attachMetadata, dropMetadata } = useCompositionContext()
     const currentIdentity = useCurrentIdentity()
+    const { showSnackbar } = useCustomSnackbar()
     const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
         WalletMessages.events.walletStatusDialogUpdated,
@@ -106,11 +107,10 @@ export function CreateFarm(props: PageInterface) {
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
     const [token, setToken] = useState<FungibleTokenDetailed>()
-    const {
-        value: rewardBalance = '0',
-        loading: loadingRewardBalance,
-        retry: retryLoadRewardBalance,
-    } = useFungibleTokenBalance(token?.type ?? EthereumTokenType.Native, token?.address ?? '')
+    const { value: rewardBalance = '0' } = useFungibleTokenBalance(
+        token?.type ?? EthereumTokenType.Native,
+        token?.address ?? '',
+    )
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
@@ -120,7 +120,8 @@ export function CreateFarm(props: PageInterface) {
 
     const onDeposit = useCallback(async () => {
         if (!token?.address) {
-            return alert('TOKEN DID NOT SELECT')
+            showSnackbar(t('plugin_referral_error_token_not_select'), { variant: 'error' })
+            return
         }
 
         if (token.address !== NATIVE_TOKEN) {
@@ -153,14 +154,15 @@ export function CreateFarm(props: PageInterface) {
                 dailyFarmRewardNum,
             )
         } else {
-            alert("CAN'T CREATE NATIVE TOKEN FARM")
+            showSnackbar(t('plugin_referral_error_native_token_farm'), { variant: 'error' })
         }
     }, [web3, account, currentChainId, token, totalFarmReward, dailyFarmReward])
 
     const onInsertData = useCallback(
         (token?: FungibleTokenDetailed) => {
             if (!token?.address) {
-                return alert('REFERRED TOKEN DID NOT SELECT')
+                showSnackbar(t('plugin_referral_error_token_not_select'), { variant: 'error' })
+                return
             }
 
             const { address, name = '', symbol = '', logoURI = [''] } = token
@@ -218,7 +220,7 @@ export function CreateFarm(props: PageInterface) {
         setAttraceFee(attraceFee)
     }, [])
 
-    const onCreateFarm = useCallback(() => {
+    const onClickCreateFarm = useCallback(() => {
         props.continue(
             PagesType.CREATE_FARM,
             PagesType.DEPOSIT,
@@ -409,7 +411,7 @@ export function CreateFarm(props: PageInterface) {
                                         variant="contained"
                                         size="large"
                                         disabled={createFarmBtnDisabled}
-                                        onClick={onCreateFarm}>
+                                        onClick={onClickCreateFarm}>
                                         {t('plugin_referral_create_referral_farm')}
                                     </ActionButton>
                                 </EthereumChainBoundary>

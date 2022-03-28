@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { TabContext, TabPanel } from '@mui/lab'
-import { Button, Box, Tab, Tabs, Grid, Typography } from '@mui/material'
-import { useI18N } from '../../../utils'
 import { ChainId, useChainId } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
+import { Button, Box, Tab, Tabs, Grid, Typography } from '@mui/material'
+
+import { useI18N } from '../../../utils'
 import { Icons, PageInterface, PagesType, TabsReferralFarms } from '../types'
+
 import { SvgIcons } from './Icons'
 
 import { useTabStyles } from './styles'

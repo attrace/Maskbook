@@ -1,10 +1,6 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
 import { v4 as uuid } from 'uuid'
-
-import { Grid, Typography, CircularProgress, Button, Box } from '@mui/material'
-
-import { useI18N } from '../../../utils'
 import {
     useAccount,
     useChainId,
@@ -13,12 +9,16 @@ import {
     ERC20TokenDetailed,
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
+import { fromWei } from 'web3-utils'
 import { makeStyles } from '@masknet/theme'
+import { TokenList } from '@masknet/web3-providers'
+import { Grid, Typography, CircularProgress, Button, Box } from '@mui/material'
+
+import { useI18N } from '../../../utils'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
-import { TokenList } from '@masknet/web3-providers'
-import { toNativeRewardTokenDefn } from './helpers'
+import { toNativeRewardTokenDefn, parseChainAddress } from './helpers'
 import {
     Farm,
     RewardProof,
@@ -27,13 +27,11 @@ import {
     PageInterface,
     PagesType,
     TransactionStatus,
-    parseChainAddress,
     RewardsHarvestedEvent,
     TabsReferralFarms,
 } from '../types'
 
 import { AccordionFarm } from './shared-ui/AccordionFarm'
-import { fromWei } from 'web3-utils'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -153,7 +151,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
         [props],
     )
 
-    const onHarvestRewardsClickButton = useCallback(
+    const onClickHarvestRewards = useCallback(
         async (effect: VerifierEffect, req: HarvestRequest, totalRewards: number, rewardTokenSymbol?: string) => {
             harvestRewards(
                 (txHash: string) => {
@@ -201,6 +199,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                     farm.rewardTokenDefn === nativeRewardToken
                         ? nativeToken
                         : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+
                 return (
                     <AccordionFarm
                         key={uuid()}
@@ -218,7 +217,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                                     variant="contained"
                                     size="medium"
                                     onClick={() =>
-                                        onHarvestRewardsClickButton(
+                                        onClickHarvestRewards(
                                             proof.effect,
                                             proof.req,
                                             totalRewards,

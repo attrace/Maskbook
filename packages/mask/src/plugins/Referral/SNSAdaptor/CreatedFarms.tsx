@@ -1,9 +1,4 @@
 import { useAsync } from 'react-use'
-
-import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
-import { getMaskColor, makeStyles } from '@masknet/theme'
-
-import { useI18N } from '../../../utils'
 import {
     useAccount,
     useChainId,
@@ -12,19 +7,16 @@ import {
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
 import { fromWei } from 'web3-utils'
-import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
-import {
-    FarmDepositChange,
-    FarmExistsEvent,
-    PageInterface,
-    PagesType,
-    parseChainAddress,
-    TabsReferralFarms,
-} from '../types'
-import { AccordionFarm } from './shared-ui/AccordionFarm'
-
+import { getMaskColor, makeStyles } from '@masknet/theme'
+import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
 import { TokenList } from '@masknet/web3-providers'
-import { toNativeRewardTokenDefn } from './helpers'
+
+import { useI18N } from '../../../utils'
+import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
+import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, TabsReferralFarms } from '../types'
+import { toNativeRewardTokenDefn, parseChainAddress } from './helpers'
+
+import { AccordionFarm } from './shared-ui/AccordionFarm'
 
 const useStyles = makeStyles()((theme) => ({
     container: {

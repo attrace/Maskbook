@@ -1,8 +1,9 @@
+import { Typography, Box, Grid } from '@mui/material'
+
 import { useI18N } from '../../../../utils'
 import { APR } from '../../constants'
 import type { Icons, RewardData } from '../../types'
 
-import { Typography, Box, Grid } from '@mui/material'
 import { SvgIcons } from '../Icons'
 
 export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}> {

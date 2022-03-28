@@ -3,16 +3,14 @@ import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet
 import { Grid, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-import { parseChainAddress, FarmExistsEvent } from '../../types'
-
-import { toNativeRewardTokenDefn } from '../helpers'
+import type { FarmExistsEvent } from '../../types'
+import { toNativeRewardTokenDefn, parseChainAddress } from '../helpers'
 import { APR } from '../../constants'
 
 import { ReferredFarmTokenDetailed } from './ReferredFarmTokenDetailed'
 
 const useStyles = makeStyles()((theme) => {
     const isDarkMode = theme.palette.mode === 'dark'
-
     return {
         accordion: {
             marginBottom: '20px',
