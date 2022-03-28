@@ -1,13 +1,12 @@
 import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
-import { useI18N } from '../../../../utils'
-
-import type { ChainId } from '@masknet/web3-shared-evm'
-
-import { Icons } from '../../types'
-
 import { Box, Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
+import type { ChainId } from '@masknet/web3-shared-evm'
+
+import { useI18N } from '../../../../utils'
+import { Icons } from '../../types'
+
 import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({

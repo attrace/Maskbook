@@ -1075,6 +1075,7 @@
     "plugin_referral_adjust_rewards_error": "Reward token not found. Try later",
     "plugin_referral_continue": "Continue",
     "plugin_referral_error_token_not_select": "Token didn't select",
+    "plugin_referral_error_native_token_farm": "Cannot create farm with native token.",
     "plugin_referral_buy_and_hold_referral": "Buy & Hold Referral",
     "web3_tab_hint": "No address found.",
     "plugin_artblocks_not_active": "This project is no more active",

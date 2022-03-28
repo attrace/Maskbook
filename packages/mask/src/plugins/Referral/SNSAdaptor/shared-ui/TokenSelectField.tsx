@@ -1,13 +1,11 @@
 import { TextField, Button, InputAdornment } from '@mui/material'
 import { ChevronDown } from 'react-feather'
-
 import type { EthereumTokenDetailedType, EthereumTokenType } from '@masknet/web3-shared-evm'
-
-import { useI18N } from '../../../../utils'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
-
 import { TokenIcon } from '@masknet/shared'
+
+import { useI18N } from '../../../../utils'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     root: {

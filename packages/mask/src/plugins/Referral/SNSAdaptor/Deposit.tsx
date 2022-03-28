@@ -1,11 +1,14 @@
+import { useCallback } from 'react'
+import BigNumber from 'bignumber.js'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Grid, Typography } from '@mui/material'
-import BigNumber from 'bignumber.js'
-import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
+
 import { useI18N } from '../../../utils'
-import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import type { DepositDialogInterface } from '../types'
+
+import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
+import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     depositRoot: {
@@ -32,6 +35,10 @@ export function Deposit(props: DepositDialogInterface | undefined) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+
+    const onClickDeposit = useCallback(async () => {
+        props?.deposit && (await props.deposit.onDeposit())
+    }, [props])
 
     if (!props?.deposit) return <>{null}</>
 
@@ -71,16 +78,8 @@ export function Deposit(props: DepositDialogInterface | undefined) {
                     </Grid>
                     <Grid item xs={12} marginTop="20px">
                         <EthereumChainBoundary chainId={deposit.requiredChainId} noSwitchNetworkTip>
-                            <ActionButton
-                                fullWidth
-                                variant="contained"
-                                size="large"
-                                onClick={async () => {
-                                    await deposit.onDeposit()
-                                }}>
-                                <div>
-                                    Deposit {totalDeposit} {deposit.tokenSymbol}
-                                </div>
+                            <ActionButton fullWidth variant="contained" size="large" onClick={onClickDeposit}>
+                                Deposit {totalDeposit} {deposit.tokenSymbol}
                             </ActionButton>
                         </EthereumChainBoundary>
                     </Grid>

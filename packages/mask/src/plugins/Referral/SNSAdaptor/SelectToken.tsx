@@ -1,38 +1,26 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
-import { useI18N } from '../../../utils'
-import { ChainId, FungibleTokenDetailed, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { delay } from '@dimensiondev/kit'
-import { makeStyles } from '@masknet/theme'
+import { FungibleTokenDetailed, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
-import { PluginReferralMessages } from '../messages'
-import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { DialogContent } from '@mui/material'
+
+import { PluginReferralMessages } from '../messages'
+import { NATIVE_TOKEN } from '../constants'
+
+import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { ERC20TokenList } from './shared-ui/ERC20TokenList'
 import { getAllFarms } from '../Worker/apis/farms'
 
-import { NATIVE_TOKEN } from '../constants'
+const DISABLED_NATIVE_TOKEN = true
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    wrapper: {},
-}))
-
-export interface SelectTokenProps {}
-
-export function SelectToken(props: SelectTokenProps) {
-    const { t } = useI18N()
+export function SelectToken() {
     const currentChainId = useChainId()
     const web3 = useWeb3({ chainId: currentChainId })
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
 
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
     const [title, setTitle] = useState('')
     const [id, setId] = useState('')
     const [tokenList, setTokenList] = useState<undefined | string[]>(undefined)
-
-    const disableNativeToken = true
 
     const { open, setDialog } = useRemoteControlledDialog(PluginReferralMessages.selectTokenUpdated, (ev) => {
         if (!ev.open) return
@@ -76,7 +64,7 @@ export function SelectToken(props: SelectTokenProps) {
                     referredTokensDefn={referredTokensDefn}
                     FixedSizeListProps={{ height: 340, itemSize: 54 }}
                     onSelect={onSubmit}
-                    blacklist={disableNativeToken ? [NATIVE_TOKEN] : []}
+                    blacklist={DISABLED_NATIVE_TOKEN ? [NATIVE_TOKEN] : []}
                 />
             </DialogContent>
         </InjectedDialog>

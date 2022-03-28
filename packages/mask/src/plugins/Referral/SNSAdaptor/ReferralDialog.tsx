@@ -1,10 +1,12 @@
-import { useState } from 'react'
-import { InjectedDialog } from '../../../components/shared/InjectedDialog'
+import { useState, useCallback } from 'react'
 import { Box, Typography, DialogContent } from '@mui/material'
-import { Icons, PageHistory, PagesType, DialogInterface } from '../types'
-import { useI18N } from '../../../utils'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
+
+import { Icons, PageHistory, PagesType, DialogInterface } from '../types'
+import { useI18N } from '../../../utils'
+
+import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { Landing } from './Landing'
 import { ReferralFarms } from './ReferralFarms'
 import { CreateFarm } from './CreateFarm'
@@ -12,9 +14,9 @@ import { ReferToFarm } from './ReferToFarm'
 import { SelectToken } from './SelectToken'
 import { BuyToFarm } from './BuyToFarm'
 import { AdjustFarmRewards } from './AdjustFarmRewards'
-import { SvgIcons } from './Icons'
 import { Transaction } from './Transaction'
 import { Deposit } from './Deposit'
+import { SvgIcons } from './Icons'
 
 interface ReferralDialogProps {
     open: boolean
@@ -132,39 +134,43 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
         }
     }
 
+    const onHandleClose = useCallback(async () => {
+        const { page } = currentPage
+        if (page === PagesType.LANDING) {
+            onClose?.()
+        } else {
+            const previousPage = previousPages[previousPages.length - 1]
+            setCurrentPage(previousPage)
+
+            const { title } = previousPage
+            setCurrentTitle(title)
+
+            const temp = [...previousPages]
+            temp.splice(temp.length - 1, 1)
+            setPreviousPages(temp)
+
+            if (page === PagesType.DEPOSIT && previousPage.page === PagesType.ADJUST_REWARDS) {
+                const data: any = localStorage.getItem('adjustFarmRewardsData')
+                const adjustFarmRewardsData = JSON.parse(data)
+
+                const props: DialogInterface = {
+                    adjustFarmDialog: {
+                        farm: adjustFarmRewardsData.farm,
+                        referredToken: adjustFarmRewardsData.referredToken,
+                        rewardToken: adjustFarmRewardsData.rewardToken,
+                        continue: () => {},
+                    },
+                }
+
+                setPropsData(props)
+            }
+        }
+    }, [currentPage, onClose])
+
     return (
         <InjectedDialog
             open={open}
-            onClose={() => {
-                const { page } = currentPage
-                if (page === PagesType.LANDING) {
-                    onClose?.()
-                } else {
-                    const previousPage = previousPages[previousPages.length - 1]
-                    setCurrentPage(previousPage)
-                    const { title } = previousPage
-                    setCurrentTitle(title)
-                    const temp = [...previousPages]
-                    temp.splice(temp.length - 1, 1)
-                    setPreviousPages(temp)
-
-                    if (page === PagesType.DEPOSIT && previousPage.page === PagesType.ADJUST_REWARDS) {
-                        const data: any = localStorage.getItem('adjustFarmRewardsData')
-                        const adjustFarmRewardsData = JSON.parse(data)
-
-                        const props: DialogInterface = {
-                            adjustFarmDialog: {
-                                farm: adjustFarmRewardsData.farm,
-                                referredToken: adjustFarmRewardsData.referredToken,
-                                rewardToken: adjustFarmRewardsData.rewardToken,
-                                continue: () => {},
-                            },
-                        }
-
-                        setPropsData(props)
-                    }
-                }
-            }}
+            onClose={onHandleClose}
             title={
                 propsData?.hideAttrLogo ? (
                     currentTitle

@@ -1,6 +1,5 @@
 import type { ChainId as ChainIdMain, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import type BigNumber from 'bignumber.js'
-import { padStart } from 'lodash-unified'
 
 export interface ReferralNetwork {
     chainId: ChainIdMain
@@ -74,12 +73,6 @@ export interface PageHistory {
     page: PagesType
     title: string
 }
-export interface MetastateKeyValue {
-    key: string
-
-    // Value is the output of coder.encode([...types], [...values])
-    value: string
-}
 
 export interface DepositProps {
     totalFarmReward: string
@@ -88,8 +81,6 @@ export interface DepositProps {
     requiredChainId: ChainId
     onDeposit: () => Promise<void>
 }
-
-export type Metastate = Array<MetastateKeyValue>
 
 export const ReferralFarmsV1 = 'ReferralFarmsV1'
 
@@ -192,17 +183,6 @@ export type Discovery = {
     airports: Airport[]
 }
 
-export function toLinkUrlV1(token: EvmAddress, referrer: EvmAddress, dapp: RedirectTarget = ''): Link {
-    const version = padStart(Number(1).toString(16), 2, '0')
-    if (dapp && dapp.length > 31) {
-        // TODO throw when dapp not [a-zA-Z0-9_.]
-        throw new Error('dapp should be below 31 char')
-    }
-    return `https://app.attrace.com/l/${version}${token.substring(2).toLowerCase()}${referrer
-        .substring(2)
-        .toLowerCase()}${dapp.length > 0 ? `?d=${encodeURIComponent(dapp)}` : ''}`
-}
-
 export interface LinkParams {
     referrer: EvmAddress
     token: EvmAddress
@@ -267,46 +247,16 @@ export interface PageInterface {
     onChangePage?: (page: PagesType, title?: string, props?: DialogInterface) => void
 }
 
-export function expandEvmAddressToBytes32(addr: EvmAddress): Bytes32 {
-    return `0x000000000000000000000000${addr.substring(2)}`.toLowerCase()
-}
-export function expandBytes24ToBytes32(b24: Bytes24): Bytes32 {
-    return `0x${b24.substring(2)}0000000000000000`.toLowerCase()
-}
-export function toEvmAddress(addr: ChainAddress): EvmAddress {
-    return `0x${addr.substring(2 + 4 * 2)}`
-}
-export function toChainId(addr: ChainAddress): number {
-    return Number.parseInt(addr.substring(2, 2 + 4 * 2), 16)
-}
-
-interface ChainAddressProps {
+export interface ChainAddressProps {
     chainId: number
     address: EvmAddress
     isNative: boolean
-}
-export function parseChainAddress(chaddr: ChainAddress): ChainAddressProps {
-    const chainId = toChainId(chaddr)
-    const address = toEvmAddress(chaddr)
-    const isNative = chainId === Number.parseInt(address.substring(2 + 16 * 2), 16)
-    return {
-        chainId,
-        address,
-        isNative,
-    }
 }
 
 export enum TransactionStatus {
     CONFIRMATION = 'Confirmation',
     CONFIRMED = 'CONFIRMED',
     FAILED = 'FAILED',
-}
-
-export enum SearchFarmTypes {
-    allFarms = '0',
-    sponsoredFarm = 'sponsoredFarmTokens',
-    maskFarm = 'maskFarmsTokens',
-    attrFarm = 'attrFarmsTokens',
 }
 
 // effects

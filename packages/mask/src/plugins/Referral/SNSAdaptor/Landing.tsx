@@ -1,11 +1,12 @@
+import { useCallback } from 'react'
 import { Trans } from 'react-i18next'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
+import { Typography, Button, Grid, Box } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { Icons, PageInterface, PagesType } from '../types'
 
-import { Typography, Button, Grid, Box } from '@mui/material'
 import { SvgIcons } from './Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -50,6 +51,10 @@ export function Landing(props: PageInterface) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+
+    const onClickContinue = useCallback(async () => {
+        props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)
+    }, [props])
 
     const data = [
         {
@@ -115,11 +120,7 @@ export function Landing(props: PageInterface) {
                     )
                 })}
                 <Grid item xs={12} direction="row" textAlign="right">
-                    <Button
-                        onClick={() => {
-                            props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)
-                        }}
-                        variant="contained">
+                    <Button onClick={onClickContinue} variant="contained">
                         {t('plugin_referral_continue')}
                     </Button>
                 </Grid>

@@ -2,8 +2,6 @@ import {
     ChainAddress,
     FarmExistsEvent,
     ReferralFarmsV1,
-    expandBytes24ToBytes32,
-    expandEvmAddressToBytes32,
     FarmDepositChange,
     ChainId,
     Farm,
@@ -16,6 +14,7 @@ import { keccak256, fromWei, asciiToHex, padRight } from 'web3-utils'
 import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 import { orderBy } from 'lodash-unified'
 
+import { expandBytes24ToBytes32, expandEvmAddressToBytes32 } from '../../SNSAdaptor/helpers'
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import { REFERRAL_FARMS_V1_ABI } from './abis'

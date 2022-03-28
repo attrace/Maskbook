@@ -8,6 +8,8 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 import { blue } from '@mui/material/colors'
 import { useCompositionContext } from '@masknet/plugin-infra'
+import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
+import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
 import { REFERRAL_META_KEY } from '../constants'
@@ -16,7 +18,7 @@ import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { singAndPostProofOfRecommendationOrigin } from '../Worker/apis/proofOfRecommendation'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken, parseChainAddress } from './helpers'
 import {
     ReferralMetaData,
     TabsCreateFarm,
@@ -24,12 +26,9 @@ import {
     PageInterface,
     PagesType,
     Icons,
-    parseChainAddress,
     TabsReferralFarms,
 } from '../types'
 
-import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
-import { TabContext, TabPanel } from '@mui/lab'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { MyFarms } from './MyFarms'

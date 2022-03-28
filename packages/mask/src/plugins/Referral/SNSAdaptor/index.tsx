@@ -1,17 +1,19 @@
 import type { Plugin } from '@masknet/plugin-infra'
+
+import type { ReferralMetaData } from '../types'
 import { base } from '../base'
 import { REFERRAL_META_KEY } from '../constants'
-import { ReferralMetadataReader } from './helpers'
+import { referralMetadataReader } from './helpers'
+
 import { FarmPost } from './FarmPost'
-import type { ReferralMetaData } from '../types'
 import { ReferralDialog } from './ReferralDialog'
 import { SelectToken } from './SelectToken'
 
 const sns: Plugin.SNSAdaptor.Definition = {
     ...base,
-    init(signal) {},
+    init() {},
     DecryptedInspector(props) {
-        const metadata = ReferralMetadataReader(props.message.meta)
+        const metadata = referralMetadataReader(props.message.meta)
         if (!metadata.ok) return null
         return <FarmPost payload={metadata.val} />
     },
@@ -28,11 +30,7 @@ const sns: Plugin.SNSAdaptor.Definition = {
         dialog: ReferralDialog,
     },
     GlobalInjection: function Component() {
-        return (
-            <>
-                <SelectToken />
-            </>
-        )
+        return <SelectToken />
     },
 }
 

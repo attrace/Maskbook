@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Box, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material'
 import classNames from 'classnames'
 import { Asset, currySameAddress, FungibleTokenDetailed, isSameAddress } from '@masknet/web3-shared-evm'
