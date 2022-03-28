@@ -1,6 +1,7 @@
 import { monotonicFactory } from 'ulid'
 
 import { getDiscovery } from './discovery'
+import type { JsonRpcResponse } from '../../types'
 
 // Select a oracle
 // TODO: add oracle selection
@@ -21,7 +22,11 @@ export async function jsonReq(url: string, opts: any) {
     if (res.status !== 200) {
         throw new Error(res.statusText)
     }
-    const json = await res.json()
+
+    const json: JsonRpcResponse = await res.json()
+    if (json.error) {
+        throw new Error(`Code: ${json.error.code}. ${json.error?.message || ''}`)
+    }
 
     return json
 }
