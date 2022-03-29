@@ -431,9 +431,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                     <EthereumChainBoundary
                         chainId={requiredChainId}
                         noSwitchNetworkTip
-                        classes={{
-                            switchButton: sharedClasses.switchButton,
-                        }}>
+                        classes={{ switchButton: sharedClasses.switchButton }}>
                         <ActionButton
                             fullWidth
                             variant="contained"

@@ -316,6 +316,7 @@ export function CreateFarm(props: PageInterface) {
                                     <TokenSelectField
                                         label={t('plugin_referral_token_to_refer')}
                                         token={token}
+                                        disabled={currentChainId !== requiredChainId}
                                         onClick={() => {
                                             onTokenSelectClick(
                                                 TokenType.REFER,

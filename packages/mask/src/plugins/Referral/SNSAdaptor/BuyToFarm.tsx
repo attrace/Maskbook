@@ -34,7 +34,7 @@ import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { SvgIcons } from './Icons'
 
-import { useTabStyles } from './styles'
+import { useTabStyles, useSharedStyles } from './styles'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     container: {
@@ -67,6 +67,7 @@ export function BuyToFarm(props: PageInterface) {
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const { classes: tabClasses } = useTabStyles()
+    const { classes: sharedClasses } = useSharedStyles()
     const currentChainId = useChainId()
     const requiredChainId = useRequiredChainId(currentChainId)
     const web3 = useWeb3()
@@ -195,6 +196,7 @@ export function BuyToFarm(props: PageInterface) {
                                 <TokenSelectField
                                     label={t('plugin_referral_token_to_buy_and_hold')}
                                     token={token}
+                                    disabled={currentChainId !== requiredChainId}
                                     onClick={onClickTokenSelect}
                                 />
                             </Grid>
@@ -225,7 +227,10 @@ export function BuyToFarm(props: PageInterface) {
                             </Grid>
                         </Grid>
                     </Typography>
-                    <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                    <EthereumChainBoundary
+                        chainId={requiredChainId}
+                        noSwitchNetworkTip
+                        classes={{ switchButton: sharedClasses.switchButton }}>
                         <ActionButton
                             fullWidth
                             variant="contained"
