@@ -1,4 +1,5 @@
-import { TextField, Button, InputAdornment } from '@mui/material'
+import { useCallback } from 'react'
+import { TextField, InputAdornment } from '@mui/material'
 import { ChevronDown } from 'react-feather'
 import type { EthereumTokenDetailedType, EthereumTokenType } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
@@ -8,18 +9,13 @@ import { TokenIcon } from '@masknet/shared'
 import { useI18N } from '../../../../utils'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    root: {
+    button: {
         width: '100%',
         height: '57px',
         cursor: 'pointer',
         backgroundColor: 'transparent',
         padding: 0,
-        '&:hover': {
-            background: 'transparent',
-        },
-        '&:focus': {
-            background: 'transparent',
-        },
+        border: 0,
     },
     textField: {
         width: '100%',
@@ -33,22 +29,30 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 interface TokenSelectField {
     label: string
     token?: EthereumTokenDetailedType<EthereumTokenType.Native | EthereumTokenType.ERC20>
+    disabled?: boolean
     onClick: () => void
 }
 
-export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
+export function TokenSelectField({ label, token, disabled, onClick }: TokenSelectField) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
 
+    const handleClick = useCallback(() => {
+        if (!disabled) {
+            return onClick()
+        }
+    }, [disabled])
+
     return (
-        <Button onClick={onClick} variant="text" className={classes.root}>
+        <button onClick={handleClick} className={classes.button}>
             <TextField
                 label={label}
                 value={token?.symbol}
                 variant="standard"
                 placeholder={t('plugin_referral_select_a_token')}
                 className={classes.textField}
+                disabled={disabled}
                 InputProps={{
                     readOnly: true,
                     disableUnderline: true,
@@ -66,6 +70,6 @@ export function TokenSelectField({ label, token, onClick }: TokenSelectField) {
                 }}
                 InputLabelProps={{ shrink: true }}
             />
-        </Button>
+        </button>
     )
 }

@@ -19,6 +19,7 @@ import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountRewardsProofs } from '../Worker/apis/verifier'
 import { harvestRewards } from '../Worker/apis/referralFarm'
 import { toNativeRewardTokenDefn, parseChainAddress } from './helpers'
+import { useRequiredChainId } from './hooks/useRequiredChainId'
 import {
     Farm,
     RewardProof,
@@ -32,6 +33,9 @@ import {
 } from '../types'
 
 import { AccordionFarm } from './shared-ui/AccordionFarm'
+import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
+
+import { useSharedStyles } from './styles'
 
 const useStyles = makeStyles()((theme) => ({
     container: {
@@ -100,9 +104,9 @@ interface FarmsListProps extends PageInterface {
 }
 function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested, ...props }: FarmsListProps) {
     const { t } = useI18N()
-    const chainId = useChainId()
+    const currentChainId = useChainId()
     const account = useAccount()
-    const web3 = useWeb3({ chainId })
+    const web3 = useWeb3({ chainId: currentChainId })
     const { value: nativeToken } = useNativeTokenDetailed()
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
@@ -168,12 +172,12 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                 },
                 web3,
                 account,
-                chainId,
+                currentChainId,
                 effect,
                 req,
             )
         },
-        [web3, account, chainId, props],
+        [web3, account, currentChainId, props],
     )
 
     return (
@@ -194,7 +198,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                 const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
                 const claimable = totalRewards - claimed
 
-                const nativeRewardToken = toNativeRewardTokenDefn(chainId)
+                const nativeRewardToken = toNativeRewardTokenDefn(currentChainId)
                 const rewardToken =
                     farm.rewardTokenDefn === nativeRewardToken
                         ? nativeToken
@@ -238,9 +242,11 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
 export function MyFarms(props: PageInterface) {
     const { t } = useI18N()
     const { classes } = useStyles()
-    const chainId = useChainId()
+    const { classes: sharedClasses } = useSharedStyles()
+    const currentChainId = useChainId()
+    const requiredChainId = useRequiredChainId(currentChainId)
     const account = useAccount()
-    const web3 = useWeb3({ chainId })
+    const web3 = useWeb3({ chainId: currentChainId })
     const { ERC20 } = useTokenListConstants()
 
     const { value: rewardsProofs = [], loading: loadingProofs } = useAsync(
@@ -248,18 +254,29 @@ export function MyFarms(props: PageInterface) {
         [account],
     )
     const { value: rewardsHarvested = [], loading: loadingRewardsHarvested } = useAsync(
-        async () => (account ? getMyRewardsHarvested(web3, account, chainId) : []),
-        [account, chainId],
+        async () => (account ? getMyRewardsHarvested(web3, account, currentChainId) : []),
+        [account, currentChainId],
     )
 
     // fetch farm for referred tokens
-    const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, chainId), [])
+    const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
 
     // fetch tokens data
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(
-        async () => (!ERC20 || ERC20.length === 0 ? [] : TokenList.fetchERC20TokensFromTokenLists(ERC20, chainId)),
-        [chainId, ERC20?.sort().join()],
+        async () =>
+            !ERC20 || ERC20.length === 0 ? [] : TokenList.fetchERC20TokensFromTokenLists(ERC20, currentChainId),
+        [currentChainId, ERC20?.sort().join()],
     )
+
+    if (currentChainId !== requiredChainId) {
+        return (
+            <EthereumChainBoundary
+                chainId={requiredChainId}
+                noSwitchNetworkTip
+                classes={{ switchButton: sharedClasses.switchButton }}
+            />
+        )
+    }
 
     return (
         <div className={classes.container}>

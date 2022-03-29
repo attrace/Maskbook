@@ -10,6 +10,8 @@ import type { DepositDialogInterface } from '../types'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
+import { useSharedStyles } from './styles'
+
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     depositRoot: {
         padding: `${theme.spacing(3)} 0`,
@@ -35,6 +37,7 @@ export function Deposit(props: DepositDialogInterface | undefined) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
+    const { classes: sharedClasses } = useSharedStyles()
 
     const onClickDeposit = useCallback(async () => {
         props?.deposit && (await props.deposit.onDeposit())
@@ -77,7 +80,10 @@ export function Deposit(props: DepositDialogInterface | undefined) {
                         {totalDeposit} {deposit.tokenSymbol}
                     </Grid>
                     <Grid item xs={12} marginTop="20px">
-                        <EthereumChainBoundary chainId={deposit.requiredChainId} noSwitchNetworkTip>
+                        <EthereumChainBoundary
+                            chainId={deposit.requiredChainId}
+                            noSwitchNetworkTip
+                            classes={{ switchButton: sharedClasses.switchButton }}>
                             <ActionButton fullWidth variant="contained" size="large" onClick={onClickDeposit}>
                                 Deposit {totalDeposit} {deposit.tokenSymbol}
                             </ActionButton>

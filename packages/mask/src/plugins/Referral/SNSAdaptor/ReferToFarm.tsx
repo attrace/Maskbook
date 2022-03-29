@@ -36,7 +36,7 @@ import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
 import { SvgIcons } from './Icons'
 
-import { useTabStyles } from './styles'
+import { useTabStyles, useSharedStyles } from './styles'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     walletStatusBox: {
@@ -91,6 +91,7 @@ export function ReferToFarm(props: PageInterface) {
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const { classes: tabClasses } = useTabStyles()
+    const { classes: sharedClasses } = useSharedStyles()
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
     const [token, setToken] = useState<FungibleTokenDetailed>()
@@ -211,6 +212,7 @@ export function ReferToFarm(props: PageInterface) {
                         <TokenSelectField
                             label={t('plugin_referral_token_to_refer')}
                             token={token}
+                            disabled={currentChainId !== requiredChainId}
                             onClick={onClickTokenSelect}
                         />
                     </Grid>
@@ -247,7 +249,10 @@ export function ReferToFarm(props: PageInterface) {
                             })}
                         </Grid>
                     </Typography>
-                    <EthereumChainBoundary chainId={requiredChainId} noSwitchNetworkTip>
+                    <EthereumChainBoundary
+                        chainId={requiredChainId}
+                        noSwitchNetworkTip
+                        classes={{ switchButton: sharedClasses.switchButton }}>
                         <ActionButton fullWidth variant="contained" size="large" onClick={onClickReferFarm}>
                             {t('plugin_referral_refer_to_farm')}
                         </ActionButton>

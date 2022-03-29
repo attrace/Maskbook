@@ -14,6 +14,7 @@ export const NATIVE_TOKEN = '0x0000000000000000000000000000000000000000'
 export const ZERO_ADDR = '0x0000000000000000000000000000000000000000'
 export const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
+// TODO: change to ChainId.Mainnet before mainnet release
 export const supportedChainIds = [ChainId.Rinkeby]
 
 // APR = N/A in the first itaration
