@@ -5,7 +5,7 @@ import { ChainId, createContract, TransactionEventType } from '@masknet/web3-sha
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 
-import { toChainAddress } from '../../SNSAdaptor/helpers'
+import { toChainAddressEthers } from '../../SNSAdaptor/helpers'
 import { ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
 import { getDaoAddress } from './discovery'
 import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'
@@ -27,9 +27,10 @@ export async function runCreateERC20PairFarm(
         onStart(true)
         let tx: any
 
-        const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
-        const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
+        const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
+        const rewardTokenDefn = toChainAddressEthers(chainId, rewardTokenAddr)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
+
         const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
         totalFarmReward = new BigNumber(toWei(totalFarmReward.toString(), 'ether'))
 
@@ -55,10 +56,10 @@ export async function runCreateERC20PairFarm(
                 ? [
                       // Metastate keys ideally are ascii and up to length 31 (ascii, utf8 might be less)
                       {
-                          key: padRight(asciiToHex('periodRewardRate'), 64),
+                          key: padRight(asciiToHex('periodReward'), 64),
                           value: defaultAbiCoder.encode(
                               ['uint128', 'int128'],
-                              [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                              [toWei(dailyFarmReward.toString(), 'ether'), '0'],
                           ),
                       },
                   ]
@@ -145,14 +146,14 @@ export async function adjustFarmRewards(
 
             const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
             const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
-            const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
-            const rewardTokenDefn = toChainAddress(chainId, rewardTokenAddr)
+            const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
+            const rewardTokenDefn = toChainAddressEthers(chainId, rewardTokenAddr)
             const metastate = [
                 {
-                    key: padRight(asciiToHex('periodRewardRate'), 64),
+                    key: padRight(asciiToHex('periodReward'), 64),
                     value: defaultAbiCoder.encode(
                         ['uint128', 'int128'],
-                        [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                        [toWei(dailyFarmReward.toString(), 'ether'), '0'],
                     ),
                 },
             ]
@@ -200,17 +201,17 @@ export async function runCreateNativeFarm(
     try {
         onStart(true)
 
-        const referredTokenDefn = toChainAddress(chainId, referredTokenAddr)
+        const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
         const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
         const metastate =
             dailyFarmReward.toNumber() > 0
                 ? [
                       {
-                          key: padRight(asciiToHex('periodRewardRate'), 64),
+                          key: padRight(asciiToHex('periodReward'), 64),
                           value: defaultAbiCoder.encode(
                               ['uint128', 'int128'],
-                              [toWei(dailyFarmReward.toString(), 'ether'), '-1'],
+                              [toWei(dailyFarmReward.toString(), 'ether'), '0'],
                           ),
                       },
                   ]

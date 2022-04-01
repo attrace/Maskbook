@@ -7,7 +7,7 @@ import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
 import { Icons, ChainAddress } from '../../types'
-import { toChainAddress } from '../helpers'
+import { toChainAddressEthers } from '../helpers'
 import { SvgIcons } from '../Icons'
 import { APR } from '../../constants'
 
@@ -99,7 +99,7 @@ export const getERC20TokenListItem =
             onSelect(data)
         }
 
-        const tokenChainAddr = toChainAddress(chainId, address)
+        const tokenChainAddr = toChainAddressEthers(chainId, address)
         const tokenHasFarm = referredTokensDefn.includes(tokenChainAddr)
 
         const aprColumn = useMemo(() => {

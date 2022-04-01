@@ -125,10 +125,47 @@ export const REFERRAL_FARMS_V1_ABI = [
         type: 'event',
     },
     {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'caller',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'bytes24',
+                name: 'rewardTokenDefn',
+                type: 'bytes24',
+            },
+            {
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'farmHash',
+                type: 'bytes32',
+            },
+            {
+                indexed: false,
+                internalType: 'uint128',
+                name: 'value',
+                type: 'uint128',
+            },
+            {
+                indexed: false,
+                internalType: 'bytes32',
+                name: 'leafHash',
+                type: 'bytes32',
+            },
+        ],
+        name: 'RewardsHarvested',
+        type: 'event',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
-                name: 'confirmationsV1',
+                name: 'confirmationsAddr_',
                 type: 'address',
             },
         ],
@@ -190,9 +227,46 @@ export const REFERRAL_FARMS_V1_ABI = [
                 type: 'address',
             },
         ],
-        name: 'devRescue',
+        name: 'devRescueErc20',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+            },
+            {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+            },
+        ],
+        name: 'devRescueNative',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
+        ],
+        name: 'getAccountNonce',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -227,22 +301,22 @@ export const REFERRAL_FARMS_V1_ABI = [
                 type: 'int256',
             },
         ],
-        name: 'getFarmPeriodRewardRate',
+        name: 'getFarmPeriodReward',
         outputs: [
             {
                 components: [
                     {
                         internalType: 'uint128',
-                        name: 'periodRewardRate',
+                        name: 'reward',
                         type: 'uint128',
                     },
                     {
-                        internalType: 'int128',
+                        internalType: 'uint128',
                         name: 'activationPeriod',
-                        type: 'int128',
+                        type: 'uint128',
                     },
                 ],
-                internalType: 'struct PlannedFarmPeriodRewardRate',
+                internalType: 'struct FarmPeriodReward',
                 name: '',
                 type: 'tuple',
             },
@@ -272,6 +346,51 @@ export const REFERRAL_FARMS_V1_ABI = [
             },
         ],
         stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                components: [
+                    {
+                        internalType: 'bytes32',
+                        name: 'farmHash',
+                        type: 'bytes32',
+                    },
+                    {
+                        internalType: 'uint128',
+                        name: 'value',
+                        type: 'uint128',
+                    },
+                    {
+                        internalType: 'bytes24',
+                        name: 'rewardTokenDefn',
+                        type: 'bytes24',
+                    },
+                    {
+                        internalType: 'uint64',
+                        name: 'effectNonce',
+                        type: 'uint64',
+                    },
+                ],
+                internalType: 'struct ReferralFarmsV1.HarvestRequest[]',
+                name: 'reqs',
+                type: 'tuple[]',
+            },
+            {
+                internalType: 'bytes32[][]',
+                name: 'proofs',
+                type: 'bytes32[][]',
+            },
+            {
+                internalType: 'uint64[]',
+                name: 'skipEffectNonces',
+                type: 'uint64[]',
+            },
+        ],
+        name: 'harvestRewards',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -348,6 +467,7 @@ export const REFERRAL_FARMS_V1_ABI = [
         type: 'function',
     },
 ]
+
 export const ERC20_ABI = [
     {
         inputs: [

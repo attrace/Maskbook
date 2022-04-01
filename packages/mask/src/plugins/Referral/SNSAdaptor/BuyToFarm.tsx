@@ -14,7 +14,7 @@ import { singAndPostProofOfRecommendationWithReferrer } from '../Worker/apis/pro
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { toChainAddress, getFarmsRewardData, parseChainAddress } from './helpers'
+import { toChainAddressEthers, getFarmsRewardData, parseChainAddress } from './helpers'
 import { MASK_REFERRER } from '../constants'
 import {
     TabsCreateFarm,
@@ -161,7 +161,7 @@ export function BuyToFarm(props: PageInterface) {
     }, [web3, account, token])
 
     const referredTokenFarms = token
-        ? farms.filter((farm) => farm.referredTokenDefn === toChainAddress(token.chainId, token.address))
+        ? farms.filter((farm) => farm.referredTokenDefn === toChainAddressEthers(token.chainId, token.address))
         : []
     const rewardData = getFarmsRewardData(referredTokenFarms)
 

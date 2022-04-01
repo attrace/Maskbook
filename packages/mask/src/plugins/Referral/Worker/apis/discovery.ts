@@ -27,6 +27,5 @@ export async function getDaoAddress(web3: Web3, key: string, chainId: number) {
 
     const val = await dao?.methods.addresses(key).call()
 
-    // TODO: remove hardcode
-    return '0x56c5B893A65033f179910a60243D5f1B75de513A'
+    return val
 }

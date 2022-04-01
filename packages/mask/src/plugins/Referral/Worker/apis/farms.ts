@@ -80,13 +80,13 @@ function parseFarmDepositAndMetaStateChangeEvents(unparsed: any) {
         if (e.topic === eventIds.FarmMetastate) {
             const { key, value } = e.args
 
-            const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
-            if (key === periodRewardRateKey) {
-                const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
+            const periodRewardKey = padRight(asciiToHex('periodReward'), 64)
+            if (key === periodRewardKey) {
+                const periodReward = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
 
                 farmMap.set(farmHash, {
                     ...prevFarmState,
-                    dailyFarmReward: Number(fromWei(periodRewardRate.toString())),
+                    dailyFarmReward: Number(fromWei(periodReward.toString())),
                 })
             }
         }
@@ -109,12 +109,12 @@ function parseFarmMetaStateChangeEvents(unparsed: any) {
     parsed.forEach((e) => {
         const { farmHash, key, value } = e.args
 
-        const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
+        const periodRewardKey = padRight(asciiToHex('periodReward'), 64)
         let dailyFarmReward = 0
 
-        if (key === periodRewardRateKey) {
-            const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
-            dailyFarmReward = Number(fromWei(periodRewardRate.toString()))
+        if (key === periodRewardKey) {
+            const periodReward = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
+            dailyFarmReward = Number(fromWei(periodReward.toString()))
         }
 
         // set the last value(newest) of dailyFarmReward
@@ -224,13 +224,13 @@ function parseBasicFarmEvents(unparsed: any) {
         if (e.topic === eventIds.FarmMetastate) {
             const { key, value } = e.args
 
-            const periodRewardRateKey = padRight(asciiToHex('periodRewardRate'), 64)
-            if (key === periodRewardRateKey) {
-                const periodRewardRate = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
+            const periodRewardKey = padRight(asciiToHex('periodReward'), 64)
+            if (key === periodRewardKey) {
+                const periodReward = defaultAbiCoder.decode(['uint128', 'int128'], value)[0]
 
                 farmMap.set(farmHash, {
                     ...prevFarmState,
-                    dailyFarmReward: Number(fromWei(periodRewardRate.toString())),
+                    dailyFarmReward: Number(fromWei(periodReward.toString())),
                 })
             }
         }

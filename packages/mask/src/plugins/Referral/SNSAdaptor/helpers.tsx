@@ -1,4 +1,6 @@
 import { padStart } from 'lodash-unified'
+import { BigNumber } from '@ethersproject/bignumber'
+import type { PrefixedHexString } from 'ethereumjs-util'
 import type { ChainId } from '@masknet/web3-shared-evm'
 import { createTypedMessageMetadataReader } from '@masknet/typed-message'
 
@@ -15,12 +17,78 @@ import type {
 } from '../types'
 import schema from '../schema.json'
 
-export const referralMetadataReader = createTypedMessageMetadataReader<ReferralMetaData>(REFERRAL_META_KEY, schema)
+// Fast convert internal types to Buffer
+// Ensure we only convert values if we need them
+export function buf(b: Buffer | Uint8Array | PrefixedHexString | BigNumber | number | bigint): Buffer | undefined {
+    if (b === null) return undefined
 
-export function toChainAddress(chainId: ChainId, address: string): string {
-    const chaddr = '0x' + padStart(Number(chainId).toString(16), 8, '0') + address.substring(2).toLowerCase()
-    return chaddr
+    if (b instanceof Buffer) return b
+
+    if (b instanceof Uint8Array) return Buffer.from(b)
+
+    if (typeof b === 'number') {
+        return Buffer.from(BigNumber.from(b).toHexString().substring(2), 'hex')
+    }
+
+    if (typeof b === 'bigint') return Buffer.from(toEvenLength(b.toString(16)), 'hex')
+
+    if (typeof b === 'string') {
+        if (!b.startsWith('0x')) throw new Error('unsupported')
+        const hex = b.substring(2)
+        if (hex.length % 2 !== 0 || !isHexString(b)) {
+            // Buffer.from(hex, 'hex') will throw on invalid hex, should we do it?
+            throw new Error('invalid hexable string')
+        }
+
+        return Buffer.from(hex, 'hex')
+    }
+
+    // This should return the most compact buffer version without leading zeros, so safe for RLP encodings.
+    if (b instanceof BigNumber || (b as any)?._isBigNumber === true)
+        return Buffer.from((b as any).toHexString().substring(2), 'hex')
+
+    throw new Error('unsupported')
 }
+
+export function bi(b: Buffer | BigNumber | bigint | Uint8Array | PrefixedHexString): bigint {
+    if (typeof b === 'bigint') return b
+    if (b instanceof Buffer) return BigInt('0x' + b.toString('hex'))
+
+    const bufValue = buf(b)
+    if (!buf) throw new Error('wrong buf')
+
+    if ((b instanceof Uint8Array || typeof b === 'string') && bufValue) return bi(bufValue)
+    if (b instanceof BigNumber || (b as any)?._isBigNumber === true) return (b as any).toBigInt() as bigint
+
+    throw new Error('unsupported')
+}
+
+function toEvenLength(str: string): string {
+    if (str.length % 2 !== 0) {
+        return '0' + str
+    }
+    return str
+}
+
+function isHexString(value: string): boolean {
+    return !!value.match(/^0x[\dA-Fa-f]*$/)
+}
+
+export function toChainAddress(chainId: BigNumber | bigint, address: Buffer): Buffer {
+    if (address.byteLength !== 20) throw new Error('invalid address')
+    const b = Buffer.alloc(24)
+    // Only numeric network id's are supported in the chain address, with max of uint32.
+    // TODO throw on this if wrong
+    b.writeUint32BE(Number(bi(chainId)))
+    b.fill(address, 4)
+    return b
+}
+
+export function toChainAddressEthers(chainId: number, address: string): string {
+    return '0x' + toChainAddress(BigNumber.from(chainId), Buffer.from(address.substring(2), 'hex')).toString('hex')
+}
+
+export const referralMetadataReader = createTypedMessageMetadataReader<ReferralMetaData>(REFERRAL_META_KEY, schema)
 
 export function parseChainAddress(chaddr: ChainAddress): ChainAddressProps {
     const chainId = toChainId(chaddr)
@@ -48,7 +116,7 @@ export function toChainId(addr: ChainAddress): number {
 
 export function toNativeRewardTokenDefn(chainId: ChainId): string {
     const nativeTokenAddr = '0x' + padStart(Number(chainId).toString(16), 40, '0')
-    return toChainAddress(chainId, nativeTokenAddr)
+    return toChainAddressEthers(chainId, nativeTokenAddr)
 }
 
 // farms
@@ -70,5 +138,5 @@ export function getFarmsRewardData(farms?: Farm[]): RewardData {
 export function getSponsoredFarmsForReferredToken(chainId?: number, referredToken?: string, farms?: Farm[]) {
     if (!farms?.length || !referredToken || !chainId) return undefined
 
-    return farms.filter((farm) => farm.referredTokenDefn === toChainAddress(chainId, referredToken))
+    return farms.filter((farm) => farm.referredTokenDefn === toChainAddressEthers(chainId, referredToken))
 }

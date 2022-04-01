@@ -298,6 +298,7 @@ importers:
       '@dimensiondev/webextension-shim': 0.0.3-20210823035705-4257e12
       '@ethersproject/abi': ^5.4.0
       '@ethersproject/address': ^5.0.4
+      '@ethersproject/bignumber': ^5.6.0
       '@ethersproject/providers': ^5.0.9
       '@ethersproject/solidity': ^5.0.4
       '@ethersproject/strings': ^5.6.0
@@ -438,6 +439,7 @@ importers:
       '@dimensiondev/metamask-extension-provider': 3.0.6-20210519045409-1835d4d
       '@ethersproject/abi': 5.4.0
       '@ethersproject/address': 5.4.0
+      '@ethersproject/bignumber': 5.6.0
       '@ethersproject/providers': 5.4.2
       '@ethersproject/solidity': 5.4.0
       '@ethersproject/strings': 5.6.0
@@ -4405,7 +4407,7 @@ packages:
     resolution: {integrity: sha512-9gU2H+/yK1j2eVMdzm6xvHSnMxk8waIHQGYCZg5uvAyH0rsAzxkModzBSpbAkAuhKFEovC2S9hM4nPuLym8IZw==}
     dependencies:
       '@ethersproject/address': 5.4.0
-      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bignumber': 5.6.0
       '@ethersproject/bytes': 5.4.0
       '@ethersproject/constants': 5.4.0
       '@ethersproject/hash': 5.4.0
@@ -4448,7 +4450,7 @@ packages:
   /@ethersproject/address/5.4.0:
     resolution: {integrity: sha512-SD0VgOEkcACEG/C6xavlU1Hy3m5DGSXW3CUHkaaEHbAPPsgi0coP5oNPsxau8eTlZOk/bpa/hKeCNoK5IzVI2Q==}
     dependencies:
-      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bignumber': 5.6.0
       '@ethersproject/bytes': 5.4.0
       '@ethersproject/keccak256': 5.4.0
       '@ethersproject/logger': 5.4.0
@@ -4473,13 +4475,6 @@ packages:
       '@ethersproject/logger': 5.6.0
       bn.js: 4.12.0
     dev: false
-
-  /@ethersproject/bignumber/5.4.1:
-    resolution: {integrity: sha512-fJhdxqoQNuDOk6epfM7yD6J8Pol4NUCy1vkaGAkuujZm0+lNow//MKu1hLhRiYV4BsOHyBv5/lsTjF+7hWwhJg==}
-    dependencies:
-      '@ethersproject/bytes': 5.6.0
-      '@ethersproject/logger': 5.6.0
-      bn.js: 4.12.0
 
   /@ethersproject/bignumber/5.6.0:
     resolution: {integrity: sha512-VziMaXIUHQlHJmkv1dlcd6GY2PmT0khtAqaMctCIDogxkrarMzA9L94KN1NeXqqOfFD6r0sJT3vCTOFSmZ07DA==}
@@ -4688,7 +4683,7 @@ packages:
       '@ethersproject/abstract-signer': 5.4.0
       '@ethersproject/address': 5.4.0
       '@ethersproject/basex': 5.4.0
-      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bignumber': 5.6.0
       '@ethersproject/bytes': 5.4.0
       '@ethersproject/constants': 5.4.0
       '@ethersproject/hash': 5.4.0
@@ -4777,7 +4772,7 @@ packages:
   /@ethersproject/solidity/5.4.0:
     resolution: {integrity: sha512-XFQTZ7wFSHOhHcV1DpcWj7VXECEiSrBuv7JErJvB9Uo+KfCdc3QtUZV+Vjh/AAaYgezUEKbCtE6Khjm44seevQ==}
     dependencies:
-      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bignumber': 5.6.0
       '@ethersproject/bytes': 5.4.0
       '@ethersproject/keccak256': 5.4.0
       '@ethersproject/sha2': 5.4.0
@@ -23804,7 +23799,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.12.0
-      webpack: 5.70.0_@swc+core@1.2.148
+      webpack: 5.70.0_65041f242a58e79379a199f62cb3d619
     dev: true
 
   /terser/4.8.0:
