@@ -14,17 +14,9 @@ import { singAndPostProofOfRecommendationWithReferrer } from '../Worker/apis/pro
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { toChainAddressEthers, getFarmsRewardData, parseChainAddress } from './helpers'
+import { toChainAddressEthers, getFarmsRewardData } from './helpers'
 import { MASK_REFERRER } from '../constants'
-import {
-    TabsCreateFarm,
-    TransactionStatus,
-    PageInterface,
-    PagesType,
-    Icons,
-    TabsReferralFarms,
-    ChainAddress,
-} from '../types'
+import { TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons, TabsReferralFarms } from '../types'
 import type { Coin } from '../../Trader/types'
 
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
@@ -91,19 +83,15 @@ export function BuyToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [] } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-    // get farm referred tokens defn
-    const referredTokensDefn: ChainAddress[] = farms.map((farm) => farm.referredTokenDefn)
-    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
-    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
 
     const onClickTokenSelect = useCallback(() => {
         setSelectTokenDialog({
             open: true,
             uuid: id,
             title: t('plugin_referral_select_a_token_to_buy_and_hold'),
-            tokenList,
+            onlyFarmTokens: true,
         })
-    }, [id, setToken, tokenList])
+    }, [id, setToken])
 
     const swapToken = useCallback(() => {
         if (!token) {
@@ -242,7 +230,7 @@ export function BuyToFarm(props: PageInterface) {
                     </EthereumChainBoundary>
                 </TabPanel>
                 <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
-                    <MyFarms pageType={PagesType.REFER_TO_FARM} {...props} />
+                    <MyFarms pageType={PagesType.BUY_TO_FARM} {...props} />
                 </TabPanel>
             </TabContext>
         </Box>

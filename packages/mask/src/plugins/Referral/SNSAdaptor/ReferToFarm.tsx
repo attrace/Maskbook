@@ -18,7 +18,7 @@ import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { singAndPostProofOfRecommendationOrigin } from '../Worker/apis/proofOfRecommendation'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsRewardData, getSponsoredFarmsForReferredToken, parseChainAddress } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
 import {
     ReferralMetaData,
     TabsCreateFarm,
@@ -109,20 +109,15 @@ export function ReferToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
-    // token list
-    const referredTokensDefn = farms.map((farm) => farm.referredTokenDefn)
-    // select uniq tokens
-    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
-    const tokenList = uniqReferredTokensDefn.map((referredTokenDefn) => parseChainAddress(referredTokenDefn).address)
 
     const onClickTokenSelect = useCallback(() => {
         setSelectTokenDialog({
             open: true,
             uuid: id,
             title: t('plugin_referral_select_a_token_to_refer'),
-            tokenList,
+            onlyFarmTokens: true,
         })
-    }, [id, setToken, tokenList])
+    }, [id, setToken])
 
     const onConfirmReferFarm = useCallback(() => {
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {

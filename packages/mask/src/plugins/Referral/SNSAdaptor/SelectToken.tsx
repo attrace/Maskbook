@@ -7,6 +7,7 @@ import { DialogContent } from '@mui/material'
 
 import { PluginReferralMessages } from '../messages'
 import { NATIVE_TOKEN } from '../constants'
+import { parseChainAddress } from './helpers'
 
 import { InjectedDialog } from '../../../components/shared/InjectedDialog'
 import { ERC20TokenList } from './shared-ui/ERC20TokenList'
@@ -20,13 +21,13 @@ export function SelectToken() {
 
     const [title, setTitle] = useState('')
     const [id, setId] = useState('')
-    const [tokenList, setTokenList] = useState<undefined | string[]>(undefined)
+    const [onlyFarmTokens, setOnlyFarmTokens] = useState<boolean>(false)
 
     const { open, setDialog } = useRemoteControlledDialog(PluginReferralMessages.selectTokenUpdated, (ev) => {
         if (!ev.open) return
         setId(ev.uuid)
         setTitle(ev.title)
-        setTokenList(ev.tokenList)
+        setOnlyFarmTokens(!!ev.onlyFarmTokens)
     })
     const { value: farms = [], loading: loadingAllFarms } = useAsync(
         async () => getAllFarms(web3, currentChainId),
@@ -54,12 +55,16 @@ export function SelectToken() {
     )
 
     const referredTokensDefn = farms.map((farm) => farm.referredTokenDefn)
+    const uniqReferredTokensDefn = [...new Set(referredTokensDefn)]
+    const referredTokens = uniqReferredTokensDefn.map(
+        (referredTokenDefn) => parseChainAddress(referredTokenDefn).address,
+    )
 
     return (
         <InjectedDialog titleBarIconStyle="back" open={open} onClose={onClose} title={title} maxWidth="xs">
             <DialogContent>
                 <ERC20TokenList
-                    renderList={tokenList}
+                    renderList={onlyFarmTokens ? referredTokens : undefined}
                     dataLoading={loadingAllFarms}
                     referredTokensDefn={referredTokensDefn}
                     FixedSizeListProps={{ height: 340, itemSize: 54 }}

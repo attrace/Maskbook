@@ -6,7 +6,7 @@ import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 
 import { toChainAddressEthers } from '../../SNSAdaptor/helpers'
-import { ReferralFarmsV1, VerifierEffect, HarvestRequest } from '../../types'
+import { ReferralFarmsV1, EntitlementLog } from '../../types'
 import { getDaoAddress } from './discovery'
 import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'
 import { NATIVE_TOKEN } from '../../constants'
@@ -253,12 +253,12 @@ export async function runCreateNativeFarm(
 export async function harvestRewards(
     onConfirm: (txHash: string) => void,
     onStart: () => void,
-    onError: () => void,
+    onError: (error?: string) => void,
     web3: Web3,
     account: string,
     chainId: ChainId,
-    effect: VerifierEffect,
-    req: HarvestRequest,
+    entitlements: EntitlementLog[],
+    rewardTokenDefn: string,
 ) {
     try {
         onStart()
@@ -267,13 +267,24 @@ export async function harvestRewards(
             from: account,
         }
 
+        const requests = entitlements.map((entitlement) => {
+            return {
+                farmHash: entitlement.args.farmHash,
+                value: entitlement.args.rewardValue,
+                rewardTokenDefn,
+                effectNonce: entitlement.args.nonce,
+            }
+        })
+
+        const proofs = entitlements.map((entitlement) => entitlement.args.proof)
+
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
         const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
 
-        const estimatedGas = await farms?.methods.harvestRewards([req], [effect], []).estimateGas(config)
+        const estimatedGas = await farms?.methods.harvestRewards(requests, proofs, []).estimateGas(config)
 
         const tx = await farms?.methods
-            .harvestRewards([req], [effect], [])
+            .harvestRewards(requests, proofs, [])
             .send({
                 ...config,
                 gas: estimatedGas,
@@ -288,9 +299,9 @@ export async function harvestRewards(
                 }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
-                onError()
+                onError(error.message)
             })
-    } catch (error) {
-        onError()
+    } catch (error: any) {
+        onError(error?.message)
     }
 }

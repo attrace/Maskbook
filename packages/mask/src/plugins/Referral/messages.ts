@@ -7,7 +7,7 @@ export type SelectTokenUpdated =
           open: true
           uuid: string
           title: string
-          tokenList?: string[]
+          onlyFarmTokens?: boolean
       }
     | {
           open: false

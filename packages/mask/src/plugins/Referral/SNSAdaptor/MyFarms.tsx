@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
 import { v4 as uuid } from 'uuid'
+import { groupBy } from 'lodash-unified'
+import { fromWei } from 'web3-utils'
 import {
     useAccount,
     useChainId,
@@ -9,22 +11,19 @@ import {
     ERC20TokenDetailed,
     useNativeTokenDetailed,
 } from '@masknet/web3-shared-evm'
-import { fromWei } from 'web3-utils'
-import { makeStyles } from '@masknet/theme'
+import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { TokenList } from '@masknet/web3-providers'
 import { Grid, Typography, CircularProgress, Button, Box } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
-import { getAccountRewardsProofs } from '../Worker/apis/verifier'
+import { getAccountEntitlements } from '../Worker/apis/entitlements'
 import { harvestRewards } from '../Worker/apis/referralFarm'
-import { toNativeRewardTokenDefn, parseChainAddress } from './helpers'
+import { toNativeRewardTokenDefn, parseChainAddress, roundValue } from './helpers'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import {
     Farm,
-    RewardProof,
-    VerifierEffect,
-    HarvestRequest,
+    EntitlementLog,
     PageInterface,
     PagesType,
     TransactionStatus,
@@ -96,23 +95,24 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface FarmsListProps extends PageInterface {
-    pageType: PagesType
-    rewardsProofs: RewardProof[]
+    entitlements: EntitlementLog[]
     rewardsHarvested: RewardsHarvestedEvent[]
     allTokens: ERC20TokenDetailed[]
     farms: Farm[]
 }
-function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested, ...props }: FarmsListProps) {
+function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props }: FarmsListProps) {
     const { t } = useI18N()
     const currentChainId = useChainId()
     const account = useAccount()
     const web3 = useWeb3({ chainId: currentChainId })
     const { value: nativeToken } = useNativeTokenDetailed()
+    const { showSnackbar } = useCustomSnackbar()
+    const pageType = props?.pageType || PagesType.REFERRAL_FARMS
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
     const farmsMap = new Map(farms.map((farm) => [farm.farmHash, farm]))
-    const rewardsHarvestedMap = new Map(
-        rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
+    const entitlementsGrouped = groupBy(entitlements, (entitlement: EntitlementLog) =>
+        entitlement.args.farmHash.toLowerCase(),
     )
 
     const onStartHarvestRewards = useCallback((totalRewards: number, rewardTokenSymbol?: string) => {
@@ -124,7 +124,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                     status: TransactionStatus.CONFIRMATION,
                     title: t('plugin_referral_confirm_transaction'),
                     subtitle: t('plugin_referral_confirm_transaction_harvesting', {
-                        reward: totalRewards,
+                        reward: totalRewards.toFixed(4),
                         symbol: rewardTokenSymbol ?? '',
                     }),
                 },
@@ -141,11 +141,7 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                         status: TransactionStatus.CONFIRMED,
                         actionButton: {
                             label: t('dismiss'),
-                            onClick: () =>
-                                props?.onChangePage?.(
-                                    PagesType.REFER_TO_FARM,
-                                    TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM,
-                                ),
+                            onClick: () => props?.onChangePage?.(pageType, TabsReferralFarms.TOKENS + ': ' + pageType),
                         },
                         transactionHash: txHash,
                     },
@@ -155,26 +151,30 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
         [props],
     )
 
+    const onErrorHarvestRewards = useCallback(
+        (error?: string) => {
+            showSnackbar(error || t('go_wrong'), { variant: 'error' })
+            props?.onChangePage?.(pageType, TabsReferralFarms.TOKENS + ': ' + pageType)
+        },
+        [props],
+    )
+
     const onClickHarvestRewards = useCallback(
-        async (effect: VerifierEffect, req: HarvestRequest, totalRewards: number, rewardTokenSymbol?: string) => {
+        async (
+            entitlements: EntitlementLog[],
+            totalRewards: number,
+            rewardTokenDefn: string,
+            rewardTokenSymbol?: string,
+        ) => {
             harvestRewards(
-                (txHash: string) => {
-                    onConfirmHarvestRewards(txHash)
-                },
-                () => {
-                    onStartHarvestRewards(totalRewards, rewardTokenSymbol)
-                },
-                () => {
-                    props?.onChangePage?.(
-                        PagesType.REFER_TO_FARM,
-                        TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM,
-                    )
-                },
+                (txHash: string) => onConfirmHarvestRewards(txHash),
+                () => onStartHarvestRewards(totalRewards, rewardTokenSymbol),
+                (error?: string) => onErrorHarvestRewards(error),
                 web3,
                 account,
                 currentChainId,
-                effect,
-                req,
+                entitlements,
+                rewardTokenDefn,
             )
         },
         [web3, account, currentChainId, props],
@@ -182,20 +182,19 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
 
     return (
         <>
-            {rewardsProofs.map((proof) => {
-                let totalRewards = 0
-                let farm: Farm | undefined
-
-                proof.req.rewards.forEach((reward) => {
-                    const farmDetails = farmsMap.get(reward.farmHash)
-
-                    farm = farmDetails
-                    totalRewards = totalRewards + Number(fromWei(reward.value.hex))
-                })
+            {Object.entries(entitlementsGrouped).map(([farmHash, entitlements]) => {
+                const farm = farmsMap.get(farmHash)
 
                 if (!farm) return null
 
-                const claimed = rewardsHarvestedMap.get(proof.leafHash) || 0
+                const totalRewards = entitlements.reduce(function (accumulator, current) {
+                    return accumulator + Number(fromWei(current.args.rewardValue.toString()))
+                }, 0)
+                const farmrRewardsHarvested = rewardsHarvested.filter((reward) => reward.farmHash === farmHash)
+                const claimed = farmrRewardsHarvested.reduce(function (accumulator, current) {
+                    return accumulator + current.value
+                }, 0)
+
                 const claimable = totalRewards - claimed
 
                 const nativeRewardToken = toNativeRewardTokenDefn(currentChainId)
@@ -214,17 +213,18 @@ function FarmsList({ rewardsProofs, allTokens, farms, pageType, rewardsHarvested
                             <Box display="flex" justifyContent="flex-end">
                                 <Typography display="flex" alignItems="center" marginRight="20px" fontWeight={600}>
                                     <span style={{ marginRight: '4px' }}>{t('plugin_referral_claimable')}:</span>{' '}
-                                    {claimable} {rewardToken?.symbol}
+                                    {roundValue(claimable)} {rewardToken?.symbol}
                                 </Typography>
                                 <Button
-                                    disabled={!!claimed}
+                                    disabled={claimable <= 0}
                                     variant="contained"
                                     size="medium"
                                     onClick={() =>
+                                        // TODO: filter out harvested entitlements
                                         onClickHarvestRewards(
-                                            proof.effect,
-                                            proof.req,
+                                            entitlements,
                                             totalRewards,
+                                            farm.rewardTokenDefn,
                                             rewardToken?.symbol,
                                         )
                                     }>
@@ -249,8 +249,8 @@ export function MyFarms(props: PageInterface) {
     const web3 = useWeb3({ chainId: currentChainId })
     const { ERC20 } = useTokenListConstants()
 
-    const { value: rewardsProofs = [], loading: loadingProofs } = useAsync(
-        async () => (account ? getAccountRewardsProofs(account) : []),
+    const { value: entitlements = [], loading: loadingEntitlements } = useAsync(
+        async () => (account ? getAccountEntitlements(account) : []),
         [account],
     )
     const { value: rewardsHarvested = [], loading: loadingRewardsHarvested } = useAsync(
@@ -298,18 +298,17 @@ export function MyFarms(props: PageInterface) {
                 </Grid>
             </Grid>
             <div className={classes.content}>
-                {loadingProofs || loadingAllTokens || loadingFarms || loadingRewardsHarvested ? (
+                {loadingEntitlements || loadingAllTokens || loadingFarms || loadingRewardsHarvested ? (
                     <CircularProgress size={50} />
                 ) : (
                     <>
-                        {!rewardsProofs.length ? (
+                        {!entitlements.length ? (
                             <Typography className={classes.noFarm}>
                                 {t('plugin_referral_you_have_not_joined_farm')}
                             </Typography>
                         ) : (
                             <FarmsList
-                                pageType={props.pageType || PagesType.REFERRAL_FARMS}
-                                rewardsProofs={rewardsProofs}
+                                entitlements={entitlements}
                                 rewardsHarvested={rewardsHarvested}
                                 allTokens={allTokens}
                                 farms={farms}

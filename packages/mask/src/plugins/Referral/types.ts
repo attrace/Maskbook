@@ -303,3 +303,19 @@ export interface JsonRpcResponse {
         data?: any
     }
 }
+
+// entitlements
+export interface Entitlement {
+    entitlee: EvmAddress
+    farmHash: FarmHash
+    nonce: BigNumber
+    period: BigNumber
+    proof: string[]
+    rewardValue: BigNumber
+}
+export interface EntitlementLog {
+    name: 'PeriodEntitlement'
+    signature: 'PeriodEntitlement(bytes32,address,uint128,uint64,uint128,bytes32[])'
+    topic: '0xe8dfdbedb76748323fb50fec7140469b02cf18a5afc749752f8f48061d877d92'
+    args: Entitlement
+}
