@@ -14,6 +14,7 @@ import { NATIVE_TOKEN } from '../../constants'
 export async function runCreateERC20PairFarm(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
+    onError: (error?: string) => void,
     onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
@@ -87,15 +88,18 @@ export async function runCreateERC20PairFarm(
             .on(TransactionEventType.ERROR, (error: Error) => {
                 onConfirm(false)
                 onStart(false)
+                onError(error.message)
             })
-    } catch (error) {
+    } catch (error: any) {
         onConfirm(false)
         onStart(false)
+        onError(error?.message)
     }
 }
 export async function adjustFarmRewards(
     onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
+    onError: (error?: string) => void,
     onTransactionHash: (type: string) => void,
     web3: Web3,
     account: string,
@@ -124,6 +128,7 @@ export async function adjustFarmRewards(
                 return await runCreateERC20PairFarm(
                     onConfirm,
                     onStart,
+                    onError,
                     onTransactionHash,
                     web3,
                     account,

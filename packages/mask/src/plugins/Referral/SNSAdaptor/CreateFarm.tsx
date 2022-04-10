@@ -136,15 +136,13 @@ export function CreateFarm(props: PageInterface) {
                     }
                 },
                 (val: boolean) => {
-                    if (val) {
-                        onConfirmDeposit()
-                    } else {
-                        onErrorDeposit()
+                    if (!val) {
+                        return onErrorDeposit()
                     }
+                    onConfirmDeposit()
                 },
-                (txHash: string) => {
-                    onConfirmedDeposit(txHash)
-                },
+                onErrorDeposit,
+                onConfirmedDeposit,
                 web3,
                 account,
                 currentChainId,
@@ -276,10 +274,13 @@ export function CreateFarm(props: PageInterface) {
         },
         [props, token],
     )
-
-    const onErrorDeposit = useCallback(() => {
-        props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
-    }, [props])
+    const onErrorDeposit = useCallback(
+        (error?: string) => {
+            showSnackbar(error || t('go_wrong'), { variant: 'error' })
+            props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
+        },
+        [props],
+    )
 
     const createFarmBtnDisabled =
         !token?.address || !token?.address || !Number(totalFarmReward) || !Number(dailyFarmReward)

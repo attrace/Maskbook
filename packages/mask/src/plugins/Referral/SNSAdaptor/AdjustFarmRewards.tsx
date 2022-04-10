@@ -3,7 +3,7 @@ import { useAsync } from 'react-use'
 import BigNumber from 'bignumber.js'
 import { TokenIcon } from '@masknet/shared'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
-import { makeStyles } from '@masknet/theme'
+import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { Box } from '@mui/system'
 import {
     EthereumTokenType,
@@ -100,17 +100,16 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const chainId = useChainId()
     const web3 = useWeb3({ chainId })
     const account = useAccount()
+    const { showSnackbar } = useCustomSnackbar()
+    const requiredChainId = useRequiredChainId(chainId)
+    const { value: rewardBalance = '0' } = useFungibleTokenBalance(
+        rewardToken?.type ?? EthereumTokenType.Native,
+        rewardToken?.address ?? '',
+    )
 
     const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
-
-    const {
-        value: rewardBalance = '0',
-        loading: loadingRewardBalance,
-        retry: retryLoadRewardBalance,
-    } = useFungibleTokenBalance(rewardToken?.type ?? EthereumTokenType.Native, rewardToken?.address ?? '')
-    const requiredChainId = useRequiredChainId(chainId)
 
     const { value: farmsMetaState } = useAsync(
         async () => (farm?.farmHash ? getFarmsMetaState(web3, chainId, [farm.farmHash]) : undefined),
@@ -148,15 +147,13 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 }
             },
             (val: boolean) => {
-                if (val) {
-                    onConfirmAdjustFarm()
-                } else {
-                    onErrorDeposit()
+                if (!val) {
+                    return onErrorDeposit()
                 }
+                onConfirmAdjustFarm()
             },
-            (txHash: string) => {
-                onConfirmedAdjustFarm(txHash)
-            },
+            onErrorDeposit,
+            onConfirmedAdjustFarm,
             web3,
             account,
             chainId,
@@ -255,6 +252,25 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         })
     }, [props, totalFarmReward, dailyFarmReward, attraceFee])
 
+    const onChangePageToAdjustRewards = useCallback(() => {
+        props?.onChangePage?.(PagesType.ADJUST_REWARDS, TabsReferralFarms.TOKENS + ': ' + PagesType.ADJUST_REWARDS, {
+            adjustFarmDialog: {
+                farm: farm,
+                rewardToken,
+                referredToken,
+                continue: () => {},
+            },
+        })
+    }, [props, farm, rewardToken, referredToken])
+
+    const onErrorDeposit = useCallback(
+        (error?: string) => {
+            showSnackbar(error || t('go_wrong'), { variant: 'error' })
+            onChangePageToAdjustRewards()
+        },
+        [props, farm, rewardToken, referredToken],
+    )
+
     const onConfirmedAdjustFarm = useCallback(
         (txHash: string) => {
             props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
@@ -265,7 +281,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                         status: TransactionStatus.CONFIRMED,
                         actionButton: {
                             label: t('dismiss'),
-                            onClick: onErrorDeposit,
+                            onClick: onChangePageToAdjustRewards,
                         },
                         transactionHash: txHash,
                     },
@@ -274,17 +290,6 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         },
         [props],
     )
-
-    const onErrorDeposit = useCallback(() => {
-        props?.onChangePage?.(PagesType.ADJUST_REWARDS, TabsReferralFarms.TOKENS + ': ' + PagesType.ADJUST_REWARDS, {
-            adjustFarmDialog: {
-                farm: farm,
-                rewardToken,
-                referredToken,
-                continue: () => {},
-            },
-        })
-    }, [props, farm, rewardToken, referredToken])
 
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
 
@@ -406,20 +411,18 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                                                 component="span">
                                                 {t('wallet_balance')}: {balance}
                                             </Typography>
-                                            {rewardToken && (
-                                                <Box display="flex" alignItems="center">
-                                                    {rewardToken?.symbol}
-                                                    <Chip
-                                                        size="small"
-                                                        label="MAX"
-                                                        clickable
-                                                        color="primary"
-                                                        className={sharedClasses.maxChip}
-                                                        variant="outlined"
-                                                        onClick={() => setTotalFarmReward(balance)}
-                                                    />
-                                                </Box>
-                                            )}
+                                            <Box display="flex" alignItems="center">
+                                                {rewardToken?.symbol}
+                                                <Chip
+                                                    size="small"
+                                                    label="MAX"
+                                                    clickable
+                                                    color="primary"
+                                                    className={sharedClasses.maxChip}
+                                                    variant="outlined"
+                                                    onClick={() => setTotalFarmReward(balance)}
+                                                />
+                                            </Box>
                                         </Box>
                                     </InputAdornment>
                                 ),
