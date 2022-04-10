@@ -9,10 +9,8 @@ import { toChainAddressEthers } from '../../SNSAdaptor/helpers'
 import { ReferralFarmsV1, EntitlementLog } from '../../types'
 import { getDaoAddress } from './discovery'
 import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'
-import { NATIVE_TOKEN } from '../../constants'
 
 export async function runCreateERC20PairFarm(
-    onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
     onError: (error?: string) => void,
     onTransactionHash: (type: string) => void,
@@ -76,7 +74,7 @@ export async function runCreateERC20PairFarm(
                 ...config,
                 gas: estimatedGas2,
             })
-            .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
+            .on(TransactionEventType.RECEIPT, () => {
                 onStart(true)
             })
             .on(TransactionEventType.CONFIRMATION, (no: number, receipt: TransactionReceipt) => {
@@ -86,18 +84,15 @@ export async function runCreateERC20PairFarm(
                 }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
-                onConfirm(false)
                 onStart(false)
-                onError(error.message)
+                throw error.message
             })
     } catch (error: any) {
-        onConfirm(false)
         onStart(false)
         onError(error?.message)
     }
 }
 export async function adjustFarmRewards(
-    onConfirm: (type: boolean) => void,
     onStart: (type: boolean) => void,
     onError: (error?: string) => void,
     onTransactionHash: (type: string) => void,
@@ -112,33 +107,18 @@ export async function adjustFarmRewards(
     try {
         // Increase/decrease the Daily Farm Reward and deposit Additional Farm Rewards
         if (totalFarmReward && totalFarmReward.toNumber() > 0) {
-            if (rewardTokenAddr === NATIVE_TOKEN) {
-                return await runCreateNativeFarm(
-                    onConfirm,
-                    onStart,
-                    onTransactionHash,
-                    web3,
-                    account,
-                    chainId,
-                    referredTokenAddr,
-                    totalFarmReward,
-                    dailyFarmReward,
-                )
-            } else {
-                return await runCreateERC20PairFarm(
-                    onConfirm,
-                    onStart,
-                    onError,
-                    onTransactionHash,
-                    web3,
-                    account,
-                    chainId,
-                    rewardTokenAddr,
-                    referredTokenAddr,
-                    totalFarmReward,
-                    dailyFarmReward,
-                )
-            }
+            return await runCreateERC20PairFarm(
+                onStart,
+                onError,
+                onTransactionHash,
+                web3,
+                account,
+                chainId,
+                rewardTokenAddr,
+                referredTokenAddr,
+                totalFarmReward,
+                dailyFarmReward,
+            )
         }
 
         // Increase/decrease the Daily Farm Reward
@@ -182,75 +162,12 @@ export async function adjustFarmRewards(
                     }
                 })
                 .on(TransactionEventType.ERROR, (error: Error) => {
-                    onConfirm(false)
                     onStart(false)
+                    throw error?.message
                 })
         }
-    } catch (error) {
-        onConfirm(false)
-        onStart(false)
-    }
-}
-
-export async function runCreateNativeFarm(
-    onConfirm: (type: boolean) => void,
-    onStart: (type: boolean) => void,
-    onTransactionHash: (type: string) => void,
-    web3: Web3,
-    account: string,
-    chainId: ChainId,
-    referredTokenAddr: string,
-    totalFarmReward: BigNumber,
-    dailyFarmReward: BigNumber,
-) {
-    try {
-        onStart(true)
-
-        const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
-        const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-        const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
-        const metastate =
-            dailyFarmReward.toNumber() > 0
-                ? [
-                      {
-                          key: padRight(asciiToHex('periodReward'), 64),
-                          value: defaultAbiCoder.encode(
-                              ['uint128', 'int128'],
-                              [toWei(dailyFarmReward.toString(), 'ether'), '0'],
-                          ),
-                      },
-                  ]
-                : []
-
-        const config = {
-            from: account,
-            value: toWei(totalFarmReward.toString(), 'ether'),
-        }
-        const estimatedGas = await farms?.methods
-            .increaseReferralFarmNative(referredTokenDefn, metastate)
-            .estimateGas(config)
-
-        const tx = await farms?.methods
-            .increaseReferralFarmNative(referredTokenDefn, metastate)
-            .send({
-                ...config,
-                gas: estimatedGas,
-            })
-            .on(TransactionEventType.RECEIPT, (onSucceed: () => void) => {
-                onStart(true)
-            })
-            .on(TransactionEventType.TRANSACTION_HASH, (hash: string) => {
-                onTransactionHash(hash)
-            })
-            .on(TransactionEventType.CONFIRMATION, (onSucceed: () => void) => {
-                onConfirm(true)
-            })
-            .on(TransactionEventType.ERROR, (error: Error) => {
-                onConfirm(false)
-                onStart(false)
-            })
-    } catch (error) {
-        onConfirm(false)
+    } catch (error: any) {
+        onError(error?.message)
         onStart(false)
     }
 }
@@ -304,7 +221,7 @@ export async function harvestRewards(
                 }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
-                onError(error.message)
+                throw error.message
             })
     } catch (error: any) {
         onError(error?.message)

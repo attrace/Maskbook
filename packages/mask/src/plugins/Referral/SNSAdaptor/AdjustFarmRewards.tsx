@@ -142,15 +142,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
         adjustFarmRewards(
             (val: boolean) => {
-                if (!val) {
-                    onErrorDeposit()
-                }
-            },
-            (val: boolean) => {
-                if (!val) {
-                    return onErrorDeposit()
-                }
-                onConfirmAdjustFarm()
+                val && onConfirmAdjustFarm()
             },
             onErrorDeposit,
             onConfirmedAdjustFarm,

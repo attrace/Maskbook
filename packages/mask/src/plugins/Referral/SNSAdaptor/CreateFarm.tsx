@@ -131,15 +131,7 @@ export function CreateFarm(props: PageInterface) {
 
             await runCreateERC20PairFarm(
                 (val: boolean) => {
-                    if (!val) {
-                        onErrorDeposit()
-                    }
-                },
-                (val: boolean) => {
-                    if (!val) {
-                        return onErrorDeposit()
-                    }
-                    onConfirmDeposit()
+                    val && onConfirmDeposit()
                 },
                 onErrorDeposit,
                 onConfirmedDeposit,
