@@ -19,7 +19,7 @@ import { useI18N } from '../../../utils'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountEntitlements } from '../Worker/apis/entitlements'
 import { harvestRewards } from '../Worker/apis/referralFarm'
-import { toNativeRewardTokenDefn, parseChainAddress, roundValue } from './helpers'
+import { toNativeRewardTokenDefn, parseChainAddress, roundValue, makeLeafHash } from './helpers'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import {
     Farm,
@@ -114,6 +114,9 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
     const entitlementsGrouped = groupBy(entitlements, (entitlement: EntitlementLog) =>
         entitlement.args.farmHash.toLowerCase(),
     )
+    const rewardsHarvestedMap = new Map(
+        rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
+    )
 
     const onStartHarvestRewards = useCallback((totalRewards: number, rewardTokenSymbol?: string) => {
         props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
@@ -133,7 +136,7 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
     }, [])
 
     const onConfirmHarvestRewards = useCallback(
-        (txHash) => {
+        (txHash: string) => {
             props?.onChangePage?.(PagesType.TRANSACTION, t('plugin_referral_transaction'), {
                 hideAttrLogo: true,
                 transactionDialog: {
@@ -166,14 +169,21 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
             rewardTokenDefn: string,
             rewardTokenSymbol?: string,
         ) => {
+            const entitlementsNotBurned = entitlements.filter((entitlement) => {
+                const leafHash = makeLeafHash(currentChainId, entitlement.args, rewardTokenDefn)
+
+                if (rewardsHarvestedMap.get(leafHash)) return false
+
+                return true
+            })
             harvestRewards(
-                (txHash: string) => onConfirmHarvestRewards(txHash),
+                onConfirmHarvestRewards,
                 () => onStartHarvestRewards(totalRewards, rewardTokenSymbol),
-                (error?: string) => onErrorHarvestRewards(error),
+                onErrorHarvestRewards,
                 web3,
                 account,
                 currentChainId,
-                entitlements,
+                entitlementsNotBurned,
                 rewardTokenDefn,
             )
         },
@@ -194,7 +204,6 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
                 const claimed = farmrRewardsHarvested.reduce(function (accumulator, current) {
                     return accumulator + current.value
                 }, 0)
-
                 const claimable = totalRewards - claimed
 
                 const nativeRewardToken = toNativeRewardTokenDefn(currentChainId)
@@ -213,14 +222,13 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
                             <Box display="flex" justifyContent="flex-end">
                                 <Typography display="flex" alignItems="center" marginRight="20px" fontWeight={600}>
                                     <span style={{ marginRight: '4px' }}>{t('plugin_referral_claimable')}:</span>{' '}
-                                    {roundValue(claimable)} {rewardToken?.symbol}
+                                    {roundValue(claimable, 5)} {rewardToken?.symbol}
                                 </Typography>
                                 <Button
                                     disabled={claimable <= 0}
                                     variant="contained"
                                     size="medium"
                                     onClick={() =>
-                                        // TODO: filter out harvested entitlements
                                         onClickHarvestRewards(
                                             entitlements,
                                             totalRewards,

@@ -144,7 +144,7 @@ export function getSponsoredFarmsForReferredToken(chainId?: number, referredToke
     return farms.filter((farm) => farm.referredTokenDefn === toChainAddressEthers(chainId, referredToken))
 }
 
-export function makeLeafHash(entitlement: Entitlement, rewardTokenDefn: string) {
+export function makeLeafHash(chainId: number, entitlement: Entitlement, rewardTokenDefn: string) {
     return keccak256(
         defaultAbiCoder.encode(
             [
@@ -154,8 +154,8 @@ export function makeLeafHash(entitlement: Entitlement, rewardTokenDefn: string) 
                 '(bytes32 farmHash, uint128 rewardValue, bytes24 rewardTokenDefn, uint64 effectNonce)',
             ],
             [
-                CONFIRMATION_V1_ADDR,
-                REFERRAL_FRAMS_V1_ADDR,
+                toChainAddressEthers(chainId, CONFIRMATION_V1_ADDR),
+                toChainAddressEthers(chainId, REFERRAL_FRAMS_V1_ADDR),
                 entitlement.entitlee,
                 {
                     farmHash: entitlement.farmHash,

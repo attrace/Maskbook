@@ -20,13 +20,14 @@ Object.entries(eventsPeriodEntitlement.events).forEach(([k, v]) => (eventIdsPeri
 
 function parsePeriodEntitlementEvents(items: Array<any>): Array<any> {
     const itemsSorted = orderBy(items, ['chainId', 'blockNumber', 'logIndex'], ['asc', 'asc', 'asc'])
+    // TODO: clean console.log
+    console.log({ entitlementEvents: itemsSorted })
     const parsed = itemsSorted.map((row) => {
         return eventsPeriodEntitlement.parseLog({
             data: row.data,
             topics: JSON.parse(row.topics),
         })
     })
-    console.log(itemsSorted, parsed)
     return parsed
 }
 
