@@ -8,6 +8,7 @@ import { referralMetadataReader } from './helpers'
 import { FarmPost } from './FarmPost'
 import { ReferralDialog } from './ReferralDialog'
 import { SelectToken } from './SelectToken'
+import ReactDOMServer from 'react-dom/server'
 
 const sns: Plugin.SNSAdaptor.Definition = {
     ...base,
@@ -25,7 +26,7 @@ const sns: Plugin.SNSAdaptor.Definition = {
     ]),
     CompositionDialogEntry: {
         label: {
-            fallback: <>Referral</>,
+            fallback: ReactDOMServer.renderToString(<>Referral</>),
         },
         dialog: ReferralDialog,
     },

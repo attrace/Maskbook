@@ -6,7 +6,7 @@ import { makeStyles } from '@masknet/theme'
 import { Icons, PageHistory, PagesType, DialogInterface } from '../types'
 import { useI18N } from '../../../utils'
 
-import { InjectedDialog } from '../../../components/shared/InjectedDialog'
+import { InjectedDialog } from '@masknet/shared'
 import { Landing } from './Landing'
 import { ReferralFarms } from './ReferralFarms'
 import { CreateFarm } from './CreateFarm'

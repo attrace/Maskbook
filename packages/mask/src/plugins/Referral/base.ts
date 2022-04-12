@@ -3,7 +3,7 @@ import { REFERRAL_META_KEY, REFERRAL_PLUGIN_ID } from './constants'
 
 export const base: Plugin.Shared.Definition = {
     ID: REFERRAL_PLUGIN_ID,
-    icon: '\u{1F4B0}',
+    // icon: '\u{1F4B0}',
     name: { fallback: 'Referral' },
     description: {
         fallback: 'A plugin for Referral Farms',

@@ -14,7 +14,7 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
-import { useCompositionContext } from '@masknet/plugin-infra'
+import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 import { blue } from '@mui/material/colors'
 import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'

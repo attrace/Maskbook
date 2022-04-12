@@ -7,7 +7,7 @@ import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { v4 as uuid } from 'uuid'
 import { blue } from '@mui/material/colors'
-import { useCompositionContext } from '@masknet/plugin-infra'
+import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 

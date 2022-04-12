@@ -7,7 +7,6 @@ import {
     ChainId,
     currySameAddress,
     FungibleTokenDetailed,
-    isSameAddress,
     isValidAddress,
     makeSortAssertFn,
     makeSortTokenFn,
@@ -22,7 +21,6 @@ import {
 } from '@masknet/web3-shared-evm'
 import { MaskFixedSizeListProps, MaskTextFieldProps, makeStyles, MaskColorVar } from '@masknet/theme'
 import { Stack, Typography } from '@mui/material'
-import { getERC20TokenListItem } from './ERC20TokenListItem'
 import { SearchableList } from './SearchableList'
 import type { ChainAddress } from '../../types'
 
@@ -147,18 +145,23 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
             onSearch={setKeyword}
             data={renderAssets as Asset[]}
             searchKey={['token.address', 'token.symbol', 'token.name']}
-            itemRender={getERC20TokenListItem(
-                trustedERC20Tokens,
-                searchedToken ? [searchedToken] : [],
-                searchedToken
-                    ? [...tokens, ...erc20TokensDetailed].find((x) => isSameAddress(x.address, searchedToken.address))
-                        ? { from: 'search', inList: true }
-                        : { from: 'search', inList: false }
-                    : { from: 'defaultList', inList: true },
-                selectedTokens,
-                assetsLoading,
-                props.referredTokensDefn,
-            )}
+            // TODO Fix this
+            // itemRender={getERC20TokenListItem(
+            //     trustedERC20Tokens,
+            //     searchedToken ? [searchedToken] : [],
+            //     searchedToken
+            //         ? [...tokens, ...erc20TokensDetailed].find((x) => isSameAddress(x.address, searchedToken.address))
+            //             ? { from: 'search', inList: true }
+            //             : { from: 'search', inList: false }
+            //         : { from: 'defaultList', inList: true },
+            //     selectedTokens,
+            //     assetsLoading,
+            //     props.referredTokensDefn,
+            // )}
+            // FIX THIS TEMP COPY
+            itemRender={
+                <Placeholder height={FixedSizeListProps?.height} message={t('plugin_referral_placeholder_loading')} />
+            }
             placeholder={
                 dataLoading ||
                 (erc20TokensDetailedLoading && (
