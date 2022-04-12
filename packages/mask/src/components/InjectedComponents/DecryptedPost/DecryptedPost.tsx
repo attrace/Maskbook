@@ -6,24 +6,19 @@ import {
     TypedMessageTuple,
 } from '@masknet/typed-message'
 import type { ProfileIdentifier } from '@masknet/shared-base'
-import { or } from '@masknet/theme'
 
 import { ServicesWithProgress } from '../../../extension/service'
 import type { Profile } from '../../../database'
-import type {
-    DecryptionProgress,
-    FailureDecryption,
-    SuccessDecryption,
-} from '../../../extension/background-script/CryptoServices/decryptFrom'
+import type { DecryptionProgress, FailureDecryption, SuccessDecryption } from './types'
 import { DecryptPostSuccess, DecryptPostSuccessProps } from './DecryptedPostSuccess'
 import { DecryptPostAwaiting, DecryptPostAwaitingProps } from './DecryptPostAwaiting'
 import { DecryptPostFailed, DecryptPostFailedProps } from './DecryptPostFailed'
-import { usePostClaimedAuthor, usePostInfoDetails, usePostInfo } from '../../DataSource/usePostInfo'
+import { usePostClaimedAuthor } from '../../DataSource/usePostInfo'
 import { delay, encodeArrayBuffer, safeUnreachable } from '@dimensiondev/kit'
 import { activatedSocialNetworkUI } from '../../../social-network'
 import type { DecryptionContext, SocialNetworkEncodedPayload } from '../../../../background/services/crypto/decryption'
 import { DecryptIntermediateProgressKind, DecryptProgressKind } from '@masknet/encryption'
-import type { PostContext } from '@masknet/plugin-infra'
+import { type PostContext, usePostInfoDetails, usePostInfo } from '@masknet/plugin-infra/content-script'
 import { Some } from 'ts-results'
 
 function progressReducer(
@@ -73,7 +68,7 @@ export function DecryptPost(props: DecryptPostProps) {
     const authorInPayload = usePostClaimedAuthor()
     const current = usePostInfo()!
     const currentPostBy = usePostInfoDetails.author()
-    const postBy = or(authorInPayload, currentPostBy)
+    const postBy = authorInPayload || currentPostBy
     const postMetadataImages = usePostInfoDetails.postMetadataImages()
     const mentionedLinks = usePostInfoDetails.mentionedLinks()
     const Success = props.successComponent || DecryptPostSuccess

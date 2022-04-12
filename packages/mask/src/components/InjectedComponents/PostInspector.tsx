@@ -6,12 +6,15 @@ import { PostIVIdentifier, ProfileIdentifier } from '@masknet/shared-base'
 import type { TypedMessageTuple } from '@masknet/typed-message'
 import type { Profile } from '../../database'
 import { useCurrentIdentity, useFriendsList } from '../DataSource/useActivatedUI'
-import { useValueRef } from '@masknet/shared-base-ui'
-import { debugModeSetting } from '../../settings/settings'
-import { usePostInfoDetails } from '../DataSource/usePostInfo'
-import { createInjectHooksRenderer, useActivatedPluginsSNSAdaptor } from '@masknet/plugin-infra'
+import {
+    usePostInfoDetails,
+    createInjectHooksRenderer,
+    useActivatedPluginsSNSAdaptor,
+} from '@masknet/plugin-infra/content-script'
 import { PossiblePluginSuggestionPostInspector } from './DisabledPluginSuggestion'
 import { MaskPostExtraPluginWrapper } from '../../plugins/MaskPluginWrapper'
+import { useSubscription } from 'use-subscription'
+import { PersistentStorages } from '../../../shared'
 
 const PluginHooksRenderer = createInjectHooksRenderer(
     useActivatedPluginsSNSAdaptor.visibility.useNotMinimalMode,
@@ -32,16 +35,15 @@ export function PostInspector(props: PostInspectorProps) {
     const version = usePostInfoDetails.version()
     const iv = usePostInfoDetails.iv()
     const postImages = usePostInfoDetails.postMetadataImages()
-    const isDebugging = useValueRef(debugModeSetting)
+    const isDebugging = useSubscription(PersistentStorages.Settings.storage.debugging.subscription)
     const whoAmI = useCurrentIdentity()
     const friends = useFriendsList()
     const [alreadySelectedPreviously, setAlreadySelectedPreviously] = useState<Profile[]>([])
 
     const { value: sharedListOfPost } = useAsync(async () => {
-        if (!whoAmI || !whoAmI.identifier.equals(postBy) || !encryptedPost.ok) return []
-        const { iv, version } = encryptedPost.val
-        return Services.Crypto.getPartialSharedListOfPost(version, iv, postBy)
-    }, [postBy, whoAmI, encryptedPost])
+        if (!whoAmI || !whoAmI.identifier.equals(postBy) || !iv) return []
+        return Services.Crypto.getPartialSharedListOfPost(new PostIVIdentifier(whoAmI.identifier.network, iv))
+    }, [postBy, whoAmI, iv])
     useEffect(() => setAlreadySelectedPreviously(sharedListOfPost ?? []), [sharedListOfPost])
 
     if (encryptedPost.ok || postImages.length) {
