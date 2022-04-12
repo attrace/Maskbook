@@ -7,6 +7,7 @@ import {
     ChainId,
     currySameAddress,
     FungibleTokenDetailed,
+    isSameAddress,
     isValidAddress,
     makeSortAssertFn,
     makeSortTokenFn,
@@ -22,6 +23,7 @@ import {
 import { MaskFixedSizeListProps, MaskTextFieldProps, makeStyles, MaskColorVar } from '@masknet/theme'
 import { Stack, Typography } from '@mui/material'
 import { SearchableList } from './SearchableList'
+import { getERC20TokenListItem } from './ERC20TokenListItem'
 import type { ChainAddress } from '../../types'
 
 const DEFAULT_LIST_HEIGHT = 300
@@ -145,23 +147,18 @@ export const ERC20TokenList = memo<ERC20TokenListProps>((props) => {
             onSearch={setKeyword}
             data={renderAssets as Asset[]}
             searchKey={['token.address', 'token.symbol', 'token.name']}
-            // TODO Fix this
-            // itemRender={getERC20TokenListItem(
-            //     trustedERC20Tokens,
-            //     searchedToken ? [searchedToken] : [],
-            //     searchedToken
-            //         ? [...tokens, ...erc20TokensDetailed].find((x) => isSameAddress(x.address, searchedToken.address))
-            //             ? { from: 'search', inList: true }
-            //             : { from: 'search', inList: false }
-            //         : { from: 'defaultList', inList: true },
-            //     selectedTokens,
-            //     assetsLoading,
-            //     props.referredTokensDefn,
-            // )}
-            // FIX THIS TEMP COPY
-            itemRender={
-                <Placeholder height={FixedSizeListProps?.height} message={t('plugin_referral_placeholder_loading')} />
-            }
+            itemRender={getERC20TokenListItem(
+                trustedERC20Tokens,
+                searchedToken ? [searchedToken] : [],
+                searchedToken
+                    ? [...tokens, ...erc20TokensDetailed].find((x) => isSameAddress(x.address, searchedToken.address))
+                        ? { from: 'search', inList: true }
+                        : { from: 'search', inList: false }
+                    : { from: 'defaultList', inList: true },
+                selectedTokens,
+                assetsLoading,
+                props.referredTokensDefn,
+            )}
             placeholder={
                 dataLoading ||
                 (erc20TokensDetailedLoading && (

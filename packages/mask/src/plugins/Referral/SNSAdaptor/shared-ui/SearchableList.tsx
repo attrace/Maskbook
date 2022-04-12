@@ -17,7 +17,7 @@ export interface MaskSearchableListProps<T> {
     /** The key of list item for search */
     searchKey?: string[]
     /** Renderer for each list item */
-    itemRender: ReactNode
+    itemRender: React.ComponentType<{ data: T; index: number; onSelect(): void }>
     /** The props to react-window */
     FixedSizeListProps?: Partial<FixedSizeListProps>
     /** The callback when clicked someone list item */
@@ -72,9 +72,7 @@ export function SearchableList<T>({
                 shouldSort: true,
                 threshold: 0.45,
                 minMatchCharLength: 1,
-                keys: searchKey,
-                // TODO
-                // keys: searchKey ?? Object.keys(data.length > 0 ? data[0] : []),
+                keys: searchKey ?? data.length > 0 ? Object.keys(data[0] as unknown as object) : [],
             }),
         [data, searchKey],
     )
@@ -132,7 +130,9 @@ export function SearchableList<T>({
                         }}
                         itemCount={readyToRenderData.length}
                         {...rest}>
-                        {(props) => <MaskSearchableItemInList<T> {...props}>{itemRender}</MaskSearchableItemInList>}
+                        {(props) => (
+                            <MaskSearchableItemInList<T> {...props}>{itemRender as any}</MaskSearchableItemInList>
+                        )}
                     </FixedSizeList>
                 </div>
             )}
