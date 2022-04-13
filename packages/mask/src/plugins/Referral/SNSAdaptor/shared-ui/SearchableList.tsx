@@ -72,7 +72,6 @@ export function SearchableList<T>({
                 shouldSort: true,
                 threshold: 0.45,
                 minMatchCharLength: 1,
-                keys: searchKey ?? data.length > 0 ? Object.keys(data[0] as unknown as object) : [],
             }),
         [data, searchKey],
     )
