@@ -2,7 +2,7 @@ import { WalletMessages } from '@masknet/plugin-wallet'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import type { ChainId, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { useCustomSnackbar } from '@masknet/theme'
-import { useCompositionContext } from '@masknet/plugin-infra'
+import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 
 import { useI18N } from '../../../../utils'
 import { useCurrentIdentity } from '../../../../components/DataSource/useActivatedUI'

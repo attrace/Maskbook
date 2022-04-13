@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { Plugin } from '@masknet/plugin-infra'
+import { ApplicationEntry } from '@masknet/shared'
 
 import type { ReferralMetaData } from '../types'
 import { base } from '../base'
@@ -8,6 +10,7 @@ import { referralMetadataReader } from './helpers'
 import { FarmPost } from './FarmPost'
 import { ReferralDialog } from './ReferralDialog'
 import { SelectToken } from './SelectToken'
+import ReactDOMServer from 'react-dom/server'
 
 const sns: Plugin.SNSAdaptor.Definition = {
     ...base,
@@ -25,13 +28,32 @@ const sns: Plugin.SNSAdaptor.Definition = {
     ]),
     CompositionDialogEntry: {
         label: {
-            fallback: <>Referral</>,
+            fallback: ReactDOMServer.renderToString(<>Referral</>),
         },
         dialog: ReferralDialog,
     },
     GlobalInjection: function Component() {
         return <SelectToken />
     },
+    ApplicationEntries: [
+        {
+            RenderEntryComponent({ disabled }) {
+                const [open, setOpen] = useState(false)
+                return (
+                    <>
+                        <ApplicationEntry
+                            disabled={disabled}
+                            title="Referral Farms"
+                            icon={new URL('../SNSAdaptor/assets/referral.png', import.meta.url).toString()}
+                            onClick={() => setOpen(true)}
+                        />
+                        <ReferralDialog open={open} onClose={() => setOpen(false)} />
+                    </>
+                )
+            },
+            defaultSortingPriority: 12,
+        },
+    ],
 }
 
 export default sns

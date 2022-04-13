@@ -14,7 +14,7 @@ import {
 } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
-import { useCompositionContext } from '@masknet/plugin-infra'
+import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 import { blue } from '@mui/material/colors'
 import { Typography, Box, Tab, Tabs, Grid, TextField, Chip, InputAdornment, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -73,6 +73,11 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         fontSize: 12,
     },
     textField: {
+        width: '50%',
+        '&:first-child': {
+            marginRight: 16,
+        },
+
         '& input[type=number]': {
             '-moz-appearance': 'textfield',
         },
@@ -277,6 +282,7 @@ export function CreateFarm(props: PageInterface) {
     const createFarmBtnDisabled =
         !token?.address || !token?.address || !Number(totalFarmReward) || !Number(dailyFarmReward)
     const balance = formatBalance(rewardBalance ?? '', token?.decimals, 6)
+
     return (
         <Box className={classes.container}>
             <TabContext value={String(tab)}>
@@ -290,128 +296,100 @@ export function CreateFarm(props: PageInterface) {
                     <Tab value={TabsCreateFarm.CREATED} label="Created" classes={tabClasses} />
                 </Tabs>
                 <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
-                    <Typography>
-                        <Grid container rowSpacing={3}>
-                            <Grid item>
-                                <Typography fontWeight={600} variant="h6">
-                                    {t('plugin_referral_create_referral_farm_desc')}
-                                </Typography>
-                            </Grid>
-                            <Grid item>{t('plugin_referral_select_a_token_desc')}</Grid>
-                            <Grid
-                                item
-                                container
-                                justifyContent="space-around"
-                                display="flex"
-                                alignItems="flex-start"
-                                rowSpacing="24px">
-                                <Grid item xs={6} justifyContent="center" display="flex">
-                                    <TokenSelectField
-                                        label={t('plugin_referral_token_to_refer')}
-                                        token={token}
-                                        disabled={currentChainId !== requiredChainId}
-                                        onClick={() => {
-                                            onTokenSelectClick(
-                                                TokenType.REFER,
-                                                t('plugin_referral_select_a_token_to_refer'),
-                                            )
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={6} display="flex" />
-                                <Grid item xs={12} padding={0}>
-                                    <Divider />
-                                </Grid>
-                                <>
-                                    <Grid item xs={6} display="flex">
-                                        <Box>
-                                            <TextField
-                                                label={t('plugin_referral_daily_farm_reward')}
-                                                value={dailyFarmReward}
-                                                placeholder="0"
-                                                onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
-                                                inputMode="numeric"
-                                                type="number"
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="standard"
-                                                className={classes.textField}
-                                                InputProps={{
-                                                    disableUnderline: true,
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">{token?.symbol}</InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={6} display="flex" alignItems="end">
-                                        <Box justifyContent="center">
-                                            <TextField
-                                                label={t('plugin_referral_total_farm_rewards')}
-                                                value={totalFarmReward}
-                                                inputMode="numeric"
-                                                type="number"
-                                                placeholder="0"
-                                                onChange={onChangeTotalFarmReward}
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="standard"
-                                                className={classes.textField}
-                                                InputProps={{
-                                                    disableUnderline: true,
-                                                    endAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Box>
-                                                                <Typography
-                                                                    className={classes.balance}
-                                                                    color="textSecondary"
-                                                                    variant="body2"
-                                                                    component="span">
-                                                                    {t('wallet_balance')}: {token ? balance : '-'}
-                                                                </Typography>
-                                                                {token && (
-                                                                    <Box display="flex" alignItems="center">
-                                                                        {token?.symbol}
-                                                                        <Chip
-                                                                            size="small"
-                                                                            label="MAX"
-                                                                            clickable
-                                                                            color="primary"
-                                                                            variant="outlined"
-                                                                            className={sharedClasses.maxChip}
-                                                                            onClick={() => setTotalFarmReward(balance)}
-                                                                        />
-                                                                    </Box>
-                                                                )}
-                                                            </Box>
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                </>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <EthereumChainBoundary
-                                    chainId={requiredChainId}
-                                    noSwitchNetworkTip
-                                    classes={{ switchButton: sharedClasses.switchButton }}>
-                                    <ActionButton
-                                        fullWidth
-                                        variant="contained"
-                                        size="large"
-                                        disabled={createFarmBtnDisabled}
-                                        onClick={onClickCreateFarm}>
-                                        {t('plugin_referral_create_referral_farm')}
-                                    </ActionButton>
-                                </EthereumChainBoundary>
-                            </Grid>
-                        </Grid>
+                    <Typography fontWeight={600} variant="h6" marginBottom="12px">
+                        {t('plugin_referral_create_referral_farm_desc')}
                     </Typography>
+                    <Typography marginBottom="24px">{t('plugin_referral_select_a_token_desc')}</Typography>
+                    <Grid container rowSpacing="24px">
+                        <Grid item xs={6}>
+                            <TokenSelectField
+                                label={t('plugin_referral_token_to_refer')}
+                                token={token}
+                                disabled={currentChainId !== requiredChainId}
+                                onClick={() => {
+                                    onTokenSelectClick(TokenType.REFER, t('plugin_referral_select_a_token_to_refer'))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                        <Grid item xs={12} display="flex" marginBottom="24px">
+                            <TextField
+                                label={t('plugin_referral_daily_farm_reward')}
+                                value={dailyFarmReward}
+                                placeholder="0"
+                                onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
+                                inputMode="numeric"
+                                type="number"
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                variant="standard"
+                                className={classes.textField}
+                                InputProps={{
+                                    disableUnderline: true,
+                                    endAdornment: <InputAdornment position="end">{token?.symbol}</InputAdornment>,
+                                }}
+                            />
+                            <TextField
+                                label={t('plugin_referral_total_farm_rewards')}
+                                value={totalFarmReward}
+                                inputMode="numeric"
+                                type="number"
+                                placeholder="0"
+                                onChange={onChangeTotalFarmReward}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                variant="standard"
+                                className={classes.textField}
+                                InputProps={{
+                                    disableUnderline: true,
+                                    endAdornment: (
+                                        <InputAdornment position="start">
+                                            <Box>
+                                                <Typography
+                                                    className={classes.balance}
+                                                    color="textSecondary"
+                                                    variant="body2"
+                                                    component="span">
+                                                    {t('wallet_balance')}: {token ? balance : '-'}
+                                                </Typography>
+                                                {token && (
+                                                    <Box display="flex" alignItems="center">
+                                                        {token?.symbol}
+                                                        <Chip
+                                                            size="small"
+                                                            label="MAX"
+                                                            clickable
+                                                            color="primary"
+                                                            variant="outlined"
+                                                            className={sharedClasses.maxChip}
+                                                            onClick={() => setTotalFarmReward(balance)}
+                                                        />
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                    <EthereumChainBoundary
+                        chainId={requiredChainId}
+                        noSwitchNetworkTip
+                        classes={{ switchButton: sharedClasses.switchButton }}>
+                        <ActionButton
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            disabled={createFarmBtnDisabled}
+                            onClick={onClickCreateFarm}>
+                            {t('plugin_referral_create_referral_farm')}
+                        </ActionButton>
+                    </EthereumChainBoundary>
                 </TabPanel>
                 <TabPanel value={TabsCreateFarm.CREATED} className={classes.tab}>
                     <CreatedFarms continue={props.continue} />

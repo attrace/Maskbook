@@ -22,8 +22,8 @@ import {
 } from '@masknet/web3-shared-evm'
 import { MaskFixedSizeListProps, MaskTextFieldProps, makeStyles, MaskColorVar } from '@masknet/theme'
 import { Stack, Typography } from '@mui/material'
-import { getERC20TokenListItem } from './ERC20TokenListItem'
 import { SearchableList } from './SearchableList'
+import { getERC20TokenListItem } from './ERC20TokenListItem'
 import type { ChainAddress } from '../../types'
 
 const DEFAULT_LIST_HEIGHT = 300

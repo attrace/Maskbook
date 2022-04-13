@@ -74,17 +74,19 @@ export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails
                     root: classes.accordionSummary,
                     content: classes.accordionSummaryContent,
                 }}>
-                <Grid item xs={6}>
-                    <ReferredFarmTokenDetailed
-                        token={{ address: parseChainAddress(farm.referredTokenDefn).address, ...referredToken }}
-                    />
-                </Grid>
-                <Grid item xs={2} display="flex" alignItems="center">
-                    <Typography className={classes.total}>{APR}</Typography>
-                </Grid>
-                <Grid item xs={4} display="flex" alignItems="center">
-                    <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>
-                    <Typography className={classes.total}>{rewardToken?.symbol || '-'}</Typography>
+                <Grid container>
+                    <Grid item xs={6}>
+                        <ReferredFarmTokenDetailed
+                            token={{ address: parseChainAddress(farm.referredTokenDefn).address, ...referredToken }}
+                        />
+                    </Grid>
+                    <Grid item xs={2} display="flex" alignItems="center">
+                        <Typography className={classes.total}>{APR}</Typography>
+                    </Grid>
+                    <Grid item xs={4} display="flex" alignItems="center">
+                        <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>
+                        <Typography className={classes.total}>{rewardToken?.symbol || '-'}</Typography>
+                    </Grid>
                 </Grid>
             </AccordionSummary>
             <AccordionDetails className={classes.accordionDetails}>{accordionDetails}</AccordionDetails>

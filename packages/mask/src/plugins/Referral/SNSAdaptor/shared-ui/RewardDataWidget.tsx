@@ -30,7 +30,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
                 <Box>
                     <Typography>{t('plugin_referral_estimated_apr')}</Typography>
                     <Typography fontWeight={600} marginTop="4px">
-                        {APR}
+                        {rewardData ? APR : '-'}
                     </Typography>
                 </Box>
             </Grid>
