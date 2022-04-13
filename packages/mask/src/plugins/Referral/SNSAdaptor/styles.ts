@@ -20,5 +20,8 @@ export const useSharedStyles = makeStyles()((theme) => ({
         height: '24px',
         marginLeft: '8px',
         color: '#1D9BF0',
+        '&:hover': {
+            color: theme.palette.mode === 'dark' ? '#000000' : '#ffffff',
+        },
     },
 }))

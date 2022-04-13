@@ -46,9 +46,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         margin: '12px 0 24px',
     },
     typeNote: {
-        marginBottom: '20px',
+        marginBottom: '24px',
         '& b': {
-            marginRight: '4px',
+            margin: '0 4px 0 8px',
             fontWeight: 600,
         },
     },
@@ -129,7 +129,7 @@ export function BuyToFarm(props: PageInterface) {
     const onError = useCallback(
         (error?: string) => {
             showSnackbar(error || t('go_wrong'), { variant: 'error' })
-            props?.onChangePage?.(PagesType.BUY_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.BUY_TO_FARM)
+            props?.onChangePage?.(PagesType.BUY_TO_FARM, `${TabsReferralFarms.TOKENS}: ${PagesType.BUY_TO_FARM}`)
         },
         [props],
     )
@@ -166,55 +166,40 @@ export function BuyToFarm(props: PageInterface) {
                     <Tab value={TabsCreateFarm.CREATED} label="My Farms" classes={tabClasses} />
                 </Tabs>
                 <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
-                    <Grid container />
-                    <Typography fontWeight={600} variant="h6">
+                    <Typography fontWeight={600} variant="h6" marginBottom="12px">
                         {t('plugin_referral_select_a_token_to_buy_and_hold_and_earn_rewards')}
                     </Typography>
-                    <Typography fontWeight={500} className={classes.subtitle}>
-                        {t('plugin_referral_join_the_farm')}
-                    </Typography>
-                    <Typography>
-                        <Grid
-                            container
-                            justifyContent="space-around"
-                            display="flex"
-                            alignItems="flex-start"
-                            rowSpacing="24px">
-                            <Grid item xs={6} justifyContent="center" display="flex">
-                                <TokenSelectField
-                                    label={t('plugin_referral_token_to_buy_and_hold')}
-                                    token={token}
-                                    disabled={currentChainId !== requiredChainId}
-                                    onClick={onClickTokenSelect}
-                                />
-                            </Grid>
-                            <Grid item xs={6} justifyContent="center" display="flex" />
-                            {!token ? (
-                                <RewardDataWidget />
-                            ) : (
-                                <RewardDataWidget
-                                    title={t('plugin_referral_sponsored_farm')}
-                                    icon={Icons.SponsoredFarmIcon}
-                                    rewardData={rewardData}
-                                    tokenSymbol={token?.symbol}
-                                />
-                            )}
-                            <Grid item xs={12}>
-                                <Box marginTop="7px">
-                                    <Divider />
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} display="flex" alignItems="center" className={classes.typeNote}>
-                                <Box marginRight="7px">
-                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
-                                </Box>
+                    <Typography marginBottom="24px">{t('plugin_referral_join_the_farm')}</Typography>
+                    <Grid container rowSpacing="24px">
+                        <Grid item xs={6}>
+                            <TokenSelectField
+                                label={t('plugin_referral_token_to_buy_and_hold')}
+                                token={token}
+                                disabled={currentChainId !== requiredChainId}
+                                onClick={onClickTokenSelect}
+                            />
+                        </Grid>
+                        {!token ? (
+                            <RewardDataWidget />
+                        ) : (
+                            <RewardDataWidget
+                                title={t('plugin_referral_sponsored_farm')}
+                                icon={Icons.SponsoredFarmIcon}
+                                rewardData={rewardData}
+                                tokenSymbol={token?.symbol}
+                            />
+                        )}
+                        <Grid item xs={12} display="flex-col" alignItems="center" className={classes.typeNote}>
+                            <Divider />
+                            <Box marginTop="20px" display="flex" alignItems="center">
+                                <SvgIcons icon={Icons.SponsoredFarmIcon} />
                                 <Typography>
                                     <b>{t('plugin_referral_sponsored_farm')}</b>
                                     {t('plugin_referral_sponsored_farm_detail')}
                                 </Typography>
-                            </Grid>
+                            </Box>
                         </Grid>
-                    </Typography>
+                    </Grid>
                     <EthereumChainBoundary
                         chainId={requiredChainId}
                         noSwitchNetworkTip
@@ -223,8 +208,8 @@ export function BuyToFarm(props: PageInterface) {
                             fullWidth
                             variant="contained"
                             size="large"
-                            onClick={onClickBuyToFarm}
-                            disabled={!token}>
+                            disabled={!token}
+                            onClick={onClickBuyToFarm}>
                             {t('plugin_referral_buy_to_farm')}
                         </ActionButton>
                     </EthereumChainBoundary>

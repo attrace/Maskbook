@@ -149,7 +149,7 @@ export function ReferToFarm(props: PageInterface) {
     const onError = useCallback(
         (error?: string) => {
             showSnackbar(error || t('go_wrong'), { variant: 'error' })
-            props?.onChangePage?.(PagesType.REFER_TO_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.REFER_TO_FARM)
+            props?.onChangePage?.(PagesType.REFER_TO_FARM, `${TabsReferralFarms.TOKENS}: ${PagesType.REFER_TO_FARM}`)
         },
         [props],
     )
@@ -198,57 +198,53 @@ export function ReferToFarm(props: PageInterface) {
                     <Tab value={TabsCreateFarm.CREATED} label="My Farms" classes={tabClasses} />
                 </Tabs>
                 <TabPanel value={TabsCreateFarm.NEW} className={classes.tab}>
-                    <Grid container />
                     <Typography fontWeight={600} variant="h6" marginBottom="12px">
                         {t('plugin_referral_select_token_refer')}
                     </Typography>
                     <Typography marginBottom="24px">{t('plugin_referral_select_token_refer_desc')}</Typography>
-                    <Grid item xs={6}>
-                        <TokenSelectField
-                            label={t('plugin_referral_token_to_refer')}
-                            token={token}
-                            disabled={currentChainId !== requiredChainId}
-                            onClick={onClickTokenSelect}
-                        />
+                    <Grid container rowSpacing="24px">
+                        <Grid item xs={6}>
+                            <TokenSelectField
+                                label={t('plugin_referral_token_to_refer')}
+                                token={token}
+                                disabled={currentChainId !== requiredChainId}
+                                onClick={onClickTokenSelect}
+                            />
+                        </Grid>
+                        {(!token || loadingAllFarms || !sponsoredFarms?.length) && <RewardDataWidget />}
+                        {sponsoredFarms?.length ? (
+                            <RewardDataWidget
+                                title={t('plugin_referral_sponsored_referral_farm')}
+                                icon={Icons.SponsoredFarmIcon}
+                                rewardData={getFarmsRewardData(sponsoredFarms)}
+                                tokenSymbol={token?.symbol}
+                            />
+                        ) : null}
                     </Grid>
-                    <Typography>
-                        <Grid container>
-                            {(!token || loadingAllFarms || !sponsoredFarms?.length) && <RewardDataWidget />}
-                            {sponsoredFarms?.length ? (
-                                <RewardDataWidget
-                                    title={t('plugin_referral_sponsored_referral_farm')}
-                                    icon={Icons.SponsoredFarmIcon}
-                                    rewardData={getFarmsRewardData(sponsoredFarms)}
-                                    tokenSymbol={token?.symbol}
-                                />
-                            ) : null}
-                        </Grid>
-                        <Box paddingY={2} marginTop="7px">
+                    <Grid container xs={12} marginBottom="24px">
+                        <Grid item xs={12} margin="24px 0 20px 0">
                             <Divider />
-                        </Box>
-                        <Grid container rowSpacing={0.5} marginBottom="25px">
-                            {farm_category_types.map((category) => {
-                                return (
-                                    <Grid item xs={12} container columnSpacing={1} key={category.title}>
-                                        <Grid item display="flex" alignItems="center">
-                                            {category.icon}
-                                        </Grid>
-                                        <Grid item display="flex">
-                                            <Typography fontWeight={600} marginRight="4px">
-                                                {category.title}
-                                            </Typography>{' '}
-                                            - {category.desc}
-                                        </Grid>
-                                    </Grid>
-                                )
-                            })}
                         </Grid>
-                    </Typography>
+                        {farm_category_types.map((category) => (
+                            <Grid item xs={12} key={category.title} display="flex" alignItems="center">
+                                {category.icon}
+                                <Typography fontWeight={600} margin="0 4px 0 8px">
+                                    {category.title}
+                                </Typography>
+                                -<Typography marginLeft="4px">{category.desc}</Typography>
+                            </Grid>
+                        ))}
+                    </Grid>
                     <EthereumChainBoundary
                         chainId={requiredChainId}
                         noSwitchNetworkTip
                         classes={{ switchButton: sharedClasses.switchButton }}>
-                        <ActionButton fullWidth variant="contained" size="large" onClick={onClickReferFarm}>
+                        <ActionButton
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            disabled={!token}
+                            onClick={onClickReferFarm}>
                             {t('plugin_referral_refer_to_farm')}
                         </ActionButton>
                     </EthereumChainBoundary>
