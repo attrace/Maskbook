@@ -31,8 +31,9 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         width: '16px',
     },
     nameFarm: {
-        display: 'flex',
-        alignItems: 'center',
+        '& svg': {
+            marginLeft: 7,
+        },
     },
     name: {
         color: theme.palette.text.secondary,
@@ -54,12 +55,12 @@ export interface TokenProps {
     chainId?: ChainId
 }
 
-export interface ReferredFarmTokenDetailedProps extends React.PropsWithChildren<{}> {
+export interface FarmTokenDetailedProps extends React.PropsWithChildren<{}> {
     token?: TokenProps
     hideFarmTypeIcon?: boolean
 }
 
-export function ReferredFarmTokenDetailed({ token, hideFarmTypeIcon = false }: ReferredFarmTokenDetailedProps) {
+export function FarmTokenDetailed({ token, hideFarmTypeIcon = false }: FarmTokenDetailedProps) {
     const { t } = useI18N()
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
@@ -70,14 +71,10 @@ export function ReferredFarmTokenDetailed({ token, hideFarmTypeIcon = false }: R
                 <>
                     {token.logoURI ? <TokenIcon {...token} /> : <div className={classes.tokenIcon} />}
                     <Typography className={classes.details} display="flex" flexDirection="column">
-                        <div className={classes.nameFarm}>
+                        <Box display="flex" alignItems="center" className={classes.nameFarm}>
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
-                            {!hideFarmTypeIcon && (
-                                <Box className={classes.icon}>
-                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
-                                </Box>
-                            )}
-                        </div>
+                            {!hideFarmTypeIcon && <SvgIcons icon={Icons.SponsoredFarmIcon} />}
+                        </Box>
                         <span className={classes.name}>{token.name}</span>
                     </Typography>
                 </>

@@ -7,7 +7,7 @@ import type { FarmExistsEvent } from '../../types'
 import { toNativeRewardTokenDefn, parseChainAddress } from '../helpers'
 import { APR } from '../../constants'
 
-import { ReferredFarmTokenDetailed } from './ReferredFarmTokenDetailed'
+import { FarmTokenDetailed } from './FarmTokenDetailed'
 
 const useStyles = makeStyles()((theme) => {
     const isDarkMode = theme.palette.mode === 'dark'
@@ -76,7 +76,7 @@ export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails
                 }}>
                 <Grid container>
                     <Grid item xs={6}>
-                        <ReferredFarmTokenDetailed
+                        <FarmTokenDetailed
                             token={{ address: parseChainAddress(farm.referredTokenDefn).address, ...referredToken }}
                         />
                     </Grid>

@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
 import BigNumber from 'bignumber.js'
-import { TokenIcon } from '@masknet/shared'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { Box } from '@mui/system'
@@ -15,7 +14,7 @@ import {
     FungibleTokenDetailed,
 } from '@masknet/web3-shared-evm'
 
-import { AdjustFarmRewardsInterface, TransactionStatus, Icons, PagesType, TabsReferralFarms } from '../types'
+import { AdjustFarmRewardsInterface, TransactionStatus, PagesType, TabsReferralFarms } from '../types'
 import { useI18N } from '../../../utils'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
@@ -25,39 +24,11 @@ import { APR, ATTRACE_FEE_PERCENT } from '../constants'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { getFarmsMetaState } from '../Worker/apis/farms'
 
-import { SvgIcons } from './Icons'
+import { FarmTokenDetailed } from './shared-ui/FarmTokenDetailed'
 
 import { useSharedStyles } from './styles'
 
 const useStyles = makeStyles()((theme) => ({
-    container: {
-        display: 'flex',
-        alignItems: 'center',
-    },
-    logo: {
-        display: 'flex',
-        justifyContent: 'center',
-        width: '44px',
-        height: '44px',
-        marginRight: '16px',
-    },
-    details: {
-        marginLeft: '16px',
-        fontWeight: 500,
-    },
-    nameFarm: {
-        display: 'flex',
-        alignItems: 'center',
-        '& img': {
-            marginLeft: '7px',
-            height: '16px',
-            width: '16px',
-        },
-    },
-    name: {
-        color: theme.palette.text.secondary,
-        fontWeight: 400,
-    },
     balance: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
@@ -68,6 +39,7 @@ const useStyles = makeStyles()((theme) => ({
     },
     textField: {
         '& input[type=number]': {
+            height: 30,
             '-moz-appearance': 'textfield',
         },
         '& input[type=number]::-webkit-outer-spin-button': {
@@ -78,15 +50,6 @@ const useStyles = makeStyles()((theme) => ({
             '-webkit-appearance': 'none',
             margin: 0,
         },
-    },
-    switchButton: {
-        width: '100%',
-    },
-    tokenIcon: {
-        width: '40px',
-        height: '40px',
-        backgroundColor: theme.palette.background.default,
-        borderRadius: '50%',
     },
 }))
 
@@ -303,18 +266,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                     </Typography>
                 </Grid>
                 <Grid item marginBottom="24px">
-                    <div className={classes.container}>
-                        {referredToken ? <TokenIcon {...referredToken} /> : <div className={classes.tokenIcon} />}
-                        <div className={classes.details}>
-                            <div className={classes.nameFarm}>
-                                {referredToken?.symbol} {t('plugin_referral_referral_farm')}{' '}
-                                <Box paddingLeft={1}>
-                                    <SvgIcons icon={Icons.SponsoredFarmIcon} />
-                                </Box>
-                            </div>
-                            <span className={classes.name}>{referredToken?.name}</span>
-                        </div>
-                    </div>
+                    <FarmTokenDetailed token={referredToken} />
                 </Grid>
                 <Grid item xs={12} container marginBottom="24px">
                     <Grid item xs={4} display="flex" alignItems="center">

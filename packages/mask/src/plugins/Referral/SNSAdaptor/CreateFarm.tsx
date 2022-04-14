@@ -77,8 +77,8 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         '&:first-child': {
             marginRight: 16,
         },
-
         '& input[type=number]': {
+            height: 30,
             '-moz-appearance': 'textfield',
         },
         '& input[type=number]::-webkit-outer-spin-button': {
