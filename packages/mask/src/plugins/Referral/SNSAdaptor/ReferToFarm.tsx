@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
-import { FungibleTokenDetailed, useAccount, useChainId, useWeb3 } from '@masknet/web3-shared-evm'
+import { FungibleTokenDetailed, useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
@@ -92,6 +92,7 @@ export function ReferToFarm(props: PageInterface) {
     const { classes } = useStyles({ isDashboard })
     const { classes: tabClasses } = useTabStyles()
     const { classes: sharedClasses } = useSharedStyles()
+    const { ERC20 } = useTokenListConstants()
 
     const [tab, setTab] = useState<string>(TabsCreateFarm.NEW)
     const [token, setToken] = useState<FungibleTokenDetailed>()
@@ -108,7 +109,10 @@ export function ReferToFarm(props: PageInterface) {
     )
 
     // fetch all farms
-    const { value: farms = [], loading: loadingAllFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
+    const { value: farms = [], loading: loadingAllFarms } = useAsync(
+        async () => getAllFarms(web3, currentChainId, ERC20),
+        [currentChainId, ERC20],
+    )
 
     const onClickTokenSelect = useCallback(() => {
         setSelectTokenDialog({

@@ -8,7 +8,7 @@ import {
     ERC20TokenDetailed,
     ChainId,
 } from '@masknet/web3-shared-evm'
-import { fromWei } from 'web3-utils'
+import { formatUnits } from '@ethersproject/units'
 import { getMaskColor, makeStyles } from '@masknet/theme'
 import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
 import { TokenList } from '@masknet/web3-providers'
@@ -87,15 +87,22 @@ interface Farm extends FarmExistsEvent {
     dailyFarmReward?: number
     apr?: number
 }
-function groupDepositForFarms(myFarms: FarmExistsEvent[], farmsDeposits: FarmDepositChange[]) {
+function groupDepositForFarms(
+    myFarms: FarmExistsEvent[],
+    farmsDeposits: FarmDepositChange[],
+    allTokensMap: Map<string, ERC20TokenDetailed>,
+) {
     const farms: Farm[] = []
     const farmTotalDepositMap = new Map<string, number>()
+    const allFarmsMap = new Map(myFarms.map((farm) => [farm.farmHash, farm]))
 
     farmsDeposits.forEach((deposit) => {
         const { farmHash, delta } = deposit
         const prevFarmState = farmTotalDepositMap.get(farmHash) || 0
-
-        const totalFarmRewards = prevFarmState + Number(fromWei(delta.toString()))
+        const farm = allFarmsMap.get(farmHash)
+        const rewardTokenAddr = farm?.rewardTokenDefn && parseChainAddress(farm.rewardTokenDefn).address
+        const rewardTokenDec = rewardTokenAddr ? allTokensMap.get(rewardTokenAddr)?.decimals : 18
+        const totalFarmRewards = prevFarmState + Number(formatUnits(delta.toString(), rewardTokenDec))
         farmTotalDepositMap.set(farmHash, totalFarmRewards)
     })
 
@@ -193,7 +200,7 @@ export function CreatedFarms(props: PageInterface) {
     )
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
-    const farms = groupDepositForFarms(myFarms, farmsDeposits)
+    const farms = groupDepositForFarms(myFarms, farmsDeposits, allTokensMap)
 
     const onAdjustRewardButtonClick = (farm: Farm) => {
         const nativeRewardToken = toNativeRewardTokenDefn(currentChainId)

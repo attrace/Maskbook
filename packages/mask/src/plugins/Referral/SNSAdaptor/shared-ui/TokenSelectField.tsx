@@ -11,7 +11,6 @@ import { useI18N } from '../../../../utils'
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     button: {
         width: '100%',
-        height: '57px',
         cursor: 'pointer',
         backgroundColor: 'transparent',
         padding: 0,

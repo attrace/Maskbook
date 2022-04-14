@@ -76,8 +76,8 @@ export interface PageHistory {
 
 export interface DepositProps {
     totalFarmReward: string
-    tokenSymbol?: string
-    attraceFee: BigNumber
+    token?: FungibleTokenDetailed
+    attraceFee: number
     requiredChainId: ChainId
     onDeposit: () => Promise<void>
 }

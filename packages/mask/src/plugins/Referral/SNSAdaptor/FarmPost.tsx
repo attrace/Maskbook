@@ -3,7 +3,7 @@ import { useAsync } from 'react-use'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeTypedMessageText } from '@masknet/typed-message'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
-import { useAccount, useWeb3 } from '@masknet/web3-shared-evm'
+import { useAccount, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { TokenIcon } from '@masknet/shared'
 import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
@@ -63,12 +63,16 @@ export function FarmPost(props: FarmPostProps) {
     const currentIdentity = useCurrentIdentity()
     const { setDialog: openSwapDialog } = useRemoteControlledDialog(PluginTraderMessages.swapDialogUpdated)
     const { showSnackbar } = useCustomSnackbar()
+    const { ERC20 } = useTokenListConstants()
 
     const { payload } = props
     const chainId = payload.referral_token_chain_id
     const token = payload.referral_token
 
-    const { value: farms = [] } = useAsync(async () => (chainId ? getAllFarms(web3, chainId) : []), [chainId])
+    const { value: farms = [] } = useAsync(
+        async () => (chainId ? getAllFarms(web3, chainId, ERC20) : []),
+        [ERC20, chainId],
+    )
 
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>

@@ -168,6 +168,7 @@ export function makeLeafHash(chainId: number, entitlement: Entitlement, rewardTo
     )
 }
 
-export function roundValue(value: string | number, decimals = 4) {
-    return Number.parseFloat(Number(value).toFixed(decimals))
+export function roundValue(value: string | number, tokenDecimals?: number) {
+    const valueStr = tokenDecimals === 0 ? Math.ceil(Number(value)).toString() : Number(value).toFixed(5)
+    return Number.parseFloat(valueStr)
 }

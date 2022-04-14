@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
-import BigNumber from 'bignumber.js'
+import { formatUnits } from '@ethersproject/units'
 import { Chip, Grid, InputAdornment, TextField, Typography } from '@mui/material'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { Box } from '@mui/system'
@@ -19,7 +19,7 @@ import { useI18N } from '../../../utils'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
-import { parseChainAddress } from './helpers'
+import { roundValue } from './helpers'
 import { APR, ATTRACE_FEE_PERCENT } from '../constants'
 import { adjustFarmRewards } from '../Worker/apis/referralFarm'
 import { getFarmsMetaState } from '../Worker/apis/farms'
@@ -70,7 +70,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         rewardToken?.address ?? '',
     )
 
-    const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
+    const [attraceFee, setAttraceFee] = useState<number>(0)
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
 
@@ -81,27 +81,19 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const onChangeTotalFarmReward = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const totalFarmReward = e.currentTarget.value
-        const totalFarmRewardNum = new BigNumber(totalFarmReward)
-        const attraceFee = totalFarmRewardNum.multipliedBy(ATTRACE_FEE_PERCENT).dividedBy(100)
+        const totalFarmRewardNum = Number(totalFarmReward)
+        const attraceFee = totalFarmRewardNum * (ATTRACE_FEE_PERCENT / 100)
 
         setTotalFarmReward(totalFarmReward)
         setAttraceFee(attraceFee)
     }, [])
 
     const onAdjustFarmReward = useCallback(async () => {
-        const referredTokenAddr =
-            referredToken?.address || (farm?.referredTokenDefn && parseChainAddress(farm.referredTokenDefn).address)
-        const rewardTokenAddr =
-            rewardToken?.address || (farm?.rewardTokenDefn && parseChainAddress(farm.rewardTokenDefn).address)
-
-        if (!referredTokenAddr || !rewardTokenAddr) {
+        if (!referredToken || !rewardToken) {
             return onErrorDeposit()
         }
 
-        const totalFarmRewardNum = !totalFarmReward
-            ? new BigNumber(0)
-            : new BigNumber(totalFarmReward ?? 0).plus(attraceFee)
-        const dailyFarmRewardNum = !dailyFarmReward ? new BigNumber(0) : new BigNumber(dailyFarmReward)
+        const totalFarmRewardNum = Number(totalFarmReward) + Number(attraceFee)
 
         adjustFarmRewards(
             (val: boolean) => {
@@ -112,10 +104,10 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
             web3,
             account,
             chainId,
-            rewardTokenAddr,
-            referredTokenAddr,
+            rewardToken,
+            referredToken,
             totalFarmRewardNum,
-            dailyFarmRewardNum,
+            Number(dailyFarmReward),
         )
     }, [web3, account, chainId, farm, referredToken, rewardToken, totalFarmReward, dailyFarmReward])
 
@@ -136,9 +128,9 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 hideAttrLogo: true,
                 depositDialog: {
                     deposit: {
-                        totalFarmReward: totalFarmReward,
-                        tokenSymbol: rewardToken?.symbol,
-                        attraceFee: attraceFee,
+                        totalFarmReward,
+                        token: rewardToken,
+                        attraceFee,
                         requiredChainId: requiredChainId,
                         onDeposit: onAdjustFarmReward,
                     },
@@ -148,17 +140,15 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     }, [props, attraceFee, totalFarmReward, rewardToken, requiredChainId])
 
     const getTransactionTitles = useCallback(
-        (
-            totalFarmReward: number,
-            dailyFarmReward: number,
-            attraceFee: BigNumber,
-            rewardToken?: FungibleTokenDetailed,
-        ) => {
+        (totalFarmReward: number, dailyFarmReward: number, attraceFee: number, rewardToken?: FungibleTokenDetailed) => {
+            totalFarmReward = roundValue(totalFarmReward + attraceFee, rewardToken?.decimals)
+            dailyFarmReward = roundValue(dailyFarmReward, rewardToken?.decimals)
+
             if (totalFarmReward && dailyFarmReward) {
                 return {
                     title: t('plugin_referral_confirm_transaction'),
                     subtitle: t('plugin_referral_adjust_daily_and_total_reward_desc', {
-                        totalReward: attraceFee.plus(totalFarmReward),
+                        totalReward: totalFarmReward,
                         dailyReward: dailyFarmReward,
                         symbol: rewardToken?.symbol ?? '',
                     }),
@@ -169,7 +159,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 return {
                     title: t('plugin_referral_confirm_deposit'),
                     subtitle: t('plugin_referral_adjust_total_reward_desc', {
-                        reward: attraceFee.plus(totalFarmReward),
+                        reward: totalFarmReward,
                         symbol: rewardToken?.symbol ?? '',
                     }),
                 }
@@ -247,11 +237,10 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     )
 
     const farmMetaState = farm?.farmHash ? farmsMetaState?.get(farm.farmHash) : undefined
-
     const rewardData = {
         apr: APR,
-        dailyReward: Number.parseFloat(farmMetaState?.dailyFarmReward?.toFixed(5) ?? '0'),
-        totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
+        dailyReward: roundValue(formatUnits(farmMetaState?.dailyFarmReward ?? '0', rewardToken?.decimals)),
+        totalReward: roundValue(farm?.totalFarmRewards ?? '0'),
     }
 
     const balance = formatBalance(rewardBalance ?? '', rewardToken?.decimals, 6)
@@ -284,8 +273,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                             <Typography fontWeight={600} marginTop="4px">
                                 {rewardData ? (
                                     <>
-                                        {Number.parseFloat(rewardData.dailyReward.toFixed(5))}{' '}
-                                        {rewardToken?.symbol ?? '-'}
+                                        {rewardData.dailyReward} {rewardToken?.symbol ?? '-'}
                                     </>
                                 ) : (
                                     '-'
@@ -299,8 +287,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                             <Typography fontWeight={600} marginTop="4px">
                                 {rewardData ? (
                                     <>
-                                        {Number.parseFloat(rewardData.totalReward.toFixed(5))}{' '}
-                                        {rewardToken?.symbol ?? '-'}
+                                        {rewardData.totalReward} {rewardToken?.symbol ?? '-'}
                                     </>
                                 ) : (
                                     '-'

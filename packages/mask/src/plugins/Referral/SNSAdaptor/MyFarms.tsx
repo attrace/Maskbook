@@ -222,7 +222,7 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
                             <Box display="flex" justifyContent="flex-end">
                                 <Typography display="flex" alignItems="center" marginRight="20px" fontWeight={600}>
                                     <span style={{ marginRight: '4px' }}>{t('plugin_referral_claimable')}:</span>{' '}
-                                    {roundValue(claimable, 5)} {rewardToken?.symbol}
+                                    {roundValue(claimable, rewardToken?.decimals)} {rewardToken?.symbol}
                                 </Typography>
                                 <Button
                                     disabled={claimable <= 0}

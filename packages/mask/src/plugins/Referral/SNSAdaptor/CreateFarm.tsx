@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import BigNumber from 'bignumber.js'
 import { WalletMessages } from '@masknet/plugin-wallet'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import {
@@ -26,6 +25,7 @@ import { useCurrentIdentity } from '../../../components/DataSource/useActivatedU
 import { runCreateERC20PairFarm } from '../Worker/apis/referralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { roundValue } from './helpers'
 
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
@@ -119,7 +119,7 @@ export function CreateFarm(props: PageInterface) {
 
     const [dailyFarmReward, setDailyFarmReward] = useState<string>('')
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
-    const [attraceFee, setAttraceFee] = useState<BigNumber>(new BigNumber(0))
+    const [attraceFee, setAttraceFee] = useState<number>(0)
     const [id] = useState(uuid())
     const [focusedTokenPanelType, setFocusedTokenPanelType] = useState(TokenType.REFER)
 
@@ -130,9 +130,7 @@ export function CreateFarm(props: PageInterface) {
         }
 
         if (token.address !== NATIVE_TOKEN) {
-            const { address: tokenAddr } = token
-            const totalFarmRewardNum = new BigNumber(totalFarmReward).plus(attraceFee)
-            const dailyFarmRewardNum = new BigNumber(dailyFarmReward)
+            const totalFarmRewardNum = Number(totalFarmReward) + Number(attraceFee)
 
             await runCreateERC20PairFarm(
                 (val: boolean) => {
@@ -143,10 +141,10 @@ export function CreateFarm(props: PageInterface) {
                 web3,
                 account,
                 currentChainId,
-                tokenAddr,
-                tokenAddr,
+                token,
+                token,
                 totalFarmRewardNum,
-                dailyFarmRewardNum,
+                Number(dailyFarmReward),
             )
         } else {
             showSnackbar(t('plugin_referral_error_native_token_farm'), { variant: 'error' })
@@ -208,8 +206,8 @@ export function CreateFarm(props: PageInterface) {
 
     const onChangeTotalFarmReward = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const totalFarmReward = e.currentTarget.value
-        const totalFarmRewardNum = new BigNumber(totalFarmReward)
-        const attraceFee = totalFarmRewardNum.multipliedBy(ATTRACE_FEE_PERCENT).dividedBy(100)
+        const totalFarmRewardNum = Number(e.currentTarget.value)
+        const attraceFee = totalFarmRewardNum * (ATTRACE_FEE_PERCENT / 100)
 
         setTotalFarmReward(totalFarmReward)
         setAttraceFee(attraceFee)
@@ -224,9 +222,9 @@ export function CreateFarm(props: PageInterface) {
                 hideAttrLogo: true,
                 depositDialog: {
                     deposit: {
-                        totalFarmReward: totalFarmReward,
-                        tokenSymbol: token?.symbol,
-                        attraceFee: attraceFee,
+                        totalFarmReward,
+                        token,
+                        attraceFee,
                         requiredChainId: requiredChainId,
                         onDeposit: onDeposit,
                     },
@@ -244,7 +242,7 @@ export function CreateFarm(props: PageInterface) {
                     status: TransactionStatus.CONFIRMATION,
                     title: t('plugin_referral_transaction_confirm_permission_deposit'),
                     subtitle: t('plugin_referral_create_farm_transaction_confirm_desc', {
-                        reward: attraceFee.plus(totalFarmReward),
+                        reward: roundValue(Number(totalFarmReward) + attraceFee, token?.decimals),
                         token: token?.symbol ?? '',
                     }),
                 },

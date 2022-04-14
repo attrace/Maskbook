@@ -1,11 +1,12 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
+import { parseUnits } from '@ethersproject/units'
 import BigNumber from 'bignumber.js'
 import type { TransactionReceipt } from 'web3-core'
-import { ChainId, createContract, TransactionEventType } from '@masknet/web3-shared-evm'
+import { ChainId, createContract, TransactionEventType, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 
-import { toChainAddressEthers } from '../../SNSAdaptor/helpers'
+import { roundValue, toChainAddressEthers } from '../../SNSAdaptor/helpers'
 import { ReferralFarmsV1, EntitlementLog } from '../../types'
 import { getDaoAddress } from './discovery'
 import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'
@@ -17,28 +18,30 @@ export async function runCreateERC20PairFarm(
     web3: Web3,
     account: string,
     chainId: ChainId,
-    rewardTokenAddr: string,
-    referredTokenAddr: string,
-    totalFarmReward: BigNumber,
-    dailyFarmReward: BigNumber,
+    rewardToken: FungibleTokenDetailed,
+    referredToken: FungibleTokenDetailed,
+    totalFarmReward: number,
+    dailyFarmReward: number,
 ) {
     try {
         onStart(true)
         let tx: any
-
-        const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
-        const rewardTokenDefn = toChainAddressEthers(chainId, rewardTokenAddr)
+        const referredTokenDefn = toChainAddressEthers(chainId, referredToken.address)
+        const rewardTokenDefn = toChainAddressEthers(chainId, rewardToken.address)
         const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-
         const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
-        totalFarmReward = new BigNumber(toWei(totalFarmReward.toString(), 'ether'))
+
+        const rewardTokenDecimals = rewardToken.decimals
+        const totalFarmRewardStr = roundValue(totalFarmReward, rewardTokenDecimals).toString()
+        const dailyFarmRewardStr = roundValue(totalFarmReward, rewardTokenDecimals).toString()
+        const totalFarmRewardUint128 = parseUnits(totalFarmRewardStr, rewardTokenDecimals)
 
         const config = {
             from: account,
         }
 
         // Grant permission
-        const rewardTokenInstance = createContract(web3, rewardTokenAddr, ERC20_ABI as AbiItem[])
+        const rewardTokenInstance = createContract(web3, rewardToken.address, ERC20_ABI as AbiItem[])
         const allowance = await rewardTokenInstance?.methods.allowance(account, farmsAddr).call()
         const isNeededGrantPermission = new BigNumber(allowance).isLessThan(totalFarmReward)
         if (isNeededGrantPermission) {
@@ -51,25 +54,25 @@ export async function runCreateERC20PairFarm(
             })
         }
         const metastate =
-            dailyFarmReward.toNumber() > 0
+            dailyFarmReward > 0
                 ? [
                       // Metastate keys ideally are ascii and up to length 31 (ascii, utf8 might be less)
                       {
                           key: padRight(asciiToHex('periodReward'), 64),
                           value: defaultAbiCoder.encode(
                               ['uint128', 'int128'],
-                              [toWei(dailyFarmReward.toString(), 'ether'), '0'],
+                              [parseUnits(dailyFarmRewardStr, rewardTokenDecimals), '0'],
                           ),
                       },
                   ]
                 : []
 
         const estimatedGas2 = await farms?.methods
-            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmReward, metastate)
+            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmRewardUint128, metastate)
             .estimateGas(config)
 
         tx = await farms?.methods
-            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmReward, metastate)
+            .increaseReferralFarm(rewardTokenDefn, referredTokenDefn, totalFarmRewardUint128, metastate)
             .send({
                 ...config,
                 gas: estimatedGas2,
@@ -99,14 +102,14 @@ export async function adjustFarmRewards(
     web3: Web3,
     account: string,
     chainId: ChainId,
-    rewardTokenAddr: string,
-    referredTokenAddr: string,
-    totalFarmReward: BigNumber,
-    dailyFarmReward: BigNumber,
+    rewardToken: FungibleTokenDetailed,
+    referredToken: FungibleTokenDetailed,
+    totalFarmReward: number,
+    dailyFarmReward: number,
 ) {
     try {
         // Increase/decrease the Daily Farm Reward and deposit Additional Farm Rewards
-        if (totalFarmReward && totalFarmReward.toNumber() > 0) {
+        if (totalFarmReward > 0) {
             return await runCreateERC20PairFarm(
                 onStart,
                 onError,
@@ -114,15 +117,15 @@ export async function adjustFarmRewards(
                 web3,
                 account,
                 chainId,
-                rewardTokenAddr,
-                referredTokenAddr,
+                rewardToken,
+                referredToken,
                 totalFarmReward,
                 dailyFarmReward,
             )
         }
 
         // Increase/decrease the Daily Farm Reward
-        if (dailyFarmReward.toNumber() > 0) {
+        if (dailyFarmReward > 0) {
             onStart(true)
 
             const config = {
@@ -131,14 +134,16 @@ export async function adjustFarmRewards(
 
             const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
             const farms = createContract(web3, farmsAddr, REFERRAL_FARMS_V1_ABI as AbiItem[])
-            const referredTokenDefn = toChainAddressEthers(chainId, referredTokenAddr)
-            const rewardTokenDefn = toChainAddressEthers(chainId, rewardTokenAddr)
+            const rewardTokenDefn = toChainAddressEthers(chainId, rewardToken.address)
+            const referredTokenDefn = toChainAddressEthers(chainId, referredToken.address)
+            const rewardTokenDecimals = rewardToken.decimals
+            const dailyFarmRewardStr = roundValue(dailyFarmReward, rewardTokenDecimals).toString()
             const metastate = [
                 {
                     key: padRight(asciiToHex('periodReward'), 64),
                     value: defaultAbiCoder.encode(
                         ['uint128', 'int128'],
-                        [toWei(dailyFarmReward.toString(), 'ether'), '0'],
+                        [parseUnits(dailyFarmRewardStr, rewardTokenDecimals), '0'],
                     ),
                 },
             ]
