@@ -254,8 +254,9 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
         totalReward: Number.parseFloat(farm?.totalFarmRewards?.toFixed(5) ?? '0'),
     }
 
-    const disableAdjustRewardsButton = !Number(dailyFarmReward) && !Number(totalFarmReward)
     const balance = formatBalance(rewardBalance ?? '', rewardToken?.decimals, 6)
+    const insufficientFunds = Number(totalFarmReward) > Number(balance)
+    const adjustRewardsBtnDisabled = (!Number(dailyFarmReward) && !Number(totalFarmReward)) || insufficientFunds
 
     return rewardToken ? (
         <Typography display="flex" flexDirection="column">
@@ -383,9 +384,11 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                             fullWidth
                             variant="contained"
                             size="large"
-                            disabled={disableAdjustRewardsButton}
+                            disabled={adjustRewardsBtnDisabled}
                             onClick={onClickAdjustRewards}>
-                            {t('plugin_referral_adjust_rewards')}
+                            {insufficientFunds
+                                ? t('plugin_referral_error_insufficient_balance', { symbol: rewardToken?.symbol })
+                                : t('plugin_referral_adjust_rewards')}
                         </ActionButton>
                     </EthereumChainBoundary>
                 </Grid>

@@ -279,9 +279,10 @@ export function CreateFarm(props: PageInterface) {
         [props],
     )
 
-    const createFarmBtnDisabled =
-        !token?.address || !token?.address || !Number(totalFarmReward) || !Number(dailyFarmReward)
     const balance = formatBalance(rewardBalance ?? '', token?.decimals, 6)
+    const insufficientFunds = Number(totalFarmReward) > Number(balance)
+    const createFarmBtnDisabled =
+        !token?.address || !Number(totalFarmReward) || !Number(dailyFarmReward) || insufficientFunds
 
     return (
         <Box className={classes.container}>
@@ -387,7 +388,9 @@ export function CreateFarm(props: PageInterface) {
                             size="large"
                             disabled={createFarmBtnDisabled}
                             onClick={onClickCreateFarm}>
-                            {t('plugin_referral_create_referral_farm')}
+                            {insufficientFunds
+                                ? t('plugin_referral_error_insufficient_balance', { symbol: token?.symbol })
+                                : t('plugin_referral_create_referral_farm')}
                         </ActionButton>
                     </EthereumChainBoundary>
                 </TabPanel>
