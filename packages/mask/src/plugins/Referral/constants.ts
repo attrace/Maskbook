@@ -4,7 +4,10 @@ import { ChainId } from '@masknet/web3-shared-evm'
 export const PLUGIN_ID = PluginId.Referral
 export const META_KEY = `${PluginId.Referral}:1`
 
-export const MASK_REFERRER = '0x172059839d80773eC8617C4CB33835175d364cEE'
+// export const MASK_REFERRER = '0x172059839d80773eC8617C4CB33835175d364cEE'
+// TODO: change to Mask addr before release
+export const MASK_REFERRER = '0x77fdbe550857d62e620880adc2a2ca1580eb0cf6'
+
 export const MASK_SWAP_V1 = 'maskswapv1'
 export const ATTRACE_FEE_PERCENT = 5
 
