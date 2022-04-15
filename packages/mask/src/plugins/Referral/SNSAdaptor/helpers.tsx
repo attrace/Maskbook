@@ -6,7 +6,7 @@ import { createTypedMessageMetadataReader } from '@masknet/typed-message'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
 
-import { REFERRAL_META_KEY, REFERRAL_FRAMS_V1_ADDR, CONFIRMATION_V1_ADDR } from '../constants'
+import { META_KEY, REFERRAL_FRAMS_V1_ADDR, CONFIRMATION_V1_ADDR } from '../constants'
 import type {
     ReferralMetaData,
     RewardData,
@@ -91,7 +91,7 @@ export function toChainAddressEthers(chainId: number, address: string): string {
     return '0x' + toChainAddress(BigNumber.from(chainId), Buffer.from(address.substring(2), 'hex')).toString('hex')
 }
 
-export const referralMetadataReader = createTypedMessageMetadataReader<ReferralMetaData>(REFERRAL_META_KEY, schema)
+export const referralMetadataReader = createTypedMessageMetadataReader<ReferralMetaData>(META_KEY, schema)
 
 export function parseChainAddress(chaddr: ChainAddress): ChainAddressProps {
     const chainId = toChainId(chaddr)

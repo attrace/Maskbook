@@ -1,9 +1,9 @@
-import type { Plugin } from '@masknet/plugin-infra'
+import { type Plugin, PluginId } from '@masknet/plugin-infra'
 
-import { REFERRAL_META_KEY, REFERRAL_PLUGIN_ID } from './constants'
+import { META_KEY } from './constants'
 
 export const base: Plugin.Shared.Definition = {
-    ID: REFERRAL_PLUGIN_ID,
+    ID: PluginId.Referral,
     name: { fallback: 'Referral Farms' },
     description: { fallback: 'A plugin for Referral Farms.' },
     publisher: { name: { fallback: 'Mask Network' }, link: 'https://mask.io/' },
@@ -12,5 +12,5 @@ export const base: Plugin.Shared.Definition = {
         networks: { type: 'opt-out', networks: {} },
         target: 'stable',
     },
-    contribution: { metadataKeys: new Set([REFERRAL_META_KEY]) },
+    contribution: { metadataKeys: new Set([META_KEY]) },
 }

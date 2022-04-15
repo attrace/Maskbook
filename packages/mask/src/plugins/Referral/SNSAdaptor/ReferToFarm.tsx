@@ -12,7 +12,7 @@ import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
-import { REFERRAL_META_KEY } from '../constants'
+import { META_KEY } from '../constants'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { useRequiredChainId } from './hooks/useRequiredChainId'
 import { singAndPostProofOfRecommendationOrigin } from '../Worker/apis/proofOfRecommendation'
@@ -140,9 +140,9 @@ export function ReferToFarm(props: PageInterface) {
     const insertData = useCallback(
         (selectedReferralData: ReferralMetaData) => {
             if (selectedReferralData) {
-                attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
+                attachMetadata(META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
             } else {
-                dropMetadata(REFERRAL_META_KEY)
+                dropMetadata(META_KEY)
             }
             closeWalletStatusDialog()
             props.onClose?.()

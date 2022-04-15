@@ -20,7 +20,7 @@ import { TabContext, TabPanel } from '@mui/lab'
 
 import { useI18N } from '../../../utils'
 import { TabsCreateFarm, TokenType, TransactionStatus, PageInterface, PagesType, TabsReferralFarms } from '../types'
-import { ATTRACE_FEE_PERCENT, NATIVE_TOKEN, REFERRAL_META_KEY } from '../constants'
+import { ATTRACE_FEE_PERCENT, NATIVE_TOKEN, META_KEY } from '../constants'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { runCreateERC20PairFarm } from '../Worker/apis/referralFarm'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
@@ -168,9 +168,9 @@ export function CreateFarm(props: PageInterface) {
                 sender: senderName ?? '',
             }
             if (selectedReferralData) {
-                attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
+                attachMetadata(META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
             } else {
-                dropMetadata(REFERRAL_META_KEY)
+                dropMetadata(META_KEY)
             }
 
             closeWalletStatusDialog()

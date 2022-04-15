@@ -6,7 +6,7 @@ import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 
 import { useI18N } from '../../../../utils'
 import { useCurrentIdentity } from '../../../../components/DataSource/useActivatedUI'
-import { REFERRAL_META_KEY } from '../../constants'
+import { META_KEY } from '../../constants'
 
 export function useInsertFarmPost(token: FungibleTokenDetailed | undefined, chainId: ChainId, onClose?: () => void) {
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(
@@ -34,9 +34,9 @@ export function useInsertFarmPost(token: FungibleTokenDetailed | undefined, chai
     }
 
     if (selectedReferralData) {
-        attachMetadata(REFERRAL_META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
+        attachMetadata(META_KEY, JSON.parse(JSON.stringify(selectedReferralData)))
     } else {
-        dropMetadata(REFERRAL_META_KEY)
+        dropMetadata(META_KEY)
     }
 
     closeWalletStatusDialog()

@@ -1,6 +1,6 @@
 import { createPluginMessage, createPluginRPC, PluginMessageEmitter } from '@masknet/plugin-infra'
 import type { FungibleTokenDetailed } from '@masknet/web3-shared-evm'
-import { REFERRAL_META_KEY } from './constants'
+import { META_KEY } from './constants'
 
 export type SelectTokenUpdated =
     | {
@@ -25,9 +25,9 @@ interface ReferralMessages {
 }
 
 if (import.meta.webpackHot) import.meta.webpackHot.accept()
-export const PluginReferralMessages: PluginMessageEmitter<ReferralMessages> = createPluginMessage(REFERRAL_META_KEY)
+export const PluginReferralMessages: PluginMessageEmitter<ReferralMessages> = createPluginMessage(META_KEY)
 export const PluginReferralRPC = createPluginRPC(
-    REFERRAL_META_KEY,
+    META_KEY,
     () => import('./Worker/services'),
     PluginReferralMessages.rpc,
 )

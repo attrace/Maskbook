@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import type { Plugin } from '@masknet/plugin-infra'
 import { ApplicationEntry } from '@masknet/shared'
+import { CrossIsolationMessages } from '@masknet/shared-base'
 
 import type { ReferralMetaData } from '../types'
 import { base } from '../base'
-import { REFERRAL_META_KEY } from '../constants'
+import { META_KEY } from '../constants'
 import { referralMetadataReader } from './helpers'
 
 import { FarmPost } from './FarmPost'
 import { ReferralDialog } from './ReferralDialog'
 import { SelectToken } from './SelectToken'
-import ReactDOMServer from 'react-dom/server'
 
 const sns: Plugin.SNSAdaptor.Definition = {
     ...base,
@@ -21,15 +21,10 @@ const sns: Plugin.SNSAdaptor.Definition = {
         return <FarmPost payload={metadata.val} />
     },
     CompositionDialogMetadataBadgeRender: new Map([
-        [
-            REFERRAL_META_KEY,
-            (meta: ReferralMetaData) => `Refer Farm of '${meta.referral_token_name}' from ${meta.sender}`,
-        ],
+        [META_KEY, (meta: ReferralMetaData) => `Refer Farm of '${meta.referral_token_name}' from ${meta.sender}`],
     ]),
     CompositionDialogEntry: {
-        label: {
-            fallback: ReactDOMServer.renderToString(<>Referral</>),
-        },
+        label: <>Referral Farms</>,
         dialog: ReferralDialog,
     },
     GlobalInjection: function Component() {
@@ -45,7 +40,15 @@ const sns: Plugin.SNSAdaptor.Definition = {
                             disabled={disabled}
                             title="Referral Farms"
                             icon={new URL('../SNSAdaptor/assets/referral.png', import.meta.url).toString()}
-                            onClick={() => setOpen(true)}
+                            onClick={() =>
+                                CrossIsolationMessages.events.requestComposition.sendToLocal({
+                                    reason: 'timeline',
+                                    open: true,
+                                    options: {
+                                        startupPlugin: base.ID,
+                                    },
+                                })
+                            }
                         />
                         <ReferralDialog open={open} onClose={() => setOpen(false)} />
                     </>
