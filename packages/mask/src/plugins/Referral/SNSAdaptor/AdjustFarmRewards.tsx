@@ -90,7 +90,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const onAdjustFarmReward = useCallback(async () => {
         if (!referredToken || !rewardToken) {
-            return onErrorDeposit()
+            return onErrorDeposit(t('go_wrong'))
         }
 
         const totalFarmRewardNum = Number(totalFarmReward) + Number(attraceFee)
@@ -210,7 +210,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
     const onErrorDeposit = useCallback(
         (error?: string) => {
-            showSnackbar(error || t('go_wrong'), { variant: 'error' })
+            error && showSnackbar(error, { variant: 'error' })
             onChangePageToAdjustRewards()
         },
         [props, farm, rewardToken, referredToken],

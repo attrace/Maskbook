@@ -270,10 +270,7 @@ export function CreateFarm(props: PageInterface) {
         [props, token],
     )
     const onErrorDeposit = useCallback(
-        (error?: string) => {
-            showSnackbar(error || t('go_wrong'), { variant: 'error' })
-            props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM)
-        },
+        () => props?.onChangePage?.(PagesType.CREATE_FARM, TabsReferralFarms.TOKENS + ': ' + PagesType.CREATE_FARM),
         [props],
     )
 

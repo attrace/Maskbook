@@ -88,11 +88,10 @@ export async function runCreateERC20PairFarm(
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
                 onStart(false)
-                throw error.message
             })
     } catch (error: any) {
         onStart(false)
-        onError(error?.message)
+        onError()
     }
 }
 export async function adjustFarmRewards(
@@ -168,7 +167,6 @@ export async function adjustFarmRewards(
                 })
                 .on(TransactionEventType.ERROR, (error: Error) => {
                     onStart(false)
-                    throw error?.message
                 })
         }
     } catch (error: any) {
@@ -226,7 +224,7 @@ export async function harvestRewards(
                 }
             })
             .on(TransactionEventType.ERROR, (error: Error) => {
-                throw error.message
+                onError(error?.message)
             })
     } catch (error: any) {
         onError(error?.message)
