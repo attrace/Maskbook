@@ -5,7 +5,7 @@ import { Grid, Typography } from '@mui/material'
 
 import { useI18N } from '../../../utils'
 import type { DepositDialogInterface } from '../types'
-import { roundValue } from './helpers'
+import { roundValue } from '../helpers'
 
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
 import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'

@@ -6,7 +6,7 @@ import { CrossIsolationMessages } from '@masknet/shared-base'
 import type { ReferralMetaData } from '../types'
 import { base } from '../base'
 import { META_KEY } from '../constants'
-import { referralMetadataReader } from './helpers'
+import { referralMetadataReader } from '../helpers'
 
 import { FarmPost } from './FarmPost'
 import { ReferralDialog } from './ReferralDialog'
@@ -39,7 +39,7 @@ const sns: Plugin.SNSAdaptor.Definition = {
                         <ApplicationEntry
                             disabled={disabled}
                             title="Referral Farms"
-                            icon={new URL('../SNSAdaptor/assets/referral.png', import.meta.url).toString()}
+                            icon={new URL('../assets/referral.png', import.meta.url).toString()}
                             onClick={() =>
                                 CrossIsolationMessages.events.requestComposition.sendToLocal({
                                     reason: 'timeline',

@@ -272,12 +272,6 @@ export type HarvestRequest = {
     rewardTokenDefn: ChainAddress
     rewards: FarmRewardStruct[]
 }
-export type RewardProof = {
-    sender: EvmAddress
-    effect: VerifierEffect
-    req: HarvestRequest
-    leafHash: string
-}
 
 export enum RpcMethod {
     oracle_chainId = 'oracle_chainId',

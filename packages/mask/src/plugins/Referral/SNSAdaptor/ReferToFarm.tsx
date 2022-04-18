@@ -14,11 +14,11 @@ import { TabContext, TabPanel } from '@mui/lab'
 import { useI18N } from '../../../utils'
 import { META_KEY } from '../constants'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { useRequiredChainId } from '../hooks/useRequiredChainId'
 import { singAndPostProofOfRecommendationOrigin } from '../Worker/apis/proofOfRecommendation'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { getAllFarms } from '../Worker/apis/farms'
-import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
 import {
     ReferralMetaData,
     TabsCreateFarm,

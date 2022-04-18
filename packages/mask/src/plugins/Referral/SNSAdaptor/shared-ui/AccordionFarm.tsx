@@ -4,7 +4,7 @@ import { Grid, Accordion, AccordionDetails, AccordionSummary } from '@mui/materi
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import type { FarmExistsEvent } from '../../types'
-import { toNativeRewardTokenDefn, parseChainAddress } from '../helpers'
+import { toNativeRewardTokenDefn, parseChainAddress } from '../../helpers'
 import { APR } from '../../constants'
 
 import { FarmTokenDetailed } from './FarmTokenDetailed'

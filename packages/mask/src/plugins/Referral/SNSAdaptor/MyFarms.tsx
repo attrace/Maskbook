@@ -19,8 +19,8 @@ import { useI18N } from '../../../utils'
 import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
 import { getAccountEntitlements } from '../Worker/apis/entitlements'
 import { harvestRewards } from '../Worker/apis/referralFarm'
-import { toNativeRewardTokenDefn, parseChainAddress, roundValue, makeLeafHash } from './helpers'
-import { useRequiredChainId } from './hooks/useRequiredChainId'
+import { toNativeRewardTokenDefn, parseChainAddress, roundValue, makeLeafHash } from '../helpers'
+import { useRequiredChainId } from '../hooks/useRequiredChainId'
 import {
     Farm,
     EntitlementLog,

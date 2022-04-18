@@ -4,9 +4,9 @@ import type { ChainId, FungibleTokenDetailed } from '@masknet/web3-shared-evm'
 import { useCustomSnackbar } from '@masknet/theme'
 import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 
-import { useI18N } from '../../../../utils'
-import { useCurrentIdentity } from '../../../../components/DataSource/useActivatedUI'
-import { META_KEY } from '../../constants'
+import { useI18N } from '../../../utils'
+import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
+import { META_KEY } from '../constants'
 
 export function useInsertFarmPost(token: FungibleTokenDetailed | undefined, chainId: ChainId, onClose?: () => void) {
     const { closeDialog: closeWalletStatusDialog } = useRemoteControlledDialog(

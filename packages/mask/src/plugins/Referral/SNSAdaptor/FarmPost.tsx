@@ -18,7 +18,7 @@ import {
 import { MASK_REFERRER, META_KEY } from '../constants'
 import { MaskMessages, useI18N } from '../../../utils'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
-import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from './helpers'
+import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
 import { getAllFarms } from '../Worker/apis/farms'
 import { PluginTraderMessages } from '../../Trader/messages'
 

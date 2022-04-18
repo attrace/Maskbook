@@ -7,7 +7,7 @@ import { DialogContent } from '@mui/material'
 
 import { PluginReferralMessages } from '../messages'
 import { NATIVE_TOKEN } from '../constants'
-import { parseChainAddress } from './helpers'
+import { parseChainAddress } from '../helpers'
 
 import { InjectedDialog } from '@masknet/shared'
 import { ERC20TokenList } from './shared-ui/ERC20TokenList'

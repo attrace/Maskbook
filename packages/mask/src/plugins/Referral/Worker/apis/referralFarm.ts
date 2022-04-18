@@ -6,7 +6,7 @@ import { ChainId, createContract, TransactionEventType, FungibleTokenDetailed } 
 import type Web3 from 'web3'
 import { AbiItem, asciiToHex, padRight, toWei } from 'web3-utils'
 
-import { roundValue, toChainAddressEthers } from '../../SNSAdaptor/helpers'
+import { roundValue, toChainAddressEthers } from '../../helpers'
 import { ReferralFarmsV1, EntitlementLog } from '../../types'
 import { getDaoAddress } from './discovery'
 import { ERC20_ABI, REFERRAL_FARMS_V1_ABI } from './abis'

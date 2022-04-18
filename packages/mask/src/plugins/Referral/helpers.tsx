@@ -6,7 +6,7 @@ import { createTypedMessageMetadataReader } from '@masknet/typed-message'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
 
-import { META_KEY, REFERRAL_FRAMS_V1_ADDR, CONFIRMATION_V1_ADDR } from '../constants'
+import { META_KEY, REFERRAL_FRAMS_V1_ADDR, CONFIRMATION_V1_ADDR } from './constants'
 import type {
     ReferralMetaData,
     RewardData,
@@ -17,8 +17,8 @@ import type {
     Bytes32,
     Bytes24,
     Entitlement,
-} from '../types'
-import schema from '../schema.json'
+} from './types'
+import schema from './schema.json'
 
 // Fast convert internal types to Buffer
 // Ensure we only convert values if we need them

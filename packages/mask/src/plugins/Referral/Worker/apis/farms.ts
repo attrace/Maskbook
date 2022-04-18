@@ -17,7 +17,7 @@ import { orderBy } from 'lodash-unified'
 import { TokenList } from '@masknet/web3-providers'
 import { formatUnits } from '@ethersproject/units'
 
-import { expandBytes24ToBytes32, expandEvmAddressToBytes32, parseChainAddress } from '../../SNSAdaptor/helpers'
+import { expandBytes24ToBytes32, expandEvmAddressToBytes32, parseChainAddress } from '../../helpers'
 import { getDaoAddress } from './discovery'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import { REFERRAL_FARMS_V1_ABI } from './abis'

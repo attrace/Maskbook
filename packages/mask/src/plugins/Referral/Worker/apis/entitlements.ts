@@ -2,7 +2,7 @@ import { orderBy } from 'lodash-unified'
 import { Interface } from '@ethersproject/abi'
 import { keccak256 } from 'web3-utils'
 
-import { expandEvmAddressToBytes32 } from '../../SNSAdaptor/helpers'
+import { expandEvmAddressToBytes32 } from '../../helpers'
 import { queryIndexersWithNearestQuorum } from './indexers'
 import type { EntitlementLog } from '../../types'
 

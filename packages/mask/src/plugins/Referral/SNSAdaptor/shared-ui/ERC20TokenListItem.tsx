@@ -7,7 +7,7 @@ import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
 import { Icons, ChainAddress } from '../../types'
-import { toChainAddressEthers } from '../helpers'
+import { toChainAddressEthers } from '../../helpers'
 import { SvgIcons } from '../Icons'
 import { APR } from '../../constants'
 
