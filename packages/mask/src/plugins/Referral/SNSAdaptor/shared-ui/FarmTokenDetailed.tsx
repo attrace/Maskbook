@@ -10,18 +10,7 @@ import { Icons } from '../../types'
 import { SvgIcons } from '../Icons'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    container: {
-        display: 'flex',
-        alignItems: 'center',
-    },
-    logo: {
-        display: 'flex',
-        justifyContent: 'center',
-        width: '44px',
-        height: '44px',
-        marginRight: '16px',
-    },
-    details: {
+    tokenDetails: {
         marginLeft: '16px',
         fontWeight: 500,
     },
@@ -30,12 +19,12 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
         height: '16px',
         width: '16px',
     },
-    nameFarm: {
+    farmName: {
         '& svg': {
             marginLeft: 7,
         },
     },
-    name: {
+    tokenName: {
         color: theme.palette.text.secondary,
         fontWeight: 400,
     },
@@ -66,19 +55,19 @@ export function FarmTokenDetailed({ token, hideFarmTypeIcon = false }: FarmToken
     const { classes } = useStyles({ isDashboard })
 
     return (
-        <div className={classes.container}>
+        <Box display="flex" alignItems="center">
             {token && (
                 <>
                     {token.logoURI ? <TokenIcon {...token} /> : <div className={classes.tokenIcon} />}
-                    <Typography className={classes.details} display="flex" flexDirection="column">
-                        <Box display="flex" alignItems="center" className={classes.nameFarm}>
+                    <Box display="flex" flexDirection="column" className={classes.tokenDetails}>
+                        <Typography display="flex" alignItems="center" className={classes.farmName} fontWeight="500">
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
                             {!hideFarmTypeIcon && <SvgIcons icon={Icons.SponsoredFarmIcon} />}
-                        </Box>
-                        <span className={classes.name}>{token.name}</span>
-                    </Typography>
+                        </Typography>
+                        <Typography className={classes.tokenName}>{token.name}</Typography>
+                    </Box>
                 </>
             )}
-        </div>
+        </Box>
     )
 }

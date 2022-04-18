@@ -74,7 +74,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
     },
     textField: {
         width: '50%',
-        '&:first-child': {
+        '&:first-of-type': {
             marginRight: 16,
         },
         '& input[type=number]': {

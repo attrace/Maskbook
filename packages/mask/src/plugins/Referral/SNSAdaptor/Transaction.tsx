@@ -60,34 +60,32 @@ export function Transaction(props: TransactionDialogInterface | undefined) {
     }
     if (transaction.status === TransactionStatus.CONFIRMED) {
         return (
-            <Typography>
-                <Grid container textAlign="center" sx={{ pt: 6, pb: 3 }}>
-                    <Grid item xs={12} marginBottom="10px">
-                        <DoneIcon sx={{ fontSize: 60 }} />
-                    </Grid>
-                    <Grid item xs={12} className={classes.title}>
-                        {t('plugin_wallet_transaction_confirmed')}
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Link
-                            href={resolveTransactionLinkOnExplorer(currentChainId, transaction.transactionHash)}
-                            fontSize="16px"
-                            lineHeight="22px"
-                            target="_blank">
-                            {t('plugin_wallet_view_on_explorer')}
-                        </Link>
-                    </Grid>
-                    <Grid item xs={12} marginTop="40px">
-                        <ActionButton
-                            fullWidth
-                            variant="contained"
-                            size="large"
-                            onClick={() => transaction.actionButton.onClick()}>
-                            {transaction.actionButton.label}
-                        </ActionButton>
-                    </Grid>
+            <Grid container textAlign="center" sx={{ pt: 6, pb: 3 }}>
+                <Grid item xs={12} marginBottom="10px">
+                    <DoneIcon sx={{ fontSize: 60 }} />
                 </Grid>
-            </Typography>
+                <Grid item xs={12} className={classes.title}>
+                    {t('plugin_wallet_transaction_confirmed')}
+                </Grid>
+                <Grid item xs={12}>
+                    <Link
+                        href={resolveTransactionLinkOnExplorer(currentChainId, transaction.transactionHash)}
+                        fontSize="16px"
+                        lineHeight="22px"
+                        target="_blank">
+                        {t('plugin_wallet_view_on_explorer')}
+                    </Link>
+                </Grid>
+                <Grid item xs={12} marginTop="40px">
+                    <ActionButton
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        onClick={() => transaction.actionButton.onClick()}>
+                        {transaction.actionButton.label}
+                    </ActionButton>
+                </Grid>
+            </Grid>
         )
     }
     return <>{null}</>

@@ -197,10 +197,8 @@ export function BuyToFarm(props: PageInterface) {
                             <Divider />
                             <Box marginTop="20px" display="flex" alignItems="center">
                                 <SvgIcons icon={Icons.SponsoredFarmIcon} />
-                                <Typography>
-                                    <b>{t('plugin_referral_sponsored_farm')}</b>
-                                    {t('plugin_referral_sponsored_farm_detail')}
-                                </Typography>
+                                <b>{t('plugin_referral_sponsored_farm')}</b>
+                                {t('plugin_referral_sponsored_farm_detail')}
                             </Box>
                         </Grid>
                     </Grid>

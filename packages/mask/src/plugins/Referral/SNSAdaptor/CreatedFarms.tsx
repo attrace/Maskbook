@@ -239,20 +239,14 @@ export function CreatedFarms(props: PageInterface) {
     return (
         <div className={classes.container}>
             <Grid container justifyContent="space-between" rowSpacing="20px" className={classes.heading}>
-                <Grid item xs={6}>
-                    <Typography fontWeight={500} className={classes.col}>
-                        {t('plugin_referral_referral_farm')}
-                    </Typography>
+                <Grid item xs={6} className={classes.col}>
+                    {t('plugin_referral_referral_farm')}
                 </Grid>
-                <Grid item xs={2}>
-                    <Typography fontWeight={500} className={classes.col}>
-                        {t('plugin_referral_apr')}
-                    </Typography>
+                <Grid item xs={2} className={classes.col}>
+                    {t('plugin_referral_apr')}
                 </Grid>
-                <Grid item xs={4}>
-                    <Typography fontWeight={500} className={classes.col}>
-                        {t('plugin_referral_total_rewards')}
-                    </Typography>
+                <Grid item xs={4} className={classes.col}>
+                    {t('plugin_referral_total_rewards')}
                 </Grid>
             </Grid>
             <div className={classes.content}>

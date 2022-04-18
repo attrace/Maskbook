@@ -99,7 +99,7 @@ export function Landing(props: PageInterface) {
             <Typography fontWeight={600} variant="h6" marginBottom="16px">
                 {t('plugin_referral_how_it_works')}
             </Typography>
-            <Grid textAlign="left" direction="row" container className={classes.smallText} rowSpacing="12px">
+            <Grid container direction="row" className={classes.smallText} rowSpacing="12px" textAlign="left">
                 {data.map((e, i) => {
                     return (
                         <Grid
@@ -119,7 +119,7 @@ export function Landing(props: PageInterface) {
                         </Grid>
                     )
                 })}
-                <Grid item xs={12} direction="row" textAlign="right">
+                <Grid item xs={12} textAlign="right">
                     <Button onClick={onClickContinue} variant="contained">
                         {t('plugin_referral_continue')}
                     </Button>

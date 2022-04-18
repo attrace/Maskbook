@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Box, Typography, DialogContent } from '@mui/material'
+import { DialogContent } from '@mui/material'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 
@@ -30,26 +30,30 @@ const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
             width: 535,
             margin: '24px auto',
         },
-        bold: {},
-        normal: {},
         content: {
+            fontFamily: theme.typography.fontFamily,
+            fontWeight: 400,
             padding: theme.spacing(0, 3, 0),
         },
         title: {
-            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
         },
-        icon: {
-            marginLeft: '5px',
-        },
-        attrText: {
+        powered: {
+            fontWeight: 400,
             fontSize: '12px',
             color: theme.palette.text.secondary,
+            '& svg': {
+                marginLeft: 5,
+            },
         },
         dialogTitleTypography: {
             flex: '1',
             marginLeft: 0,
         },
         dialogTitle: {
+            display: 'flex',
+            justifyContent: 'space-between',
             minHeight: '60px',
             padding: theme.spacing(0, 3),
             fontSize: '19px',
@@ -175,15 +179,13 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                 propsData?.hideAttrLogo ? (
                     currentTitle
                 ) : (
-                    <Box display="flex" justifyContent="space-between" className={classes.title}>
-                        <div>{currentTitle}</div>
-                        <Typography display="flex" alignItems="center" className={classes.attrText}>
-                            Powered by
-                            <Box className={classes.icon}>
-                                <SvgIcons icon={Icons.AttrTextIcon} />
-                            </Box>
-                        </Typography>
-                    </Box>
+                    <span className={classes.title}>
+                        {currentTitle}
+                        <span className={classes.powered}>
+                            {t('plugin_referral_powered_by')}
+                            <SvgIcons icon={Icons.AttrTextIcon} />
+                        </span>
+                    </span>
                 )
             }
             disableBackdropClick

@@ -29,6 +29,11 @@ import { FarmTokenDetailed } from './shared-ui/FarmTokenDetailed'
 import { useSharedStyles } from './styles'
 
 const useStyles = makeStyles()((theme) => ({
+    valueCol: {
+        display: 'flex',
+        flexDirection: 'column',
+        '& span': { fontWeight: 600, marginTop: '4px' },
+    },
     balance: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
@@ -248,7 +253,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const adjustRewardsBtnDisabled = (!Number(dailyFarmReward) && !Number(totalFarmReward)) || insufficientFunds
 
     return rewardToken ? (
-        <Typography display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column">
             <Grid container marginY={3}>
                 <Grid item marginBottom="24px">
                     <Typography fontWeight={600} variant="h6">
@@ -258,109 +263,97 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                 <Grid item marginBottom="24px">
                     <FarmTokenDetailed token={referredToken} />
                 </Grid>
-                <Grid item xs={12} container marginBottom="24px">
-                    <Grid item xs={4} display="flex" alignItems="center">
-                        <Box>
-                            {t('plugin_referral_estimated_apr')}
-                            <Typography fontWeight={600} marginTop="4px">
-                                {rewardData.apr}
-                            </Typography>
-                        </Box>
+                <Grid item xs={12} display="flex" justifyContent="space-between" marginBottom="24px">
+                    <Grid item xs={4} className={classes.valueCol}>
+                        {t('plugin_referral_estimated_apr')}
+                        <span>{rewardData.apr}</span>
                     </Grid>
-                    <Grid item xs={4} display="flex" alignItems="center">
-                        <Box>
-                            {t('plugin_referral_daily_rewards')}
-                            <Typography fontWeight={600} marginTop="4px">
-                                {rewardData ? (
-                                    <>
-                                        {rewardData.dailyReward} {rewardToken?.symbol ?? '-'}
-                                    </>
-                                ) : (
-                                    '-'
-                                )}
-                            </Typography>
-                        </Box>
+                    <Grid item xs={4} className={classes.valueCol}>
+                        {t('plugin_referral_daily_rewards')}
+                        <span>
+                            {rewardData ? (
+                                <>
+                                    {rewardData.dailyReward} {rewardToken?.symbol ?? '-'}
+                                </>
+                            ) : (
+                                '-'
+                            )}
+                        </span>
                     </Grid>
-                    <Grid item xs={4} display="flex" alignItems="center">
-                        <Box>
-                            {t('plugin_referral_total_farm_rewards')}
-                            <Typography fontWeight={600} marginTop="4px">
-                                {rewardData ? (
-                                    <>
-                                        {rewardData.totalReward} {rewardToken?.symbol ?? '-'}
-                                    </>
-                                ) : (
-                                    '-'
-                                )}
-                            </Typography>
-                        </Box>
+                    <Grid item xs={4} className={classes.valueCol}>
+                        {t('plugin_referral_total_farm_rewards')}
+                        <span>
+                            {rewardData ? (
+                                <>
+                                    {rewardData.totalReward} {rewardToken?.symbol ?? '-'}
+                                </>
+                            ) : (
+                                '-'
+                            )}
+                        </span>
                     </Grid>
                 </Grid>
                 <Grid item xs={6} display="flex">
-                    <Box>
-                        <TextField
-                            label={t('plugin_referral_daily_farm_reward')}
-                            value={dailyFarmReward}
-                            placeholder={rewardData.dailyReward.toString()}
-                            onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
-                            inputMode="numeric"
-                            type="number"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            variant="standard"
-                            className={classes.textField}
-                            InputProps={{
-                                disableUnderline: true,
-                                endAdornment: <InputAdornment position="end">{rewardToken?.symbol}</InputAdornment>,
-                            }}
-                        />
-                    </Box>
+                    <TextField
+                        label={t('plugin_referral_daily_farm_reward')}
+                        value={dailyFarmReward}
+                        placeholder={rewardData.dailyReward.toString()}
+                        onChange={(e) => setDailyFarmReward(e.currentTarget.value)}
+                        inputMode="numeric"
+                        type="number"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        variant="standard"
+                        className={classes.textField}
+                        InputProps={{
+                            disableUnderline: true,
+                            endAdornment: <InputAdornment position="end">{rewardToken?.symbol}</InputAdornment>,
+                        }}
+                    />
                 </Grid>
                 <Grid item xs={6} display="flex" alignItems="end">
-                    <Box justifyContent="center">
-                        <TextField
-                            label={t('plugin_referral_additional_farm_rewards')}
-                            value={totalFarmReward}
-                            inputMode="numeric"
-                            type="number"
-                            placeholder="0"
-                            onChange={onChangeTotalFarmReward}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            variant="standard"
-                            className={classes.textField}
-                            InputProps={{
-                                disableUnderline: true,
-                                endAdornment: (
-                                    <InputAdornment position="start">
-                                        <Box>
-                                            <Typography
-                                                className={classes.balance}
-                                                color="textSecondary"
-                                                variant="body2"
-                                                component="span">
-                                                {t('wallet_balance')}: {balance}
-                                            </Typography>
-                                            <Box display="flex" alignItems="center">
-                                                {rewardToken?.symbol}
-                                                <Chip
-                                                    size="small"
-                                                    label="MAX"
-                                                    clickable
-                                                    color="primary"
-                                                    className={sharedClasses.maxChip}
-                                                    variant="outlined"
-                                                    onClick={() => setTotalFarmReward(balance)}
-                                                />
-                                            </Box>
+                    <TextField
+                        label={t('plugin_referral_additional_farm_rewards')}
+                        value={totalFarmReward}
+                        inputMode="numeric"
+                        type="number"
+                        placeholder="0"
+                        onChange={onChangeTotalFarmReward}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        variant="standard"
+                        className={classes.textField}
+                        InputProps={{
+                            disableUnderline: true,
+                            endAdornment: (
+                                <InputAdornment position="start">
+                                    <Box>
+                                        <Typography
+                                            className={classes.balance}
+                                            color="textSecondary"
+                                            variant="body2"
+                                            component="span">
+                                            {t('wallet_balance')}: {balance}
+                                        </Typography>
+                                        <Box display="flex" alignItems="center">
+                                            {rewardToken?.symbol}
+                                            <Chip
+                                                size="small"
+                                                label="MAX"
+                                                clickable
+                                                color="primary"
+                                                className={sharedClasses.maxChip}
+                                                variant="outlined"
+                                                onClick={() => setTotalFarmReward(balance)}
+                                            />
                                         </Box>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Box>
+                                    </Box>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                 </Grid>
                 <Grid item xs={12} marginTop="24px">
                     <EthereumChainBoundary
@@ -380,7 +373,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                     </EthereumChainBoundary>
                 </Grid>
             </Grid>
-        </Typography>
+        </Box>
     ) : (
         <Typography>{t('plugin_referral_adjust_rewards_error')}</Typography>
     )

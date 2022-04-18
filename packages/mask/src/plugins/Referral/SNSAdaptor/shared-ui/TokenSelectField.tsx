@@ -47,7 +47,7 @@ export function TokenSelectField({ label, token, disabled, onClick }: TokenSelec
         <button onClick={handleClick} className={classes.button}>
             <TextField
                 label={label}
-                value={token?.symbol}
+                value={token?.symbol ?? ''}
                 variant="standard"
                 placeholder={t('plugin_referral_select_a_token')}
                 className={classes.textField}

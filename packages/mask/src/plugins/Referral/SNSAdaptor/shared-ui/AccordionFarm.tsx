@@ -1,6 +1,6 @@
 import { makeStyles } from '@masknet/theme'
 import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet/web3-shared-evm'
-import { Grid, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
+import { Grid, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import type { FarmExistsEvent } from '../../types'
@@ -37,8 +37,8 @@ const useStyles = makeStyles()((theme) => {
             background: isDarkMode ? '#15171A' : theme.palette.background.default,
             borderRadius: '4px',
         },
-        total: {
-            marginRight: '5px',
+        container: {
+            fontWeight: 400,
         },
     }
 })
@@ -74,18 +74,17 @@ export function AccordionFarm({ farm, allTokensMap, totalValue, accordionDetails
                     root: classes.accordionSummary,
                     content: classes.accordionSummaryContent,
                 }}>
-                <Grid container>
+                <Grid container className={classes.container}>
                     <Grid item xs={6}>
                         <FarmTokenDetailed
                             token={{ address: parseChainAddress(farm.referredTokenDefn).address, ...referredToken }}
                         />
                     </Grid>
                     <Grid item xs={2} display="flex" alignItems="center">
-                        <Typography className={classes.total}>{APR}</Typography>
+                        {APR}
                     </Grid>
                     <Grid item xs={4} display="flex" alignItems="center">
-                        <Typography className={classes.total}>{Number.parseFloat(totalValue.toFixed(5))}</Typography>
-                        <Typography className={classes.total}>{rewardToken?.symbol || '-'}</Typography>
+                        {Number.parseFloat(totalValue.toFixed(5))} {rewardToken?.symbol || '-'}
                     </Grid>
                 </Grid>
             </AccordionSummary>

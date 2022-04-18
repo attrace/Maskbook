@@ -225,7 +225,7 @@ export function ReferToFarm(props: PageInterface) {
                             />
                         ) : null}
                     </Grid>
-                    <Grid container xs={12} marginBottom="24px">
+                    <Grid container marginBottom="24px">
                         <Grid item xs={12} margin="24px 0 20px 0">
                             <Divider />
                         </Grid>
