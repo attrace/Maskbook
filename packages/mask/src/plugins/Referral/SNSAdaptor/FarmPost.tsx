@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
-import { isDashboardPage } from '@masknet/shared-base'
+import { isDashboardPage, CrossIsolationMessages } from '@masknet/shared-base'
 import { makeTypedMessageText } from '@masknet/typed-message'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useAccount, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
@@ -16,7 +16,7 @@ import {
     singAndPostProofOfRecommendationWithReferrer,
 } from '../Worker/apis/proofOfRecommendation'
 import { MASK_REFERRER, META_KEY } from '../constants'
-import { MaskMessages, useI18N } from '../../../utils'
+import { useI18N } from '../../../utils'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
 import { getAllFarms } from '../Worker/apis/farms'
@@ -64,7 +64,7 @@ export function FarmPost(props: FarmPostProps) {
 
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
-            MaskMessages.events.requestComposition.sendToLocal({
+            CrossIsolationMessages.events.requestComposition.sendToLocal({
                 reason: 'timeline',
                 open: true,
                 content: makeTypedMessageText(message, selectedReferralData),

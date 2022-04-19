@@ -145,12 +145,12 @@ export function BuyToFarm(props: PageInterface) {
         try {
             onConfirmReferFarm()
             await singAndPostProofOfRecommendationWithReferrer(web3, account, token.address, MASK_REFERRER)
-
+            props?.onChangePage?.(PagesType.BUY_TO_FARM, `${TabsReferralFarms.TOKENS}: ${PagesType.BUY_TO_FARM}`)
             swapToken()
         } catch (error: any) {
             onError(error?.message)
         }
-    }, [web3, account, token])
+    }, [web3, account, token, props])
 
     const referredTokenFarms = token
         ? farms.filter((farm) => farm.referredTokenDefn === toChainAddressEthers(token.chainId, token.address))
