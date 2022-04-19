@@ -6,7 +6,7 @@ export const base: Plugin.Shared.Definition = {
     ID: PluginId.Referral,
     name: { fallback: 'Referral Farms' },
     description: { fallback: 'A plugin for Referral Farms.' },
-    publisher: { name: { fallback: 'Mask Network' }, link: 'https://mask.io/' },
+    publisher: { name: { fallback: 'Attrace Protocol' }, link: 'http://attrace.com/' },
     enableRequirement: {
         architecture: { app: true, web: true },
         networks: { type: 'opt-out', networks: {} },

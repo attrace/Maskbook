@@ -6,8 +6,8 @@ import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useAccount, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { TokenIcon } from '@masknet/shared'
-import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import { Button, Card, Grid, Typography, Box } from '@mui/material'
+import { usePluginWrapper } from '@masknet/plugin-infra/content-script'
 
 import { Icons, ReferralMetaData } from '../types'
 import type { Coin } from '../../Trader/types'
@@ -22,39 +22,27 @@ import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helper
 import { getAllFarms } from '../Worker/apis/farms'
 import { PluginTraderMessages } from '../../Trader/messages'
 
-import { MaskIcon } from '../../../resources/MaskIcon'
-import { RewardDataWidget } from './shared-ui/RewardDataWidget'
+import { RewardFarmPostWidget } from './shared-ui/RewardFarmPostWidget'
 
 interface FarmPostProps {
     payload: ReferralMetaData
 }
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
-    dataCard: {
-        marginTop: '12px',
+    content: {
         background: 'linear-gradient(194.37deg, #0081F9 2.19%, #746AFD 61.94%, #A261FF 95.94%)',
         color: '#FFFFFF',
     },
-    longButton: {
-        width: '60px',
-    },
-    img: {
-        width: 50,
-        marginRight: 4,
-        justifyContent: 'center',
-        display: 'flex',
-    },
-    cardActions: {
-        padding: '8px 16px 16px',
+    actions: {
+        paddingTop: '16px',
         '& button': {
             width: 'calc( 100% - 8px)',
         },
     },
-    circularProgress: {
-        color: '#FFFFFF',
-    },
 }))
 
 export function FarmPost(props: FarmPostProps) {
+    usePluginWrapper(true)
+
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const web3 = useWeb3()
@@ -154,81 +142,43 @@ export function FarmPost(props: FarmPostProps) {
     const sponsoredFarms = getSponsoredFarmsForReferredToken(chainId, token, farms)
 
     return (
-        <Card variant="outlined">
-            <CardContent>
-                <Grid container spacing={2}>
-                    <Grid item>
-                        <MaskIcon size={48} />
-                    </Grid>
-                    <Grid item xs={12} sm container>
-                        <Grid item xs direction="column">
-                            <Grid item xs>
-                                <Typography gutterBottom component="div">
-                                    {t('plugin_referral_mask_plugin')}
-                                </Typography>
-                                <Typography variant="h6" gutterBottom fontWeight={600}>
-                                    {t('plugin_referral')}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item direction="column">
-                            <Grid item xs>
-                                <Typography gutterBottom component="div">
-                                    {t('plugin_referral_provided_by')}
-                                </Typography>
-                                <Typography variant="body1" gutterBottom fontWeight={600}>
-                                    {t('plugin_referral_attrace_protocol')}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Box>
-                    <Card variant="outlined" sx={{ p: 2 }} className={classes.dataCard}>
-                        <Grid container spacing={2} marginBottom="8px">
-                            <Grid item>
-                                <TokenIcon
-                                    address={payload.referral_token ?? ''}
-                                    name={payload.referral_token_name}
-                                    logoURI={payload.referral_token_icon}
-                                />
-                            </Grid>
-                            <Grid item textAlign="center" justifyContent="center" flexDirection="column" display="flex">
-                                <Typography variant="h6">
-                                    <b>
-                                        ${payload.referral_token_symbol} {t('plugin_referral_buy_and_hold_referral')}
-                                    </b>
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Typography>{t('plugin_referral_join_receive_rewards')}</Typography>
-                        <Grid container>
-                            {sponsoredFarms?.length ? (
-                                <RewardDataWidget
-                                    title={t('plugin_referral_sponsored_referral_farm')}
-                                    icon={Icons.SponsoredFarmIcon}
-                                    rewardData={getFarmsRewardData(sponsoredFarms)}
-                                    tokenSymbol={payload.referral_token_symbol}
-                                />
-                            ) : null}
-                        </Grid>
-                    </Card>
+        <>
+            <Card variant="outlined" sx={{ p: 2 }} className={classes.content}>
+                <Box display="flex" alignItems="center">
+                    <TokenIcon
+                        address={payload.referral_token ?? ''}
+                        name={payload.referral_token_name}
+                        logoURI={payload.referral_token_icon}
+                    />
+                    <Typography variant="h6" fontWeight={600} marginLeft="10px">
+                        ${payload.referral_token_symbol} {t('plugin_referral_buy_and_hold_referral')}
+                    </Typography>
                 </Box>
-            </CardContent>
-            <CardActions className={classes.cardActions}>
-                <Grid container>
-                    <Grid xs={6} display="flex" textAlign="center">
-                        <Button variant="contained" size="large" onClick={onClickBuyToFarm}>
-                            {t('plugin_referral_buy_to_farm')}
-                        </Button>
-                    </Grid>
-                    <Grid xs={6} display="flex" justifyContent="end" textAlign="center">
-                        <Button variant="contained" size="large" onClick={onClickReferToFarm}>
-                            {t('plugin_referral_refer_to_farm')}
-                        </Button>
-                    </Grid>
+                <Typography marginTop="8px">{t('plugin_referral_join_receive_rewards')}</Typography>
+                {sponsoredFarms?.length ? (
+                    <RewardFarmPostWidget
+                        title={t('plugin_referral_sponsored_referral_farm')}
+                        icon={Icons.SponsoredFarmIcon}
+                        rewardData={getFarmsRewardData(sponsoredFarms)}
+                        tokenSymbol={payload.referral_token_symbol}
+                    />
+                ) : null}
+                <Typography marginTop="24px" variant="body2">
+                    {t('plugin_referral_create_by')} <b>@realMaskNetwork</b>
+                </Typography>
+            </Card>
+            <Grid container className={classes.actions}>
+                <Grid xs={6} display="flex" textAlign="center">
+                    <Button variant="contained" size="large" onClick={onClickBuyToFarm}>
+                        {t('plugin_referral_buy_to_farm')}
+                    </Button>
                 </Grid>
-            </CardActions>
-        </Card>
+                <Grid xs={6} display="flex" justifyContent="end" textAlign="center">
+                    <Button variant="contained" size="large" onClick={onClickReferToFarm}>
+                        {t('plugin_referral_refer_to_farm')}
+                    </Button>
+                </Grid>
+            </Grid>
+        </>
     )
 }
