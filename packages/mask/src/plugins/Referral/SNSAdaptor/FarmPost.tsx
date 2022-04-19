@@ -8,6 +8,7 @@ import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { TokenIcon } from '@masknet/shared'
 import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
+import { usePluginWrapper } from '@masknet/plugin-infra/content-script'
 
 import { Icons, ReferralMetaData } from '../types'
 import type { Coin } from '../../Trader/types'
@@ -55,6 +56,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 }))
 
 export function FarmPost(props: FarmPostProps) {
+    usePluginWrapper(true)
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
     const web3 = useWeb3()
