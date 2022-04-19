@@ -43,3 +43,5 @@
 - [icons](icons)
 
   Contains SVG icons (as React component) in the project
+
+Now test my linter
