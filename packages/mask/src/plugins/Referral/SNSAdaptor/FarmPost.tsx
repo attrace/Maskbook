@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
-import { isDashboardPage } from '@masknet/shared-base'
+import { isDashboardPage, CrossIsolationMessages } from '@masknet/shared-base'
 import { makeTypedMessageText } from '@masknet/typed-message'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useAccount, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
@@ -16,7 +16,7 @@ import {
     singAndPostProofOfRecommendationWithReferrer,
 } from '../Worker/apis/proofOfRecommendation'
 import { MASK_REFERRER, META_KEY } from '../constants'
-import { MaskMessages, useI18N } from '../../../utils'
+import { useI18N } from '../../../utils'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
 import { getAllFarms } from '../Worker/apis/farms'
@@ -43,9 +43,13 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 export function FarmPost(props: FarmPostProps) {
     usePluginWrapper(true)
 
+    const { payload } = props
+    const token = payload.referral_token
+    const chainId = payload.referral_token_chain_id
+
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    const web3 = useWeb3()
+    const web3 = useWeb3({ chainId })
     const account = useAccount()
     const { t } = useI18N()
     const currentIdentity = useCurrentIdentity()
@@ -53,18 +57,13 @@ export function FarmPost(props: FarmPostProps) {
     const { showSnackbar } = useCustomSnackbar()
     const { ERC20 } = useTokenListConstants()
 
-    const { payload } = props
-    const chainId = payload.referral_token_chain_id
-    const token = payload.referral_token
-
     const { value: farms = [] } = useAsync(
         async () => (chainId ? getAllFarms(web3, chainId, ERC20) : []),
         [ERC20, chainId],
     )
-
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
-            MaskMessages.events.requestComposition.sendToLocal({
+            CrossIsolationMessages.events.requestComposition.sendToLocal({
                 reason: 'timeline',
                 open: true,
                 content: makeTypedMessageText(message, selectedReferralData),
