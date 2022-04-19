@@ -36,7 +36,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
             </Grid>
             <Grid item xs={4} display="flex" alignItems="center">
                 <Box>
-                    <Typography>{t('plugin_referral_daily_rewards')}</Typography>
+                    <Typography>{t('plugin_referral_daily_farm_reward')}</Typography>
                     <Typography fontWeight={600} marginTop="4px">
                         {rewardData ? (
                             <>

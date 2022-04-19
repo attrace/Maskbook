@@ -269,7 +269,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
                         <span>{rewardData.apr}</span>
                     </Grid>
                     <Grid item xs={4} className={classes.valueCol}>
-                        {t('plugin_referral_daily_rewards')}
+                        {t('plugin_referral_daily_farm_reward')}
                         <span>
                             {rewardData ? (
                                 <>
