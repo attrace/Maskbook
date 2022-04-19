@@ -43,9 +43,13 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 export function FarmPost(props: FarmPostProps) {
     usePluginWrapper(true)
 
+    const { payload } = props
+    const token = payload.referral_token
+    const chainId = payload.referral_token_chain_id
+
     const isDashboard = isDashboardPage()
     const { classes } = useStyles({ isDashboard })
-    const web3 = useWeb3()
+    const web3 = useWeb3({ chainId })
     const account = useAccount()
     const { t } = useI18N()
     const currentIdentity = useCurrentIdentity()
@@ -53,15 +57,10 @@ export function FarmPost(props: FarmPostProps) {
     const { showSnackbar } = useCustomSnackbar()
     const { ERC20 } = useTokenListConstants()
 
-    const { payload } = props
-    const chainId = payload.referral_token_chain_id
-    const token = payload.referral_token
-
     const { value: farms = [] } = useAsync(
         async () => (chainId ? getAllFarms(web3, chainId, ERC20) : []),
         [ERC20, chainId],
     )
-
     const openComposeBox = useCallback(
         (message: string, selectedReferralData: Map<string, ReferralMetaData>, id?: string) =>
             CrossIsolationMessages.events.requestComposition.sendToLocal({
