@@ -14,7 +14,7 @@ import { Grid, Typography, CircularProgress, Box, Button } from '@mui/material'
 import { TokenList } from '@masknet/web3-providers'
 
 import { useI18N } from '../../../utils'
-import { getMyFarms, getFarmsDeposits } from '../Worker/apis/farms'
+import { farmsService } from '../Worker/services'
 import { FarmDepositChange, FarmExistsEvent, PageInterface, PagesType, TabsReferralFarms } from '../types'
 import { toNativeRewardTokenDefn, parseChainAddress } from '../helpers'
 import { useRequiredChainId } from '../hooks/useRequiredChainId'
@@ -189,13 +189,13 @@ export function CreatedFarms(props: PageInterface) {
 
     // fetch my farms
     const { value: myFarms = [], loading: loadingMyFarms } = useAsync(
-        async () => getMyFarms(web3, account, currentChainId),
+        async () => farmsService.getMyFarms(web3, account, currentChainId),
         [web3, account],
     )
 
     // fetch all deposits
     const { value: farmsDeposits = [], loading: loadingFarmsDeposits } = useAsync(
-        async () => getFarmsDeposits(web3, currentChainId),
+        async () => farmsService.getFarmsDeposits(web3, currentChainId),
         [web3],
     )
 

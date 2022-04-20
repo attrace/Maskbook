@@ -21,8 +21,7 @@ import ActionButton from '../../../extension/options-page/DashboardComponents/Ac
 import { useRequiredChainId } from '../hooks/useRequiredChainId'
 import { roundValue } from '../helpers'
 import { APR, ATTRACE_FEE_PERCENT } from '../constants'
-import { adjustFarmRewards } from '../Worker/apis/referralFarm'
-import { getFarmsMetaState } from '../Worker/apis/farms'
+import { referralFarmService, farmsService } from '../Worker/services'
 
 import { FarmTokenDetailed } from './shared-ui/FarmTokenDetailed'
 
@@ -80,7 +79,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
     const [totalFarmReward, setTotalFarmReward] = useState<string>('')
 
     const { value: farmsMetaState } = useAsync(
-        async () => (farm?.farmHash ? getFarmsMetaState(web3, chainId, [farm.farmHash]) : undefined),
+        async () => (farm?.farmHash ? farmsService.getFarmsMetaState(web3, chainId, [farm.farmHash]) : undefined),
         [web3, farm, chainId],
     )
 
@@ -100,7 +99,7 @@ export function AdjustFarmRewards(props: AdjustFarmRewardsInterface) {
 
         const totalFarmRewardNum = Number(totalFarmReward) + Number(attraceFee)
 
-        adjustFarmRewards(
+        referralFarmService.adjustFarmRewards(
             (val: boolean) => {
                 val && onConfirmAdjustFarm()
             },

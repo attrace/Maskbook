@@ -16,9 +16,7 @@ import { TokenList } from '@masknet/web3-providers'
 import { Grid, Typography, CircularProgress, Button, Box } from '@mui/material'
 
 import { useI18N } from '../../../utils'
-import { getAllFarms, getMyRewardsHarvested } from '../Worker/apis/farms'
-import { getAccountEntitlements } from '../Worker/apis/entitlements'
-import { harvestRewards } from '../Worker/apis/referralFarm'
+import { farmsService, entitlementsService, referralFarmService } from '../Worker/services'
 import { toNativeRewardTokenDefn, parseChainAddress, roundValue, makeLeafHash } from '../helpers'
 import { useRequiredChainId } from '../hooks/useRequiredChainId'
 import {
@@ -176,7 +174,7 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
 
                 return true
             })
-            harvestRewards(
+            referralFarmService.harvestRewards(
                 onConfirmHarvestRewards,
                 () => onStartHarvestRewards(totalRewards, rewardTokenSymbol),
                 onErrorHarvestRewards,
@@ -258,16 +256,19 @@ export function MyFarms(props: PageInterface) {
     const { ERC20 } = useTokenListConstants()
 
     const { value: entitlements = [], loading: loadingEntitlements } = useAsync(
-        async () => (account ? getAccountEntitlements(account) : []),
+        async () => (account ? entitlementsService.getAccountEntitlements(account) : []),
         [account],
     )
     const { value: rewardsHarvested = [], loading: loadingRewardsHarvested } = useAsync(
-        async () => (account ? getMyRewardsHarvested(web3, account, currentChainId) : []),
+        async () => (account ? farmsService.getMyRewardsHarvested(web3, account, currentChainId) : []),
         [account, currentChainId],
     )
 
     // fetch farm for referred tokens
-    const { value: farms = [], loading: loadingFarms } = useAsync(async () => getAllFarms(web3, currentChainId), [])
+    const { value: farms = [], loading: loadingFarms } = useAsync(
+        async () => farmsService.getAllFarms(web3, currentChainId),
+        [],
+    )
 
     // fetch tokens data
     const { value: allTokens = [], loading: loadingAllTokens } = useAsync(

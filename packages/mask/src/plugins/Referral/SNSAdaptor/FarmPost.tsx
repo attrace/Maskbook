@@ -11,15 +11,11 @@ import { usePluginWrapper } from '@masknet/plugin-infra/content-script'
 
 import type { ReferralMetaData } from '../types'
 import type { Coin } from '../../Trader/types'
-import {
-    singAndPostProofOfRecommendationOrigin,
-    singAndPostProofOfRecommendationWithReferrer,
-} from '../Worker/apis/proofOfRecommendation'
+import { proofOfRecommendationService, farmsService } from '../Worker/services'
 import { MASK_REFERRER, META_KEY, SWAP_CHAIN_ID } from '../constants'
 import { useI18N } from '../../../utils'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
-import { getAllFarms } from '../Worker/apis/farms'
 import { PluginTraderMessages } from '../../Trader/messages'
 
 import { RewardFarmPostWidget } from './shared-ui/RewardFarmPostWidget'
@@ -58,7 +54,7 @@ export function FarmPost(props: FarmPostProps) {
     const { ERC20 } = useTokenListConstants()
 
     const { value: farms = [] } = useAsync(
-        async () => (chainId ? getAllFarms(web3, chainId, ERC20) : []),
+        async () => (chainId ? farmsService.getAllFarms(web3, chainId, ERC20) : []),
         [ERC20, chainId],
     )
     const openComposeBox = useCallback(
@@ -80,7 +76,11 @@ export function FarmPost(props: FarmPostProps) {
 
     const onClickReferToFarm = async () => {
         try {
-            await singAndPostProofOfRecommendationOrigin(web3, account, payload.referral_token)
+            await proofOfRecommendationService.singAndPostProofOfRecommendationOrigin(
+                web3,
+                account,
+                payload.referral_token,
+            )
 
             const senderName =
                 currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
@@ -127,7 +127,7 @@ export function FarmPost(props: FarmPostProps) {
 
     const onClickBuyToFarm = useCallback(async () => {
         try {
-            await singAndPostProofOfRecommendationWithReferrer(
+            await proofOfRecommendationService.singAndPostProofOfRecommendationWithReferrer(
                 web3,
                 account,
                 payload.referral_token,

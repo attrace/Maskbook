@@ -9,10 +9,9 @@ import { v4 as uuid } from 'uuid'
 
 import { useI18N } from '../../../utils'
 import { useRequiredChainId } from '../hooks/useRequiredChainId'
-import { singAndPostProofOfRecommendationWithReferrer } from '../Worker/apis/proofOfRecommendation'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { PluginTraderMessages } from '../../Trader/messages'
-import { getAllFarms } from '../Worker/apis/farms'
+import { farmsService, proofOfRecommendationService } from '../Worker/services'
 import { toChainAddressEthers, getFarmsRewardData } from '../helpers'
 import { MASK_REFERRER, SWAP_CHAIN_ID } from '../constants'
 import { TabsCreateFarm, TransactionStatus, PageInterface, PagesType, TabsReferralFarms } from '../types'
@@ -82,7 +81,7 @@ export function BuyToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [] } = useAsync(
-        async () => getAllFarms(web3, currentChainId, ERC20),
+        async () => farmsService.getAllFarms(web3, currentChainId, ERC20),
         [ERC20, currentChainId],
     )
 
@@ -143,7 +142,12 @@ export function BuyToFarm(props: PageInterface) {
         }
         try {
             onConfirmReferFarm()
-            await singAndPostProofOfRecommendationWithReferrer(web3, account, token.address, MASK_REFERRER)
+            await proofOfRecommendationService.singAndPostProofOfRecommendationWithReferrer(
+                web3,
+                account,
+                token.address,
+                MASK_REFERRER,
+            )
             props?.onChangePage?.(PagesType.BUY_TO_FARM, `${TabsReferralFarms.TOKENS}: ${PagesType.BUY_TO_FARM}`)
             swapToken()
         } catch (error: any) {

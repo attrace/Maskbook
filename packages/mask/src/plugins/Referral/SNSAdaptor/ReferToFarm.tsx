@@ -14,9 +14,8 @@ import { useI18N } from '../../../utils'
 import { META_KEY } from '../constants'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { useRequiredChainId } from '../hooks/useRequiredChainId'
-import { singAndPostProofOfRecommendationOrigin } from '../Worker/apis/proofOfRecommendation'
+import { proofOfRecommendationService, farmsService } from '../Worker/services'
 import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
-import { getAllFarms } from '../Worker/apis/farms'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
 import {
     ReferralMetaData,
@@ -108,7 +107,7 @@ export function ReferToFarm(props: PageInterface) {
 
     // fetch all farms
     const { value: farms = [], loading: loadingAllFarms } = useAsync(
-        async () => getAllFarms(web3, currentChainId, ERC20),
+        async () => farmsService.getAllFarms(web3, currentChainId, ERC20),
         [currentChainId, ERC20],
     )
 
@@ -163,7 +162,7 @@ export function ReferToFarm(props: PageInterface) {
 
         try {
             onConfirmReferFarm()
-            await singAndPostProofOfRecommendationOrigin(web3, account, token.address)
+            await proofOfRecommendationService.singAndPostProofOfRecommendationOrigin(web3, account, token.address)
             insertData({
                 referral_token: token.address ?? '',
                 referral_token_name: token?.name ?? '',

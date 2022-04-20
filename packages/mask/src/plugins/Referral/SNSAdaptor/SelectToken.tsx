@@ -11,7 +11,7 @@ import { parseChainAddress } from '../helpers'
 
 import { InjectedDialog } from '@masknet/shared'
 import { ERC20TokenList } from './shared-ui/ERC20TokenList'
-import { getAllFarms } from '../Worker/apis/farms'
+import { farmsService } from '../Worker/services'
 
 const DISABLED_NATIVE_TOKEN = true
 
@@ -30,7 +30,7 @@ export function SelectToken() {
         setOnlyFarmTokens(!!ev.onlyFarmTokens)
     })
     const { value: farms = [], loading: loadingAllFarms } = useAsync(
-        async () => getAllFarms(web3, currentChainId),
+        async () => farmsService.getAllFarms(web3, currentChainId),
         [currentChainId],
     )
 
