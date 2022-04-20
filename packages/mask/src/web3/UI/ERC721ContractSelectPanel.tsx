@@ -138,7 +138,7 @@ export function ERC721ContractSelectPanel(props: ERC721TokenSelectPanelProps) {
         <Box className={classes.root}>
             <div className={classes.wrapper}>
                 <Typography className={classes.title} color="textSecondary" variant="body2" component="span">
-                    {label ?? t('collectibles_name')}
+                    {label ?? t('dashboard_tab_collectibles')}
                 </Typography>
                 {!contract?.address || !EthereumAddress.isValid(contract.address) ? null : loading ? (
                     <CircularProgress size={16} />

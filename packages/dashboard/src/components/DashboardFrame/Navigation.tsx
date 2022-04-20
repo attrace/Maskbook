@@ -20,6 +20,8 @@ import { DashboardContext } from './context'
 import {
     MaskBannerIcon,
     MaskNotSquareIcon,
+    MenuLabsActiveIcon,
+    MenuLabsIcon,
     MenuPersonasActiveIcon,
     MenuPersonasIcon,
     MenuSettingsActiveIcon,
@@ -165,6 +167,10 @@ export function Navigation({ onClose }: NavigationProps) {
                     )}
                 </List>
             </Collapse>
+            <ListItemLink to={DashboardRoutes.Labs}>
+                <ItemIcon>{useMatch(DashboardRoutes.Labs) ? <MenuLabsActiveIcon /> : <MenuLabsIcon />}</ItemIcon>
+                <ListItemText primary={t.labs()} />
+            </ListItemLink>
             <ListItemLink to={DashboardRoutes.Settings}>
                 <ItemIcon sx={{ fontSize: 36 }}>
                     {useMatch(DashboardRoutes.Settings) ? <MenuSettingsActiveIcon /> : <MenuSettingsIcon />}

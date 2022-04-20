@@ -33,29 +33,23 @@ const useStyles = makeStyles()((theme) => ({
         cursor: 'default',
         pointerEvent: 'none',
     },
-    iconWrapper: {
-        '> *': {
-            width: 36,
-            height: 36,
-        },
-    },
 }))
 
 interface Props {
-    icon: React.ReactNode
-    title: React.ReactNode
+    icon: string
+    title: string
     disabled?: boolean
     onClick: () => void
 }
 
 export function ApplicationEntry(props: Props) {
-    const { title, onClick, disabled = false, icon } = props
+    const { icon, title, onClick, disabled = false } = props
     const { classes } = useStyles()
     return (
         <div
             className={classNames(classes.applicationBox, disabled ? classes.disabled : classes.applicationBoxHover)}
             onClick={disabled ? () => {} : onClick}>
-            <div className={classes.iconWrapper}>{icon}</div>
+            <img src={icon} className={classes.applicationImg} />
             <Typography className={classes.title} color="textPrimary">
                 {title}
             </Typography>

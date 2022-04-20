@@ -18,5 +18,5 @@ export const CyberConnectIcon: typeof SvgIcon = createPaletteAwareIcon(
         fill="white"
     />,
     undefined,
-    '-8 -10 44 44',
+    '-4 3 36 20',
 )

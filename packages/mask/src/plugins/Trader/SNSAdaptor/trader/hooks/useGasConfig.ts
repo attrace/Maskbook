@@ -9,34 +9,37 @@ export function useGasConfig(chainId: ChainId) {
     const [gasConfig, setGasConfig] = useState<GasOptionConfig | undefined>()
     const { value: gasPrice } = useAsync(async () => {
         try {
-            if (isEIP1559Supported(chainId)) {
-                const response = await WalletRPC.getEstimateGasFees(chainId)
-                const maxFeePerGas = formatGweiToWei(response?.medium?.suggestedMaxFeePerGas ?? 0).toFixed(0)
-                const maxPriorityFeePerGas = formatGweiToWei(
-                    response?.medium?.suggestedMaxPriorityFeePerGas ?? 0,
-                ).toFixed(0)
-                setGasConfig({
-                    maxFeePerGas,
-                    maxPriorityFeePerGas,
-                })
-
-                return maxFeePerGas
+            if (gasConfig) {
+                return new BigNumber(
+                    (isEIP1559Supported(chainId) ? gasConfig.maxFeePerGas : gasConfig.gasPrice) ?? 0,
+                ).toString()
             } else {
-                const response = await WalletRPC.getGasPriceDictFromDeBank(chainId)
-                const gasPrice = response?.data.normal.price
-                    ? new BigNumber(response.data.normal.price).toString()
-                    : undefined
-                setGasConfig({
-                    gasPrice,
-                })
+                if (isEIP1559Supported(chainId)) {
+                    const response = await WalletRPC.getEstimateGasFees(chainId)
+                    const maxFeePerGas = formatGweiToWei(response?.medium?.suggestedMaxFeePerGas ?? 0).toFixed(0)
+                    const maxPriorityFeePerGas = formatGweiToWei(
+                        response?.medium?.suggestedMaxPriorityFeePerGas ?? 0,
+                    ).toFixed(0)
+                    setGasConfig({
+                        maxFeePerGas,
+                        maxPriorityFeePerGas,
+                    })
 
-                return gasPrice
+                    return maxFeePerGas
+                } else {
+                    const response = await WalletRPC.getGasPriceDictFromDeBank(chainId)
+                    const gasPrice = new BigNumber(response?.data.normal.price ?? 0).toString()
+                    setGasConfig({
+                        gasPrice,
+                    })
+
+                    return gasPrice
+                }
             }
-        } catch (err) {
-            setGasConfig(undefined)
-            return
+        } catch {
+            return '0'
         }
-    }, [chainId])
+    }, [chainId, gasConfig])
 
     return { gasPrice, gasConfig, setGasConfig }
 }
