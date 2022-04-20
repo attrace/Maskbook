@@ -1,16 +1,16 @@
 import { monotonicFactory } from 'ulid'
 
-import { getDiscovery } from './discovery'
 import type { JsonRpcResponse } from '../../types'
 
-// Select a oracle
-// TODO: add oracle selection
+const ORACLE_URL = 'https://oracle-4470-dub.attrace.com'
+
 export async function getOracle(): Promise<string> {
-    const {
-        discovery: { womOracles },
-    } = await getDiscovery()
+    // TODO: add oracle selection
+    // const {
+    //     discovery: { womOracles },
+    // } = await getDiscovery()
     // return womOracles[Math.floor(Math.random() * womOracles.length)].url
-    return 'https://oracle-4470-dub.attrace.com'
+    return ORACLE_URL
 }
 
 export async function jsonReq(url: string, opts: any) {

@@ -81,7 +81,6 @@ export function toChainAddress(chainId: BigNumber | bigint, address: Buffer): Bu
     if (address.byteLength !== 20) throw new Error('invalid address')
     const b = Buffer.alloc(24)
     // Only numeric network id's are supported in the chain address, with max of uint32.
-    // TODO throw on this if wrong
     b.writeUint32BE(Number(bi(chainId)))
     b.fill(address, 4)
     return b

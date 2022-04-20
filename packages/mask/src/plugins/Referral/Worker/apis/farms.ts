@@ -133,8 +133,6 @@ export async function getMyFarms(
     filter?: TokenFilter,
 ): Promise<Array<FarmExistsEvent>> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
-    // Query for existing farms and their deposits
-    // TODO paging
 
     // Allow filtering your own tokens
     let topic3, topic4
@@ -294,8 +292,6 @@ export async function getFarmsForReferredToken(
 ): Promise<Array<FarmExistsEvent>> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
-    // Query for existing farms and their deposits
-    // TODO paging
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
         topic1: [eventIds.FarmExists],
@@ -313,8 +309,6 @@ export async function getFarmsForRewardToken(
 ): Promise<Array<FarmExistsEvent>> {
     const farmsAddr = await getDaoAddress(web3, ReferralFarmsV1, chainId)
 
-    // Query for existing farms and their deposits
-    // TODO paging
     const res = await queryIndexersWithNearestQuorum({
         addresses: [farmsAddr],
         topic1: [eventIds.FarmExists],

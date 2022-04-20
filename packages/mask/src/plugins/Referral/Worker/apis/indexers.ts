@@ -1,4 +1,3 @@
-// TODO: check it
 /* eslint-disable @typescript-eslint/no-loop-func */
 /* eslint-disable no-return-await */
 
@@ -55,7 +54,6 @@ export function selectNearestNode(nodes: Node[], airports: Airport[], pop: strin
     return null
 }
 
-// TODO: optimize algorithm to select N nearest nodes
 export function getNearestAndRemainingNodes(
     nodes: Node[],
     airports: Airport[],
@@ -118,7 +116,6 @@ export async function queryIndexersWithNearestQuorum(searchParams: LogsearchPara
         throw new Error('Node request error')
     }
 
-    // TODO: add comparing diff node responses when minQuorum > 1
     return responses[0].value
 }
 
