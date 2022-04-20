@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAsync } from 'react-use'
-import { isDashboardPage, CrossIsolationMessages } from '@masknet/shared-base'
+import { CrossIsolationMessages } from '@masknet/shared-base'
 import { makeTypedMessageText } from '@masknet/typed-message'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useAccount, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
@@ -28,7 +28,7 @@ import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 interface FarmPostProps {
     payload: ReferralMetaData
 }
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()(() => ({
     content: {
         background: 'linear-gradient(194.37deg, #0081F9 2.19%, #746AFD 61.94%, #A261FF 95.94%)',
         color: '#FFFFFF',
@@ -48,8 +48,7 @@ export function FarmPost(props: FarmPostProps) {
     const token = payload.referral_token
     const chainId = payload.referral_token_chain_id
 
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
     const web3 = useWeb3({ chainId })
     const account = useAccount()
     const { t } = useI18N()

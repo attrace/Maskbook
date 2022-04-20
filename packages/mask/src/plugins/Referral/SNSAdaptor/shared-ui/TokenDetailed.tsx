@@ -1,10 +1,9 @@
 import { makeStyles } from '@masknet/theme'
-import { isDashboardPage } from '@masknet/shared-base'
 import type { ChainId } from '@masknet/web3-shared-evm'
 import { Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     container: {
         display: 'flex',
         alignItems: 'center',
@@ -39,8 +38,7 @@ export interface TokenDetailedProps extends React.PropsWithChildren<{}> {
 }
 
 export function TokenDetailed({ token }: TokenDetailedProps) {
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     return (
         <div className={classes.container}>

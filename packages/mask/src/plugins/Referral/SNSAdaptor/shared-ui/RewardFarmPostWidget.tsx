@@ -1,13 +1,12 @@
 import type { ReactElement } from 'react'
 import { Typography, Grid } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
-import { isDashboardPage } from '@masknet/shared-base'
 
 import { useI18N } from '../../../../utils'
 import { APR } from '../../constants'
 import type { RewardData } from '../../types'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     dataContainer: {
         flexFlow: 'wrap',
     },
@@ -22,8 +21,7 @@ export interface RewardFarmPostWidgetProps extends React.PropsWithChildren<{}> {
 
 export function RewardFarmPostWidget({ title, icon, rewardData, tokenSymbol }: RewardFarmPostWidgetProps) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     return (
         <Grid container marginTop="24px">

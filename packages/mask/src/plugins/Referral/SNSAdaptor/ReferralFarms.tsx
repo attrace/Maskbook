@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { TabContext, TabPanel } from '@mui/lab'
-import { ChainId, useChainId } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Button, Box, Tab, Tabs, Grid, Typography } from '@mui/material'
 
@@ -11,7 +9,7 @@ import { PageInterface, PagesType, TabsReferralFarms } from '../types'
 import { IconURLs } from '../assets'
 import { useTabStyles } from './styles'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     root: {
         display: 'flex',
         alignItems: 'center',
@@ -87,10 +85,7 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
 
 export function ReferralFarms(props: PageInterface) {
     const { t } = useI18N()
-    const currentChainId = useChainId()
-    const [chainId, setChainId] = useState<ChainId>(currentChainId)
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
     const { classes: tabClasses } = useTabStyles()
 
     const [tab, setTab] = useState<string>(TabsReferralFarms.TOKENS)

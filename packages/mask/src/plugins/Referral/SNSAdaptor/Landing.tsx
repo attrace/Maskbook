@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { Trans } from 'react-i18next'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Typography, Button, Grid, Box } from '@mui/material'
 
@@ -9,7 +8,7 @@ import { PageInterface, PagesType } from '../types'
 
 import { IconURLs } from '../assets'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     wrapper: {
         padding: theme.spacing(3, 0, 3),
         fontSize: '16px',
@@ -49,8 +48,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export function Landing(props: PageInterface) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     const onClickContinue = useCallback(async () => {
         props.continue(PagesType.LANDING, PagesType.REFERRAL_FARMS)

@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
 import { DialogContent } from '@mui/material'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 
 import { PageHistory, PagesType, DialogInterface } from '../types'
@@ -24,62 +23,59 @@ interface ReferralDialogProps {
     onSwapDialogOpen?: () => void
 }
 
-const useStyles = makeStyles<{ isDashboard: boolean; hideBackBtn?: boolean }>()(
-    (theme, { isDashboard, hideBackBtn = false }) => ({
-        walletStatusBox: {
-            width: 535,
-            margin: '24px auto',
+const useStyles = makeStyles<{ hideBackBtn?: boolean }>()((theme, { hideBackBtn = false }) => ({
+    walletStatusBox: {
+        width: 535,
+        margin: '24px auto',
+    },
+    content: {
+        fontFamily: theme.typography.fontFamily,
+        fontWeight: 400,
+        padding: theme.spacing(0, 3, 0),
+    },
+    title: {
+        display: 'flex',
+        justifyContent: 'space-between',
+    },
+    powered: {
+        fontWeight: 400,
+        fontSize: '12px',
+        color: theme.palette.text.secondary,
+        '& svg': {
+            marginLeft: 5,
         },
-        content: {
-            fontFamily: theme.typography.fontFamily,
-            fontWeight: 400,
-            padding: theme.spacing(0, 3, 0),
-        },
-        title: {
-            display: 'flex',
-            justifyContent: 'space-between',
-        },
-        powered: {
-            fontWeight: 400,
-            fontSize: '12px',
-            color: theme.palette.text.secondary,
-            '& svg': {
-                marginLeft: 5,
-            },
-        },
-        dialogTitleTypography: {
-            flex: '1',
-            marginLeft: 0,
-        },
-        dialogTitle: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            minHeight: '60px',
-            padding: theme.spacing(0, 3),
-            fontSize: '19px',
-            lineHeight: '27px',
-            fontWeight: 600,
-        },
-        dialogPaper: {
-            maxWidth: '600px!important',
-            boxShadow: 'none!important',
-            backgroundImage: 'none!important',
-        },
-        dialogCloseButton: {
-            display: hideBackBtn ? 'none' : 'inline-flex',
-            color: theme.palette.text.strong,
-            padding: 0,
-            marginRight: '16px',
-        },
-    }),
-)
+    },
+    dialogTitleTypography: {
+        flex: '1',
+        marginLeft: 0,
+    },
+    dialogTitle: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        minHeight: '60px',
+        padding: theme.spacing(0, 3),
+        fontSize: '19px',
+        lineHeight: '27px',
+        fontWeight: 600,
+    },
+    dialogPaper: {
+        maxWidth: '600px!important',
+        boxShadow: 'none!important',
+        backgroundImage: 'none!important',
+    },
+    dialogCloseButton: {
+        display: hideBackBtn ? 'none' : 'inline-flex',
+        color: theme.palette.text.strong,
+        padding: 0,
+        marginRight: '16px',
+    },
+}))
 
 export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDialogProps) {
     const [propsData, setPropsData] = useState<DialogInterface>()
 
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard, hideBackBtn: propsData?.hideBackBtn })
+    const { classes } = useStyles({ hideBackBtn: propsData?.hideBackBtn })
     const [currentPage, setCurrentPage] = useState<PageHistory>({
         page: PagesType.LANDING,
         title: t('plugin_referral'),

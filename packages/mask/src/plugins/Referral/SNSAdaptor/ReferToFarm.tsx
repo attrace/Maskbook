@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
 import { FungibleTokenDetailed, useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { WalletMessages } from '@masknet/plugin-wallet'
@@ -37,7 +36,7 @@ import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 
 import { useTabStyles, useSharedStyles } from './styles'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     walletStatusBox: {
         width: 535,
         margin: '24px auto',
@@ -87,8 +86,8 @@ export function ReferToFarm(props: PageInterface) {
     )
     const currentIdentity = useCurrentIdentity()
     const senderName = currentIdentity?.identifier.userId ?? currentIdentity?.linkedPersona?.nickname ?? 'Unknown User'
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+
+    const { classes } = useStyles()
     const { classes: tabClasses } = useTabStyles()
     const { classes: sharedClasses } = useSharedStyles()
     const { ERC20 } = useTokenListConstants()

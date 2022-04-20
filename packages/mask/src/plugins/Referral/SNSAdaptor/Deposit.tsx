@@ -1,5 +1,4 @@
 import { useCallback } from 'react'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { Grid, Typography } from '@mui/material'
 
@@ -12,7 +11,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 
 import { useSharedStyles } from './styles'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     container: {
         fontFamily: theme.typography.fontFamily,
         padding: `${theme.spacing(3)} 0`,
@@ -31,8 +30,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export function Deposit(props: DepositDialogInterface | undefined) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
     const { classes: sharedClasses } = useSharedStyles()
 
     const onClickDeposit = useCallback(async () => {

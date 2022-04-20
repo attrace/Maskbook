@@ -11,7 +11,6 @@ import {
     useFungibleTokenBalance,
     useWeb3,
 } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useCompositionContext } from '@masknet/plugin-infra/content-script'
 import { blue } from '@mui/material/colors'
@@ -34,7 +33,7 @@ import { TokenSelectField } from './shared-ui/TokenSelectField'
 
 import { useSharedStyles, useTabStyles } from './styles'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     walletStatusBox: {
         width: 535,
         margin: '24px auto',
@@ -94,8 +93,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export function CreateFarm(props: PageInterface) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
     const { classes: tabClasses } = useTabStyles()
     const { classes: sharedClasses } = useSharedStyles()
     const currentChainId = useChainId()

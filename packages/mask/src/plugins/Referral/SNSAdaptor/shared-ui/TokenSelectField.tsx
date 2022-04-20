@@ -2,13 +2,12 @@ import { useCallback } from 'react'
 import { TextField, InputAdornment } from '@mui/material'
 import { ChevronDown } from 'react-feather'
 import type { EthereumTokenDetailedType, EthereumTokenType } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { TokenIcon } from '@masknet/shared'
 
 import { useI18N } from '../../../../utils'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()(() => ({
     button: {
         width: '100%',
         cursor: 'pointer',
@@ -34,8 +33,7 @@ interface TokenSelectField {
 
 export function TokenSelectField({ label, token, disabled, onClick }: TokenSelectField) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     const handleClick = useCallback(() => {
         if (!disabled) {

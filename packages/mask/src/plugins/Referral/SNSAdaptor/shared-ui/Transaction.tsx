@@ -1,4 +1,3 @@
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 import { resolveTransactionLinkOnExplorer, useChainId } from '@masknet/web3-shared-evm'
 import { Grid, Typography, CircularProgress, Link } from '@mui/material'
@@ -9,7 +8,7 @@ import { TransactionStatus } from '../../types'
 
 import ActionButton from '../../../../extension/options-page/DashboardComponents/ActionButton'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()(() => ({
     confirmation: {
         padding: '44px 60px 40px',
     },
@@ -39,9 +38,8 @@ type TransactionProps =
 
 export function Transaction(props: TransactionProps) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
     const currentChainId = useChainId()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     if (props.status === TransactionStatus.CONFIRMATION) {
         return (

@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAsync } from 'react-use'
 import { FungibleTokenDetailed, useAccount, useChainId, useWeb3, useTokenListConstants } from '@masknet/web3-shared-evm'
-import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles, useCustomSnackbar } from '@masknet/theme'
 import { useRemoteControlledDialog } from '@masknet/shared-base-ui'
 import { Typography, Box, Tab, Tabs, Grid, Divider } from '@mui/material'
@@ -28,7 +27,7 @@ import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 
 import { useTabStyles, useSharedStyles } from './styles'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     container: {
         flex: 1,
         height: '100%',
@@ -56,8 +55,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export function BuyToFarm(props: PageInterface) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
     const { classes: tabClasses } = useTabStyles()
     const { classes: sharedClasses } = useSharedStyles()
     const currentChainId = useChainId()

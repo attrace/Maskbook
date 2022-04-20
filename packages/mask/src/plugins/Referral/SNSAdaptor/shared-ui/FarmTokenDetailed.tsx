@@ -1,5 +1,4 @@
 import { makeStyles } from '@masknet/theme'
-import { isDashboardPage } from '@masknet/shared-base'
 import { Box, Typography } from '@mui/material'
 import { TokenIcon } from '@masknet/shared'
 import type { ChainId } from '@masknet/web3-shared-evm'
@@ -8,7 +7,7 @@ import { useI18N } from '../../../../utils'
 
 import { SponsoredFarmIcon } from './icons/SponsoredFarm'
 
-const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
+const useStyles = makeStyles()((theme) => ({
     tokenDetails: {
         marginLeft: '16px',
         fontWeight: 500,
@@ -50,8 +49,7 @@ export interface FarmTokenDetailedProps extends React.PropsWithChildren<{}> {
 
 export function FarmTokenDetailed({ token, hideFarmTypeIcon = false }: FarmTokenDetailedProps) {
     const { t } = useI18N()
-    const isDashboard = isDashboardPage()
-    const { classes } = useStyles({ isDashboard })
+    const { classes } = useStyles()
 
     return (
         <Box display="flex" alignItems="center">
