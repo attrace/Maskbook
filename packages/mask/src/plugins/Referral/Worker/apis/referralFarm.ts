@@ -223,9 +223,7 @@ export async function harvestRewards(
                     onConfirm(receipt.transactionHash)
                 }
             })
-            .on(TransactionEventType.ERROR, (error: Error) => {
-                onError(error?.message)
-            })
+            .on(TransactionEventType.ERROR, (error: Error) => {})
     } catch (error: any) {
         onError(error?.message)
     }

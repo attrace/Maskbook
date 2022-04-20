@@ -3,7 +3,7 @@ import { ERC20TokenDetailed, useChainId, useNativeTokenDetailed } from '@masknet
 import { Grid, Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-import type { FarmExistsEvent } from '../../types'
+import type { ChainAddress } from '../../types'
 import { toNativeRewardTokenDefn, parseChainAddress } from '../../helpers'
 import { APR } from '../../constants'
 
@@ -44,7 +44,10 @@ const useStyles = makeStyles()((theme) => {
 })
 
 export interface AccordionFarmProps extends React.PropsWithChildren<{}> {
-    farm: FarmExistsEvent
+    farm: {
+        referredTokenDefn: ChainAddress
+        rewardTokenDefn: ChainAddress
+    }
     allTokensMap: Map<string, ERC20TokenDetailed>
     totalValue: number
     accordionDetails: React.ReactElement

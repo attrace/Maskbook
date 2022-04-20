@@ -109,8 +109,16 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
 
     const allTokensMap = new Map(allTokens.map((token) => [token.address.toLowerCase(), token]))
     const farmsMap = new Map(farms.map((farm) => [farm.farmHash, farm]))
-    const entitlementsGrouped = groupBy(entitlements, (entitlement: EntitlementLog) =>
-        entitlement.args.farmHash.toLowerCase(),
+
+    const entitlementsWithFarm = entitlements.map((entitlement) => {
+        const farm = farmsMap.get(entitlement.args.farmHash.toLowerCase())
+        return {
+            ...entitlement,
+            ...farm,
+        }
+    })
+    const entitlementsGroupedByRewardToken = groupBy(entitlementsWithFarm, (entitlement) =>
+        entitlement.rewardTokenDefn?.toLowerCase(),
     )
     const rewardsHarvestedMap = new Map(
         rewardsHarvested.map((rewardHarvested) => [rewardHarvested.leafHash, rewardHarvested.value]),
@@ -190,30 +198,27 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
 
     return (
         <>
-            {Object.entries(entitlementsGrouped).map(([farmHash, entitlements]) => {
-                const farm = farmsMap.get(farmHash)
-
-                if (!farm) return null
-
+            {Object.entries(entitlementsGroupedByRewardToken).map(([rewardTokenDefn, entitlements]) => {
                 const totalRewards = entitlements.reduce(function (accumulator, current) {
                     return accumulator + Number(fromWei(current.args.rewardValue.toString()))
                 }, 0)
-                const farmRewardsHarvested = rewardsHarvested.filter((reward) => reward.farmHash === farmHash)
-                const claimed = farmRewardsHarvested.reduce(function (accumulator, current) {
+                const harvested = rewardsHarvested.filter((reward) => reward.rewardTokenDefn === rewardTokenDefn)
+                const claimed = harvested.reduce(function (accumulator, current) {
                     return accumulator + current.value
                 }, 0)
                 const claimable = totalRewards - claimed
 
                 const nativeRewardToken = toNativeRewardTokenDefn(currentChainId)
                 const rewardToken =
-                    farm.rewardTokenDefn === nativeRewardToken
+                    rewardTokenDefn === nativeRewardToken
                         ? nativeToken
-                        : allTokensMap.get(parseChainAddress(farm.referredTokenDefn).address)
+                        : allTokensMap.get(parseChainAddress(rewardTokenDefn).address)
 
+                // TODO: change when we will support case: rewardTokenDefn !== referredTokenDefn
                 return (
                     <AccordionFarm
                         key={uuid()}
-                        farm={farm}
+                        farm={{ rewardTokenDefn, referredTokenDefn: rewardTokenDefn }}
                         allTokensMap={allTokensMap}
                         totalValue={totalRewards}
                         accordionDetails={
@@ -230,7 +235,7 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
                                         onClickHarvestRewards(
                                             entitlements,
                                             totalRewards,
-                                            farm.rewardTokenDefn,
+                                            rewardTokenDefn,
                                             rewardToken?.symbol,
                                         )
                                     }>
