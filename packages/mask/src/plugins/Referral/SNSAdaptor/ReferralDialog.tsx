@@ -32,6 +32,7 @@ const useStyles = makeStyles<{ hideBackBtn?: boolean }>()((theme, { hideBackBtn 
         fontFamily: theme.typography.fontFamily,
         fontWeight: 400,
         padding: theme.spacing(0, 3, 0),
+        margin: 0,
     },
     title: {
         display: 'flex',
@@ -57,6 +58,7 @@ const useStyles = makeStyles<{ hideBackBtn?: boolean }>()((theme, { hideBackBtn 
         fontSize: '19px',
         lineHeight: '27px',
         fontWeight: 600,
+        margin: 0,
     },
     dialogPaper: {
         maxWidth: '600px!important',

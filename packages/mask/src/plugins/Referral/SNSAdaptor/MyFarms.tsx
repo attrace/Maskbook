@@ -198,8 +198,8 @@ function FarmsList({ entitlements, allTokens, farms, rewardsHarvested, ...props 
                 const totalRewards = entitlements.reduce(function (accumulator, current) {
                     return accumulator + Number(fromWei(current.args.rewardValue.toString()))
                 }, 0)
-                const farmrRewardsHarvested = rewardsHarvested.filter((reward) => reward.farmHash === farmHash)
-                const claimed = farmrRewardsHarvested.reduce(function (accumulator, current) {
+                const farmRewardsHarvested = rewardsHarvested.filter((reward) => reward.farmHash === farmHash)
+                const claimed = farmRewardsHarvested.reduce(function (accumulator, current) {
                     return accumulator + current.value
                 }, 0)
                 const claimable = totalRewards - claimed
