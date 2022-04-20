@@ -19,6 +19,7 @@ export const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000
 
 // TODO: change to Mainnet before mainnet release
 export const supportedChainIds = [ChainId.Rinkeby]
+export const SWAP_CHAIN_ID = ChainId.Mainnet
 export const REFERRAL_FRAMS_V1_ADDR = '0xae450b836C61AcE60e5017f6ba48d468115b349d'
 export const CONFIRMATION_V1_ADDR = '0x28D2C20Dd2A8ad4E299C77Dc722e3bA919BAEE05'
 

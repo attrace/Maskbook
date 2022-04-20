@@ -15,7 +15,7 @@ import { PluginReferralMessages, SelectTokenUpdated } from '../messages'
 import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
 import { toChainAddressEthers, getFarmsRewardData } from '../helpers'
-import { MASK_REFERRER } from '../constants'
+import { MASK_REFERRER, SWAP_CHAIN_ID } from '../constants'
 import { TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons, TabsReferralFarms } from '../types'
 import type { Coin } from '../../Trader/types'
 
@@ -105,6 +105,7 @@ export function BuyToFarm(props: PageInterface) {
         openSwapDialog({
             open: true,
             traderProps: {
+                chainId: SWAP_CHAIN_ID,
                 coin: {
                     id: token?.address,
                     name: token?.name ?? '',

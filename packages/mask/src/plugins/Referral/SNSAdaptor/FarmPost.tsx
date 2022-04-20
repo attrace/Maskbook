@@ -15,7 +15,7 @@ import {
     singAndPostProofOfRecommendationOrigin,
     singAndPostProofOfRecommendationWithReferrer,
 } from '../Worker/apis/proofOfRecommendation'
-import { MASK_REFERRER, META_KEY } from '../constants'
+import { MASK_REFERRER, META_KEY, SWAP_CHAIN_ID } from '../constants'
 import { useI18N } from '../../../utils'
 import { useCurrentIdentity } from '../../../components/DataSource/useActivatedUI'
 import { getFarmsRewardData, getSponsoredFarmsForReferredToken } from '../helpers'
@@ -114,6 +114,7 @@ export function FarmPost(props: FarmPostProps) {
         openSwapDialog({
             open: true,
             traderProps: {
+                chainId: SWAP_CHAIN_ID,
                 coin: {
                     id: payload.referral_token,
                     name: payload.referral_token_name,
