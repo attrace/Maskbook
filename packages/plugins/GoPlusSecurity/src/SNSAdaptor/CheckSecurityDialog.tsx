@@ -54,7 +54,7 @@ export function CheckSecurityDialog(props: BuyTokenDialogProps) {
     return (
         <MaskDialog
             DialogProps={{ classes: { paper: classes.paperRoot } }}
-            title={t.__plugin_name()}
+            title={t.dialog_title()}
             open={open}
             onBack={onClose}>
             <DialogContent className={classes.content}>

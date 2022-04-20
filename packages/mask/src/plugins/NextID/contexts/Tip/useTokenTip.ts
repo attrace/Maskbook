@@ -2,7 +2,6 @@ import { rightShift } from '@masknet/web3-shared-base'
 import {
     EthereumTokenType,
     FungibleTokenDetailed,
-    GasConfig,
     isSameAddress,
     useTokenConstants,
     useTokenTransferCallback,
@@ -10,12 +9,7 @@ import {
 import { useCallback } from 'react'
 import type { TipTuple } from './type'
 
-export function useTokenTip(
-    recipient: string,
-    token: FungibleTokenDetailed | null,
-    amount: string,
-    gasConfig?: GasConfig,
-): TipTuple {
+export function useTokenTip(recipient: string, token: FungibleTokenDetailed | null, amount: string): TipTuple {
     const { NATIVE_TOKEN_ADDRESS } = useTokenConstants()
 
     const isNativeToken = isSameAddress(token?.address, NATIVE_TOKEN_ADDRESS)
@@ -25,8 +19,8 @@ export function useTokenTip(
 
     const sendTip = useCallback(async () => {
         const transferAmount = rightShift(amount || '0', token?.decimals || 0).toFixed()
-        await transferCallback(transferAmount, recipient, gasConfig)
-    }, [amount, token, recipient, transferCallback, gasConfig])
+        await transferCallback(transferAmount, recipient)
+    }, [amount, token, recipient, transferCallback])
 
     return [transferState, sendTip]
 }

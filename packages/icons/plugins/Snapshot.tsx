@@ -9,5 +9,5 @@ export const SnapshotIcon: typeof SvgIcon = createIcon(
             fill="#FF9F0A"
         />
     </g>,
-    '-4 -4 36 36',
+    '0 0 28 28',
 )

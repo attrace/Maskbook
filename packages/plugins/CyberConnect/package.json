@@ -12,7 +12,6 @@
     "@masknet/plugin-infra": "workspace:*",
     "@masknet/theme": "workspace:*",
     "@masknet/web3-shared-evm": "workspace:*",
-    "@masknet/icons": "workspace:*",
     "@masknet/shared-base": "workspace:*",
     "@masknet/typed-message": "workspace:*",
     "@cyberlab/cyberconnect": "^4.2.2",

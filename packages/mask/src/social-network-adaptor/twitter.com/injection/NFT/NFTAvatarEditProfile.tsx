@@ -28,13 +28,12 @@ const useStyles = makeStyles<StyleProps>()((theme, props) => ({
     },
 }))
 
-export function openNFTAvatarSettingDialog() {
-    const editDom = searchEditProfileSelector().evaluate()
-    editDom?.click()
-}
-
 function OpenNFTAvatarEditProfileButtonInTwitter() {
     const [style, setStyle] = useState<StyleProps>({ minHeight: 32, fontSize: 14, marginBottom: 11 })
+    const onClick = () => {
+        const editDom = searchEditProfileSelector().evaluate()
+        editDom?.click()
+    }
 
     const setStyleFromEditProfileSelector = () => {
         const editDom = searchEditProfileSelector().evaluate()
@@ -52,5 +51,5 @@ function OpenNFTAvatarEditProfileButtonInTwitter() {
     useLocationChange(() => setStyleFromEditProfileSelector())
 
     const { classes } = useStyles(style)
-    return <NFTAvatarButton classes={{ root: classes.root }} onClick={openNFTAvatarSettingDialog} />
+    return <NFTAvatarButton classes={{ root: classes.root }} onClick={onClick} />
 }

@@ -12,6 +12,7 @@ const Welcome = lazy(() => import('./Welcome'))
 const Personas = lazy(() => import('./Personas'))
 const Settings = lazy(() => import('./Settings'))
 const CreateWallet = lazy(() => import('./CreateMaskWallet'))
+const Labs = lazy(() => import('./Labs'))
 
 export function Pages() {
     return (
@@ -32,6 +33,7 @@ export function Pages() {
                 <Route path={DashboardRoutes.Personas} element={frame(<Personas />)} />
                 <Route path={`${DashboardRoutes.Wallets}/*`} element={frame(<Wallets />)} />
                 <Route path={DashboardRoutes.Settings} element={frame(<Settings />)} />
+                <Route path={DashboardRoutes.Labs} element={frame(<Labs />)} />
                 <Route path={`${DashboardRoutes.CreateMaskWallet}/*`} element={<CreateWallet />} />
                 <Route path="*" element={<Navigate to={DashboardRoutes.Personas} />} />
             </Routes>

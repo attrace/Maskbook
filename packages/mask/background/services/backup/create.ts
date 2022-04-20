@@ -1,3 +1,4 @@
+import type { PersonaIdentifier } from '@masknet/shared-base'
 import { BackupPreview, generateBackupRAW, getBackupPreviewInfo } from '@masknet/backup-format'
 import { createNewBackup } from './internal_create'
 
@@ -17,6 +18,15 @@ export async function mobile_generateBackupJSON(options: MobileBackupOptions): P
         noPosts,
         noProfiles,
         noWallets,
+    })
+    return generateBackupRAW(backup)
+}
+export async function mobile_generateBackupJSONOnlyForPersona(persona: PersonaIdentifier): Promise<unknown> {
+    if (process.env.architecture !== 'app') throw new TypeError('This function is only available in app environment')
+    const backup = await createNewBackup({
+        noPosts: true,
+        noWallets: true,
+        onlyForPersona: persona,
     })
     return generateBackupRAW(backup)
 }
