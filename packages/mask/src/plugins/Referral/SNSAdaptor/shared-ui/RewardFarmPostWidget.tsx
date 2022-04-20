@@ -1,12 +1,11 @@
+import type { ReactElement } from 'react'
 import { Typography, Grid } from '@mui/material'
 import { makeStyles } from '@masknet/theme'
 import { isDashboardPage } from '@masknet/shared-base'
 
 import { useI18N } from '../../../../utils'
 import { APR } from '../../constants'
-import type { Icons, RewardData } from '../../types'
-
-import { SvgIcons } from '../Icons'
+import type { RewardData } from '../../types'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     dataContainer: {
@@ -16,7 +15,7 @@ const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }
 
 export interface RewardFarmPostWidgetProps extends React.PropsWithChildren<{}> {
     title?: string
-    icon?: Icons
+    icon?: ReactElement
     rewardData?: RewardData
     tokenSymbol?: string
 }
@@ -30,7 +29,7 @@ export function RewardFarmPostWidget({ title, icon, rewardData, tokenSymbol }: R
         <Grid container marginTop="24px">
             {title && (
                 <Grid item xs={12} container marginBottom="12px" alignItems="center">
-                    <SvgIcons icon={icon} />
+                    {icon && icon}
                     <Grid item paddingX={1}>
                         <Typography fontWeight={600}>{title}</Typography>
                     </Grid>

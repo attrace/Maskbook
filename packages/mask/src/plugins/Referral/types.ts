@@ -54,16 +54,6 @@ export interface ReferralMetaData {
     sender: string
 }
 
-// TODO: add new approach to render svg
-export enum Icons {
-    ReferralIcon = 0,
-    SponsoredFarmIcon = 1,
-    ReferToFarm = 2,
-    CreateFarm = 3,
-    BuyToFarm = 4,
-    RewardIcon = 5,
-    AttrTextIcon = 6,
-}
 export interface RewardData {
     apr: number
     dailyReward: number

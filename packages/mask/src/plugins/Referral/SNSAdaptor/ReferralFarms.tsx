@@ -6,10 +6,9 @@ import { makeStyles } from '@masknet/theme'
 import { Button, Box, Tab, Tabs, Grid, Typography } from '@mui/material'
 
 import { useI18N } from '../../../utils'
-import { Icons, PageInterface, PagesType, TabsReferralFarms } from '../types'
+import { PageInterface, PagesType, TabsReferralFarms } from '../types'
 
-import { SvgIcons } from './Icons'
-
+import { IconURLs } from '../assets'
 import { useTabStyles } from './styles'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
@@ -63,7 +62,7 @@ const useStylesType = makeStyles()((theme) => ({
 interface TypeProps {
     name: string
     onClick?: () => void
-    iconUrl: Icons
+    iconUrl: string
 }
 export function Type({ name, onClick, iconUrl }: TypeProps) {
     const { classes } = useStylesType()
@@ -76,7 +75,7 @@ export function Type({ name, onClick, iconUrl }: TypeProps) {
                 }}
                 className={classes.root}>
                 <Grid>
-                    <SvgIcons icon={iconUrl} size={40} />
+                    <img src={iconUrl} />
                     <Typography fontWeight={400} className={classes.name}>
                         {name}
                     </Typography>
@@ -102,21 +101,21 @@ export function ReferralFarms(props: PageInterface) {
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.REFER_TO_FARM, tab + ': ' + PagesType.REFER_TO_FARM)
             },
-            iconUrl: Icons.ReferToFarm,
+            iconUrl: IconURLs.referToFarm,
         },
         {
             name: t('plugin_referral_buy_to_farm'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.BUY_TO_FARM, tab + ': ' + PagesType.BUY_TO_FARM)
             },
-            iconUrl: Icons.BuyToFarm,
+            iconUrl: IconURLs.buyToFarm,
         },
         {
             name: t('plugin_referral_create_farms'),
             onClick: () => {
                 props.continue(PagesType.REFERRAL_FARMS, PagesType.CREATE_FARM, tab + ': ' + PagesType.CREATE_FARM)
             },
-            iconUrl: Icons.CreateFarm,
+            iconUrl: IconURLs.createFarm,
         },
     ]
 

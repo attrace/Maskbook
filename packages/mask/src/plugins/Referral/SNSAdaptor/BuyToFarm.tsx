@@ -16,7 +16,7 @@ import { PluginTraderMessages } from '../../Trader/messages'
 import { getAllFarms } from '../Worker/apis/farms'
 import { toChainAddressEthers, getFarmsRewardData } from '../helpers'
 import { MASK_REFERRER, SWAP_CHAIN_ID } from '../constants'
-import { TabsCreateFarm, TransactionStatus, PageInterface, PagesType, Icons, TabsReferralFarms } from '../types'
+import { TabsCreateFarm, TransactionStatus, PageInterface, PagesType, TabsReferralFarms } from '../types'
 import type { Coin } from '../../Trader/types'
 
 import ActionButton from '../../../extension/options-page/DashboardComponents/ActionButton'
@@ -24,7 +24,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
-import { SvgIcons } from './Icons'
+import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 
 import { useTabStyles, useSharedStyles } from './styles'
 
@@ -189,7 +189,7 @@ export function BuyToFarm(props: PageInterface) {
                         ) : (
                             <RewardDataWidget
                                 title={t('plugin_referral_sponsored_farm')}
-                                icon={Icons.SponsoredFarmIcon}
+                                icon={<SponsoredFarmIcon />}
                                 rewardData={rewardData}
                                 tokenSymbol={token?.symbol}
                             />
@@ -197,7 +197,7 @@ export function BuyToFarm(props: PageInterface) {
                         <Grid item xs={12} display="flex-col" alignItems="center" className={classes.typeNote}>
                             <Divider />
                             <Box marginTop="20px" display="flex" alignItems="center">
-                                <SvgIcons icon={Icons.SponsoredFarmIcon} />
+                                <SponsoredFarmIcon />
                                 <b>{t('plugin_referral_sponsored_farm')}</b>
                                 {t('plugin_referral_sponsored_farm_detail')}
                             </Box>

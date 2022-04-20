@@ -3,7 +3,7 @@ import { DialogContent } from '@mui/material'
 import { isDashboardPage } from '@masknet/shared-base'
 import { makeStyles } from '@masknet/theme'
 
-import { Icons, PageHistory, PagesType, DialogInterface } from '../types'
+import { PageHistory, PagesType, DialogInterface } from '../types'
 import { useI18N } from '../../../utils'
 
 import { InjectedDialog } from '@masknet/shared'
@@ -16,7 +16,7 @@ import { BuyToFarm } from './BuyToFarm'
 import { AdjustFarmRewards } from './AdjustFarmRewards'
 import { Transaction } from './Transaction'
 import { Deposit } from './Deposit'
-import { SvgIcons } from './Icons'
+import { AttraceLogoText } from './shared-ui/icons/AttraceLogoText'
 
 interface ReferralDialogProps {
     open: boolean
@@ -183,7 +183,7 @@ export function ReferralDialog({ open, onClose, onSwapDialogOpen }: ReferralDial
                         {currentTitle}
                         <span className={classes.powered}>
                             {t('plugin_referral_powered_by')}
-                            <SvgIcons icon={Icons.AttrTextIcon} />
+                            <AttraceLogoText />
                         </span>
                     </span>
                 )

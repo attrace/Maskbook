@@ -5,9 +5,8 @@ import { TokenIcon } from '@masknet/shared'
 import type { ChainId } from '@masknet/web3-shared-evm'
 
 import { useI18N } from '../../../../utils'
-import { Icons } from '../../types'
 
-import { SvgIcons } from '../Icons'
+import { SponsoredFarmIcon } from './icons/SponsoredFarm'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     tokenDetails: {
@@ -62,7 +61,7 @@ export function FarmTokenDetailed({ token, hideFarmTypeIcon = false }: FarmToken
                     <Box display="flex" flexDirection="column" className={classes.tokenDetails}>
                         <Typography display="flex" alignItems="center" className={classes.farmName} fontWeight="500">
                             {token.symbol} {t('plugin_referral_referral_farm')}{' '}
-                            {!hideFarmTypeIcon && <SvgIcons icon={Icons.SponsoredFarmIcon} />}
+                            {!hideFarmTypeIcon && <SponsoredFarmIcon />}
                         </Typography>
                         <Typography className={classes.tokenName}>{token.name}</Typography>
                     </Box>

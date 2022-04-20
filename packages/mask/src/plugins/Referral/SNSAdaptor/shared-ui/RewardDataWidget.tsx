@@ -1,14 +1,13 @@
+import type { ReactElement } from 'react'
 import { Typography, Grid } from '@mui/material'
 
 import { useI18N } from '../../../../utils'
 import { APR } from '../../constants'
-import type { Icons, RewardData } from '../../types'
-
-import { SvgIcons } from '../Icons'
+import type { RewardData } from '../../types'
 
 export interface RewardDataWidgetWidgetProps extends React.PropsWithChildren<{}> {
     title?: string
-    icon?: Icons
+    icon?: ReactElement
     rewardData?: RewardData
     tokenSymbol?: string
 }
@@ -20,7 +19,7 @@ export function RewardDataWidget({ title, icon, rewardData, tokenSymbol }: Rewar
         <Grid container marginTop="24px">
             {title && (
                 <Grid item xs={12} container marginBottom="12px" alignItems="center">
-                    <SvgIcons icon={icon} />
+                    {icon && icon}
                     <Grid item paddingX={1}>
                         <Typography fontWeight={600}>{title}</Typography>
                     </Grid>

@@ -5,9 +5,9 @@ import { makeStyles } from '@masknet/theme'
 import { Typography, Button, Grid, Box } from '@mui/material'
 
 import { useI18N } from '../../../utils'
-import { Icons, PageInterface, PagesType } from '../types'
+import { PageInterface, PagesType } from '../types'
 
-import { SvgIcons } from './Icons'
+import { IconURLs } from '../assets'
 
 const useStyles = makeStyles<{ isDashboard: boolean }>()((theme, { isDashboard }) => ({
     wrapper: {
@@ -60,17 +60,17 @@ export function Landing(props: PageInterface) {
         {
             name: t('plugin_referral_refer_to_farm'),
             desc: t('plugin_referral_refer_to_farm_desc'),
-            iconUrl: Icons.ReferToFarm,
+            iconUrl: IconURLs.referToFarm,
         },
         {
             name: t('plugin_referral_buy_to_farm'),
             desc: t('plugin_referral_buy_to_farm_desc'),
-            iconUrl: Icons.BuyToFarm,
+            iconUrl: IconURLs.buyToFarm,
         },
         {
             name: t('plugin_referral_create_farms'),
             desc: t('plugin_referral_create_farms_desc'),
-            iconUrl: Icons.CreateFarm,
+            iconUrl: IconURLs.createFarm,
         },
         {
             desc: (
@@ -81,7 +81,7 @@ export function Landing(props: PageInterface) {
                     }}
                 />
             ),
-            iconUrl: Icons.RewardIcon,
+            iconUrl: IconURLs.rewards,
         },
     ]
 
@@ -89,7 +89,7 @@ export function Landing(props: PageInterface) {
         <div className={classes.wrapper}>
             <Grid container className={classes.heading} display="flex" justifyContent="center">
                 <Grid item xs={12} display="flex" justifyContent="center">
-                    <SvgIcons icon={Icons.ReferralIcon} size={60} />
+                    <img src={IconURLs.referral} />
                 </Grid>
                 <Typography variant="h6" textAlign="center" fontWeight={400}>
                     <b>{t('plugin_referral_referral_farming')}</b>
@@ -111,7 +111,7 @@ export function Landing(props: PageInterface) {
                             justifyItems="flex-start"
                             className={classes.dataItem}>
                             <Box className={classes.icon}>
-                                <SvgIcons icon={e.iconUrl} />
+                                <img src={e.iconUrl} alt={e.name} />
                             </Box>
                             <Typography>
                                 <b>{e.name}</b> {e.name && '-'} {e.desc}

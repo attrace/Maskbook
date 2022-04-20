@@ -6,10 +6,10 @@ import type { MaskSearchableListItemProps } from '@masknet/theme'
 import { makeStyles } from '@masknet/theme'
 import { some } from 'lodash-unified'
 import { useMemo } from 'react'
-import { Icons, ChainAddress } from '../../types'
+import type { ChainAddress } from '../../types'
 import { toChainAddressEthers } from '../../helpers'
-import { SvgIcons } from '../Icons'
 import { APR } from '../../constants'
+import { SponsoredFarmIcon } from './icons/SponsoredFarm'
 
 const useStyles = makeStyles()((theme) => ({
     icon: {
@@ -132,7 +132,7 @@ export const getERC20TokenListItem =
                             <span className={classes.symbol}>{symbol}</span>{' '}
                             {tokenHasFarm && (
                                 <Box className={classes.typeIcon}>
-                                    <SvgIcons icon={Icons.SponsoredFarmIcon} size={16} />
+                                    <SponsoredFarmIcon />
                                 </Box>
                             )}
                         </div>

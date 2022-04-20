@@ -25,7 +25,6 @@ import {
     TransactionStatus,
     PageInterface,
     PagesType,
-    Icons,
     TabsReferralFarms,
 } from '../types'
 
@@ -34,7 +33,7 @@ import { EthereumChainBoundary } from '../../../web3/UI/EthereumChainBoundary'
 import { MyFarms } from './MyFarms'
 import { TokenSelectField } from './shared-ui/TokenSelectField'
 import { RewardDataWidget } from './shared-ui/RewardDataWidget'
-import { SvgIcons } from './Icons'
+import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 
 import { useTabStyles, useSharedStyles } from './styles'
 
@@ -184,7 +183,7 @@ export function ReferToFarm(props: PageInterface) {
         {
             title: t('plugin_referral_sponsored_referral_farm'),
             desc: t('plugin_referral_sponsored_referral_farm_desc'),
-            icon: <SvgIcons size={16} icon={Icons.SponsoredFarmIcon} />,
+            icon: <SponsoredFarmIcon />,
         },
     ]
     const sponsoredFarms = getSponsoredFarmsForReferredToken(token?.chainId, token?.address, farms)
@@ -219,7 +218,7 @@ export function ReferToFarm(props: PageInterface) {
                         {sponsoredFarms?.length ? (
                             <RewardDataWidget
                                 title={t('plugin_referral_sponsored_referral_farm')}
-                                icon={Icons.SponsoredFarmIcon}
+                                icon={<SponsoredFarmIcon />}
                                 rewardData={getFarmsRewardData(sponsoredFarms)}
                                 tokenSymbol={token?.symbol}
                             />

@@ -9,7 +9,7 @@ import { TokenIcon } from '@masknet/shared'
 import { Button, Card, Grid, Typography, Box } from '@mui/material'
 import { usePluginWrapper } from '@masknet/plugin-infra/content-script'
 
-import { Icons, ReferralMetaData } from '../types'
+import type { ReferralMetaData } from '../types'
 import type { Coin } from '../../Trader/types'
 import {
     singAndPostProofOfRecommendationOrigin,
@@ -23,6 +23,7 @@ import { getAllFarms } from '../Worker/apis/farms'
 import { PluginTraderMessages } from '../../Trader/messages'
 
 import { RewardFarmPostWidget } from './shared-ui/RewardFarmPostWidget'
+import { SponsoredFarmIcon } from './shared-ui/icons/SponsoredFarm'
 
 interface FarmPostProps {
     payload: ReferralMetaData
@@ -158,7 +159,7 @@ export function FarmPost(props: FarmPostProps) {
                 {sponsoredFarms?.length ? (
                     <RewardFarmPostWidget
                         title={t('plugin_referral_sponsored_referral_farm')}
-                        icon={Icons.SponsoredFarmIcon}
+                        icon={<SponsoredFarmIcon />}
                         rewardData={getFarmsRewardData(sponsoredFarms)}
                         tokenSymbol={payload.referral_token_symbol}
                     />

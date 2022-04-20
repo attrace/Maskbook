@@ -39,7 +39,7 @@ const sns: Plugin.SNSAdaptor.Definition = {
                         <ApplicationEntry
                             disabled={disabled}
                             title="Referral Farms"
-                            icon={new URL('../assets/referral.png', import.meta.url).toString()}
+                            icon={new URL('../assets/images/referral.png', import.meta.url).toString()}
                             onClick={() =>
                                 CrossIsolationMessages.events.requestComposition.sendToLocal({
                                     reason: 'timeline',
