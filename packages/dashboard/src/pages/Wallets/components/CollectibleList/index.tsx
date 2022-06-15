@@ -44,7 +44,11 @@ interface CollectibleListProps {
 export const CollectibleList = memo<CollectibleListProps>(({ selectedChain }) => {
     const navigate = useNavigate()
     const account = useAccount()
-    const trustedNonFungibleTokens = useTrustedNonFungibleTokens()
+    const trustedNonFungibleTokens = useTrustedNonFungibleTokens(
+        NetworkPluginID.PLUGIN_EVM,
+        undefined,
+        selectedChain?.chainId as ChainId,
+    )
 
     const {
         value = EMPTY_LIST,
@@ -57,9 +61,7 @@ export const CollectibleList = memo<CollectibleListProps>(({ selectedChain }) =>
     })
 
     const renderCollectibles = useMemo(() => {
-        const trustedOwnNonFungibleTokens = trustedNonFungibleTokens.filter((x) =>
-            isSameAddress(x.contract?.owner, account),
-        )
+        const trustedOwnNonFungibleTokens = trustedNonFungibleTokens.filter((x) => isSameAddress(x.ownerId, account))
         return uniqBy(
             [...trustedOwnNonFungibleTokens, ...value],
             (x) => x?.contract?.address.toLowerCase() + x?.tokenId,
@@ -83,7 +85,7 @@ export const CollectibleList = memo<CollectibleListProps>(({ selectedChain }) =>
             navigate(DashboardRoutes.WalletsTransfer, {
                 state: {
                     type: TransferTab.Collectibles,
-                    erc721Token: detail,
+                    nonFungibleToken: detail,
                 },
             })
         },
@@ -146,12 +148,7 @@ export const CollectibleListUI = memo<CollectibleListUIProps>(
                             <div className={classes.root}>
                                 {dataSource.map((x, index) => (
                                     <div className={classes.card} key={index}>
-                                        <CollectibleCard
-                                            token={x}
-                                            renderOrder={index}
-                                            // TODO: transfer not support multi chain, should remove is after supported
-                                            onSend={() => onSend(x as unknown as any)}
-                                        />
+                                        <CollectibleCard token={x} renderOrder={index} onSend={() => onSend(x)} />
                                     </div>
                                 ))}
                             </div>

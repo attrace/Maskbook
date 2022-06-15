@@ -118,7 +118,10 @@ export function NFTListDialog(props: NFTListDialogProps) {
         done: loadFinish,
         next: nextPage,
         error: loadError,
-    } = useNonFungibleAssets(selectedPluginId, undefined, { chainId, account: selectedAccount })
+    } = useNonFungibleAssets(selectedPluginId, undefined, {
+        chainId,
+        account: selectedAccount,
+    })
 
     const { showSnackbar } = useCustomSnackbar()
     const onChangeWallet = (address: string, pluginId: NetworkPluginID, chainId: ChainId) => {
@@ -168,10 +171,18 @@ export function NFTListDialog(props: NFTListDialogProps) {
         setDisabled(!selectedToken || isSameToken(selectedToken, tokenInfo))
     }, [selectedToken, tokenInfo])
 
+    useEffect(() => {
+        setSelectedPluginId(currentPluginId)
+    }, [currentPluginId])
+
+    useEffect(() => {
+        setChainId(currentChainId as ChainId)
+    }, [currentChainId])
+
     useEffect(() => setSelectedAccount(account || wallets?.[0]?.identity || ''), [account, wallets])
 
     const onAddClick = (token: AllChainsNonFungibleToken) => {
-        setTokens((_tokens) => uniqBy([..._tokens, token], (x) => x.contract?.address && x.tokenId))
+        setTokens((_tokens) => uniqBy([..._tokens, token], (x) => x.contract?.address.toLowerCase() + x.tokenId))
     }
 
     const onChangeChain = (chainId: ChainId) => {
@@ -223,7 +234,9 @@ export function NFTListDialog(props: NFTListDialogProps) {
 
     const tokensInList = uniqBy(
         [...tokens, ...collectibles],
-        selectedPluginId === NetworkPluginID.PLUGIN_SOLANA ? (x) => x.tokenId : (x) => x.contract?.address && x.tokenId,
+        selectedPluginId === NetworkPluginID.PLUGIN_SOLANA
+            ? (x) => x.tokenId
+            : (x) => x.contract?.address.toLowerCase() + x.tokenId,
     )
 
     const NoNFTList = () => {

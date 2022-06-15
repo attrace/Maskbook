@@ -75,17 +75,17 @@ export const Assets = memo<TokenAssetsProps>(({ network }) => {
                                     <Tab key={key} value={key} label={assetTabsLabel[key]} />
                                 ))}
                         </TabList>
-                        {pluginId === NetworkPluginID.PLUGIN_EVM && (
+                        {pluginId === NetworkPluginID.PLUGIN_EVM && network && (
                             <Button
                                 size="small"
                                 color="secondary"
                                 className={classes.addCustomTokenButton}
                                 onClick={async () => {
                                     if (currentTab === AssetTab.Token) {
-                                        // TODO handle result
                                         await pickToken({
                                             whitelist: [],
                                             title: t.wallets_add_token(),
+                                            chainId: network?.chainId,
                                         })
                                     } else {
                                         setAddCollectibleOpen(true)
@@ -109,7 +109,9 @@ export const Assets = memo<TokenAssetsProps>(({ network }) => {
                     </TabPanel>
                 </TabContext>
             </ContentContainer>
-            {addCollectibleOpen && <AddCollectibleDialog open onClose={() => setAddCollectibleOpen(false)} />}
+            {addCollectibleOpen && network && (
+                <AddCollectibleDialog selectedNetwork={network} open onClose={() => setAddCollectibleOpen(false)} />
+            )}
         </>
     )
 })
