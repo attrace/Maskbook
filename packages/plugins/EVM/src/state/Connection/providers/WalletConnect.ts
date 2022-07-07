@@ -4,7 +4,7 @@ import type { RequestArguments } from 'web3-core'
 import { defer } from '@dimensiondev/kit'
 import WalletConnect from '@walletconnect/client'
 import type { ITxData } from '@walletconnect/types'
-import { ChainId, chainResolver, EthereumMethodType, ProviderType } from '@masknet/web3-shared-evm'
+import { ChainId, chainResolver, EthereumMethodType, isValidAddress, ProviderType } from '@masknet/web3-shared-evm'
 import { BaseProvider } from './Base'
 import type { EVM_Provider } from '../types'
 import type { Account } from '@masknet/web3-shared-base'
@@ -116,19 +116,35 @@ export default class WalletConnectProvider extends BaseProvider implements EVM_P
         this.connection.reject(error || new Error('User rejected'))
     }
 
-    private async login(chainId?: ChainId) {
+    private async login(expectedChainId?: ChainId) {
         // delay to return the result until session is updated or connected
         const [deferred, resolve, reject] = defer<Account<ChainId>>()
 
         this.connector = this.createConnector()
 
-        await this.connector.createSession({
-            chainId,
-        })
-
         this.connection = {
             resolve,
             reject,
+        }
+
+        if (this.connector.connected) {
+            const { chainId: actualChainId, accounts } = this.connector
+            const account = first(accounts)
+            if (actualChainId !== 0 && actualChainId === expectedChainId && account && isValidAddress(account)) {
+                this.connection.resolve({
+                    chainId: actualChainId,
+                    account,
+                })
+            } else {
+                await this.logoutClientSide()
+                await this.connector.createSession({
+                    chainId: expectedChainId,
+                })
+            }
+        } else {
+            await this.connector.createSession({
+                chainId: expectedChainId,
+            })
         }
 
         return deferred.finally(() => {
@@ -137,7 +153,27 @@ export default class WalletConnectProvider extends BaseProvider implements EVM_P
     }
 
     private async logout() {
-        await this.connector.killSession()
+        await this.logoutClientSide(true)
+    }
+
+    private async logoutClientSide(force = false) {
+        try {
+            await this.connector.killSession()
+        } catch {
+            window.localStorage.removeItem('walletconnect')
+
+            // force to clean client state
+            if (force) {
+                this.onDisconnect(new Error('disconnect'), {
+                    event: 'disconnect',
+                    params: [
+                        {
+                            message: 'disconnect',
+                        },
+                    ],
+                })
+            }
+        }
     }
 
     override request<T extends unknown>(requestArguments: RequestArguments): Promise<T> {

@@ -61,6 +61,9 @@ const useStyles = makeStyles<{ hideBackBtn?: boolean }>()((theme, { hideBackBtn 
         lineHeight: '27px',
         fontWeight: 600,
         margin: 0,
+        ['& > p']: {
+            flex: 1,
+        },
     },
     dialog: {
         maxWidth: 600,
@@ -161,8 +164,9 @@ export function ReferralDialog({ open, onClose }: ReferralDialogProps) {
     return (
         <InjectedDialog
             open={open}
+            isOnBack={currentPage.page !== PagesType.LANDING}
             onClose={onHandleClose}
-            titleBarIconStyle="close"
+            titleBarIconStyle="back"
             title={
                 propsData?.hideAttrLogo ? (
                     currentTitle

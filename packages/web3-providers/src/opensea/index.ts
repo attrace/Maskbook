@@ -32,10 +32,9 @@ import type {
 import { getOrderUSDPrice, toImage } from './utils'
 import { OPENSEA_ACCOUNT_URL, OPENSEA_API_URL } from './constants'
 
-async function fetchFromOpenSea<T>(url: string, chainId: ChainId, apiKey?: string) {
+async function fetchFromOpenSea<T>(url: string, chainId: ChainId) {
     if (![ChainId.Mainnet, ChainId.Rinkeby, ChainId.Matic].includes(chainId)) return
     const fetch = globalThis.r2d2Fetch ?? globalThis.fetch
-
     const response = await fetch(urlcat(OPENSEA_API_URL, url), { method: 'GET' })
     if (response.ok) {
         return (await response.json()) as T
@@ -123,8 +122,8 @@ function createNFTAsset(chainId: ChainId, asset: OpenSeaResponse): NonFungibleAs
     )
     return {
         ...createNFTToken(chainId, asset),
-        link: asset.opensea_link,
-        payment_tokens: orderTokens.concat(offerTokens),
+        link: asset.opensea_link ?? asset.permalink,
+        paymentTokens: orderTokens.concat(offerTokens),
         auction: isAfter(Date.parse(`${asset.endTime ?? ''}Z`), Date.now())
             ? {
                   endAt: getUnixTime(new Date(asset.endTime)),
@@ -148,6 +147,13 @@ function createNFTAsset(chainId: ChainId, asset: OpenSeaResponse): NonFungibleAs
             type: x.trait_type,
             value: x.value,
         })),
+        price: {
+            [CurrencyType.USD]: getOrderUSDPrice(
+                asset.last_sale?.total_price,
+                asset.last_sale?.payment_token.usd_price,
+                asset.last_sale?.payment_token.decimals,
+            )?.toString(),
+        },
         orders: asset.orders
             ?.sort((a, z) =>
                 new BigNumber(getOrderUSDPrice(z.current_price, z.payment_token_contract?.usd_price) ?? 0)
@@ -282,16 +288,11 @@ function createAssetOrder(chainId: ChainId, order: OpenSeaAssetOrder): NonFungib
 }
 
 export class OpenSeaAPI implements NonFungibleTokenAPI.Provider<ChainId, SchemaType> {
-    private readonly _apiKey
-    constructor(apiKey?: string) {
-        this._apiKey = apiKey
-    }
     async getAsset(address: string, tokenId: string, { chainId = ChainId.Mainnet }: HubOptions<ChainId> = {}) {
         const response = await fetchFromOpenSea<OpenSeaResponse>(
             urlcat('/api/v1/asset/:address/:tokenId', { address, tokenId }),
             chainId,
         )
-
         if (!response) return
         return createNFTAsset(chainId, response)
     }
@@ -306,7 +307,6 @@ export class OpenSeaAPI implements NonFungibleTokenAPI.Provider<ChainId, SchemaT
                 limit: size,
             }),
             chainId,
-            this._apiKey,
         )
 
         const tokens = (response?.assets ?? [])
@@ -399,7 +399,6 @@ export class OpenSeaAPI implements NonFungibleTokenAPI.Provider<ChainId, SchemaT
                 limit: size,
             }),
             chainId,
-            this._apiKey,
         )
         if (!response) return createPageable([], createIndicator(indicator))
 

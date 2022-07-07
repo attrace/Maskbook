@@ -59,7 +59,10 @@ export interface AssetEvent {
     total_price: string
     payment_token: {
         decimals: number
+        symbol: string
+        usd_price: string
     }
+    quantity: string
 }
 
 export interface OpenSeaAssetContract extends OpenSeaFees {
@@ -166,6 +169,7 @@ export interface OpenSeaResponse extends Asset {
     }>
     creator: OpenSeaCustomAccount
     endTime: string
+    permalink: string
 }
 
 interface Transaction {
